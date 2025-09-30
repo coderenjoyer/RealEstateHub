@@ -6,10 +6,11 @@ export function Header() {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <div className="w-4 h-4 bg-white rounded-sm"></div>
-            </div>
-            <span className="text-xl font-semibold text-foreground">AzureConnect</span>
+            <img 
+              src="/azure-nobg.png" 
+              alt="AzureConnect" 
+              className="h-12 w-auto"
+            />
           </div>
 
           <nav className="hidden md:flex items-center gap-8">

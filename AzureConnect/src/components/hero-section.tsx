@@ -7,7 +7,7 @@ export function HeroSection() {
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('/dramatic-upward-view-of-modern-skyscrapers-against.jpg')`,
+          backgroundImage: `url('/upward-skyp.png')`,
         }}
       ></div>
       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
