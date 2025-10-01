@@ -5,10 +5,12 @@ import { WhyChooseSection } from "./components/landing/why-choose-section"
 import { ReviewsSection } from "./components/landing/reviews-section"
 import { CTASection } from "./components/landing/cta-section"
 import { Footer } from "./components/landing/footer"
+import LoginModal from "./components/login/login_modal"
 
 function App() {
   return (
     <main className="min-h-screen">
+      <LoginModal />
       <Header />
       <HeroSection />
       <ServicesSection />
