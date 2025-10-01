@@ -1,6 +1,8 @@
 import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
 
 export function Header() {
+  const navigate = useNavigate();
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border">
       <div className="container mx-auto px-6 py-4">
@@ -40,7 +42,7 @@ export function Header() {
             </a>
           </nav>
 
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => navigate('/login')}>
             Get Started
           </Button>
         </div>

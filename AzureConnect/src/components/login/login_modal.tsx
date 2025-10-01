@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 type TabKey = "signup" | "signin";
 
 const LoginModal: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabKey>("signup");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -54,6 +56,7 @@ const LoginModal: React.FC = () => {
         <button
           aria-label="Close"
           className="grid size-9 place-items-center rounded-full bg-white/40 text-[#436a86] transition hover:bg-white/60"
+          onClick={() => navigate('/')}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
