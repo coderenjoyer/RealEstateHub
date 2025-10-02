@@ -7,6 +7,11 @@ import { CTASection } from "./components/landing/cta-section"
 import { Footer } from "./components/landing/footer"
 import LoginParentContainer from "./components/login/login_parent_container"
 import { Routes, Route } from "react-router-dom"
+import AdminPage from "./components/admin/admin-page"
+import ListingApprovalsPage from "./components/admin/listings/admin-listing"
+import UserManagementPage from "./components/admin/user-management/user-page"
+import AdminProfilePage from "./components/admin/profile/profile-page"
+import ReportsPage from "./components/admin/reports/reports-page"
 
 function App() {
   return (
@@ -26,6 +31,12 @@ function App() {
         }
       />
       <Route path="/login" element={<LoginParentContainer />} />
+      <Route path="/admin" element={<AdminPage />} />
+      <Route path="/admin/profile" element={<AdminProfilePage />} />
+      <Route path="/admin/listings" element={<ListingApprovalsPage />} />
+      <Route path="/admin/users" element={<UserManagementPage />} />
+      <Route path="/admin/reports" element={<ReportsPage />} />
+      <Route path="*" element={<main className="min-h-screen p-8"><h1 className="text-xl font-semibold">Page not found</h1></main>} />
     </Routes>
   )
 }
