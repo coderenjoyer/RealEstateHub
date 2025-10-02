@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { ArrowRight } from 'lucide-react'
 
 export function WhyChooseSection() {
@@ -33,7 +33,7 @@ export function WhyChooseSection() {
   }
 
   return (
-    <section className="py-20 bg-accent/30">
+    <section id="about" className="py-20 bg-accent/30 scroll-mt-24">
       <div className="container mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
