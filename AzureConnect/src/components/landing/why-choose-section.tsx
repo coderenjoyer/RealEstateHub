@@ -19,21 +19,21 @@ export function WhyChooseSection() {
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
               <img
-                src="/modern-luxury-bedroom.png"
+                src="/luxury-bedroom.jpg"
                 alt="Luxury bedroom"
                 className="w-full h-64 object-cover rounded-lg"
               />
             </div>
             <div>
               <img
-                src="/modern-office-interior.png"
+                src="/office space.jpg"
                 alt="Office space"
                 className="w-full h-48 object-cover rounded-lg"
               />
             </div>
             <div>
               <img
-                src="/luxury-swimming-pool.png"
+                src="/swimming_pool.jpg"
                 alt="Swimming pool"
                 className="w-full h-48 object-cover rounded-lg"
               />

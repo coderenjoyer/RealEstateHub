@@ -5,13 +5,13 @@ import { Star } from "lucide-react"
 const reviews = [
   {
     name: "Carole Pye Sa Neves",
-    image: "/modern-living-room.png",
+    image: "/home-review1.jpg",
     rating: 5,
-    text: "Working with AssetConnect was an absolute pleasure. They helped us find our dream home in record time. The team was professional, knowledgeable, and always available to answer our questions.",
+    text: "Working with AzureConnect was an absolute pleasure. They helped us find our dream home in record time. The team was professional, knowledgeable, and always available to answer our questions.",
   },
   {
     name: "Carole Pye Sa Nylah",
-    image: "/luxury-kitchen-interior.png",
+    image: "/home-review2.jpg",
     rating: 5,
     text: "Exceptional service from start to finish! The attention to detail and personalized approach made all the difference. I highly recommend AssetConnect to anyone looking for their perfect property.",
   },
