@@ -1,9 +1,12 @@
 import * as React from "react"
 
-export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {}
+export interface SelectProps extends React.HTMLAttributes<HTMLDivElement> {
+  value?: string
+  onValueChange?: (value: string) => void
+}
 
-export const Select = ({ children, ...props }: React.PropsWithChildren<SelectProps>) => {
-  return <select {...props}>{children}</select>
+export const Select: React.FC<SelectProps & { children?: React.ReactNode }> = ({ children, ...props }) => {
+  return <div {...props}>{children}</div>
 }
 
 export const SelectTrigger: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, ...props }) => (
