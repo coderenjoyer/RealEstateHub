@@ -1,15 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { User, BarChart3, FileCheck, Users, ChevronLeft } from "lucide-react"
+import { User, BarChart3, MessageSquare, Wrench, ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 const menuItems = [
-  { icon: User, label: "Profile", href: "#" },
-  { icon: BarChart3, label: "Dashboard", href: "#" },
-  { icon: FileCheck, label: "Listing Approvals", href: "#" },
-  { icon: Users, label: "User Management", href: "#" },
+  { icon: User, label: "Agent Profile", href: "/" },
+  { icon: BarChart3, label: "Property Listing", href: "/list-property" },
+  { icon: MessageSquare, label: "Chat", href: "/chat" },
+  { icon: Wrench, label: "Maintenance and services", href: "/maintenance" },
 ]
 
 export function Sidebar() {
