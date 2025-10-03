@@ -1,4 +1,4 @@
-import { Sidebar } from "@/sidebar"
+import { Sidebar } from "@/components/ui/agentsidebar"
 import { StatsCards } from "@/components/Agent/approval/stats-cards"
 import { PropertiesTable } from "@/components/Agent/approval/properties-table"
 

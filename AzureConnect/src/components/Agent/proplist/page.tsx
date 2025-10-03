@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { Sidebar } from "@/sidebar"
+import { Sidebar } from "@/components/ui/agentsidebar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "../../ui/label"

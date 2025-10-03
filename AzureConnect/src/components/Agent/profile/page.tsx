@@ -1,4 +1,4 @@
-import { Sidebar } from "@/sidebar"
+import { Sidebar } from "@/components/ui/agentsidebar"
 import { AgentProfileHero } from "@/components/Agent/profile/agent-profile-hero"
 import { AgentProfileCards } from "@/components/Agent/profile/agent-profile-cards"
 

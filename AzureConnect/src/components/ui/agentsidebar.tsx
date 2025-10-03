@@ -2,15 +2,15 @@
 
 import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { User, LayoutDashboard, CheckSquare, Users, FileText, ChevronLeft } from "lucide-react"
+import { User, BarChart3, FileCheck, List, MessageSquare, ChevronLeft } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const menuItems = [
-  { icon: User, label: "Admin Profile", to: "/admin/profile" },
-  { icon: LayoutDashboard, label: "Dashboard", to: "/admin" },
-  { icon: CheckSquare, label: "Listing Approvals", to: "/admin/listings" },
-  { icon: Users, label: "User Management", to: "/admin/users" },
-  { icon: FileText, label: "System Reports", to: "/admin/reports" },
+  { icon: User, label: "Profile", to: "/agent/profile" },
+  { icon: FileCheck, label: "Approvals", to: "/agent/approval" },
+  { icon: List, label: "Property List", to: "/agent/proplist" },
+  { icon: BarChart3, label: "Reports", to: "/agent/reports" },
+  { icon: MessageSquare, label: "Communication", to: "/agent/communication" },
 ]
 
 export function Sidebar() {
@@ -19,20 +19,17 @@ export function Sidebar() {
   const { pathname } = useLocation()
 
   const isActive = (itemTo: string) => {
-    if (itemTo === "/admin") {
-      return pathname === "/admin"
-    }
-    return pathname.startsWith(itemTo)
+    return pathname === itemTo || pathname.startsWith(itemTo + "/")
   }
 
   return (
     <aside 
       className={cn(
-        "bg-[#A3B8C9] transition-all duration-300 flex flex-col relative",
+        "bg-[#a8c5d9] transition-all duration-300 flex flex-col",
         isCollapsed ? "w-16" : "w-64"
       )}
       role="navigation"
-      aria-label="Admin navigation"
+      aria-label="Agent navigation"
     >
       <nav className="flex-1 py-6" role="menu">
         {menuItems.map((item, index) => {
@@ -51,21 +48,12 @@ export function Sidebar() {
                 aria-label={item.label}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-3 px-6 py-3 text-gray-800 transition-all duration-200",
-                  "border-l-4 border-transparent hover:bg-[#8FA8BC]/50",
-                  "focus:outline-none focus:ring-2 focus:ring-[#3E5E7A] focus:ring-inset",
-                  active && "bg-[#8FA8BC] text-gray-900 font-semibold border-[#3E5E7A]"
+                  "flex items-center gap-3 px-6 py-3 text-gray-800 transition-colors border-l-4 border-transparent",
+                  active && "bg-[#8DB4CC] text-gray-900 font-semibold border-[#5A8CAD]"
                 )}
               >
-                <item.icon className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
-                <span 
-                  className={cn(
-                    "text-sm font-medium transition-opacity duration-200",
-                    isCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"
-                  )}
-                >
-                  {item.label}
-                </span>
+                <item.icon className="w-5 h-5 flex-shrink-0" />
+                {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
               </Link>
 
               {/* Tooltip for collapsed state */}
@@ -87,28 +75,15 @@ export function Sidebar() {
         onClick={() => setIsCollapsed(!isCollapsed)}
         aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         aria-expanded={!isCollapsed}
-        className={cn(
-          "flex items-center gap-2 px-6 py-4 text-gray-800",
-          "hover:bg-[#8FA8BC] transition-colors",
-          "focus:outline-none focus:ring-2 focus:ring-[#3E5E7A] focus:ring-inset",
-          "border-t border-[#8FA8BC]"
-        )}
+        className="flex items-center gap-2 px-6 py-4 text-gray-800 hover:bg-[#8DB4CC] transition-colors"
       >
         <ChevronLeft 
           className={cn(
-            "w-5 h-5 transition-transform duration-300",
+            "w-5 h-5 transition-transform",
             isCollapsed && "rotate-180"
           )} 
-          aria-hidden="true"
         />
-        <span 
-          className={cn(
-            "text-sm font-medium transition-opacity duration-200",
-            isCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"
-          )}
-        >
-          Collapse
-        </span>
+        {!isCollapsed && <span className="text-sm font-medium">Collapse</span>}
       </button>
     </aside>
   )
