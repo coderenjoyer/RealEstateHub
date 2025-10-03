@@ -1,13 +1,13 @@
 import { MapPin, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import Image from "next/image"
+// Replaced next/image with standard img for Vite/React runtime
 
 export function AgentProfileHero() {
   return (
     <div className="relative">
       {/* Hero Background Image */}
       <div className="relative h-48 w-full overflow-hidden">
-        <Image src="/real-estate-celebration-event-with-people.jpg" alt="Agent background" fill className="object-cover" priority />
+        <img src="/real-estate-celebration-event-with-people.jpg" alt="Agent background" className="h-full w-full object-cover" />
       </div>
 
       {/* Profile Section */}
@@ -15,7 +15,7 @@ export function AgentProfileHero() {
         {/* Profile Image */}
         <div className="absolute -top-20 left-6">
           <div className="relative h-40 w-40 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden">
-            <Image src="/professional-real-estate-agent-working-on-laptop.jpg" alt="Agent profile" fill className="object-cover" />
+            <img src="/professional-real-estate-agent-working-on-laptop.jpg" alt="Agent profile" className="h-full w-full object-cover" />
           </div>
           {/* Star Badge */}
           <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
