@@ -1,44 +1,45 @@
 import { User, Home, Bookmark } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export function AgentProfileCards() {
   return (
-    <div className="space-y-6 mt-6">
-      {/* Top Row - About Me and Property Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* About Me Card */}
-        <Card className="border-0 shadow-md overflow-hidden">
-          <CardHeader className="bg-[#0f4c75] text-white">
-            <CardTitle className="flex items-center gap-2 text-base font-medium">
-              <User className="w-5 h-5" />
-              About Me
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="bg-gray-100 min-h-[200px] p-6">{/* Content placeholder */}</CardContent>
-        </Card>
+    <div className="bg-white px-8 py-8">
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Top Row - About Me and Property Summary */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* About Me Card */}
+          <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-100 hover:shadow-lg transition-shadow">
+            <div className="bg-[#0f4c75] text-white px-8 py-5 flex items-center gap-3">
+              <User className="w-6 h-6" />
+              <h3 className="text-lg font-semibold">About Me</h3>
+            </div>
+            <div className="bg-gradient-to-b from-slate-50 to-slate-100 min-h-[220px] p-8">
+              {/* Content placeholder */}
+            </div>
+          </div>
 
-        {/* Property Summary Card */}
-        <Card className="border-0 shadow-md overflow-hidden">
-          <CardHeader className="bg-[#0f4c75] text-white">
-            <CardTitle className="flex items-center gap-2 text-base font-medium">
-              <Home className="w-5 h-5" />
-              Property Summary
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="bg-gray-100 min-h-[200px] p-6">{/* Content placeholder */}</CardContent>
-        </Card>
+          {/* Property Summary Card */}
+          <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-100 hover:shadow-lg transition-shadow">
+            <div className="bg-[#0f4c75] text-white px-8 py-5 flex items-center gap-3">
+              <Home className="w-6 h-6" />
+              <h3 className="text-lg font-semibold">Property Summary</h3>
+            </div>
+            <div className="bg-gradient-to-b from-slate-50 to-slate-100 min-h-[220px] p-8">
+              {/* Content placeholder */}
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Row - Bookmarked Properties */}
+        <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-100 hover:shadow-lg transition-shadow">
+          <div className="bg-[#0f4c75] text-white px-8 py-5 flex items-center gap-3">
+            <Bookmark className="w-6 h-6" />
+            <h3 className="text-lg font-semibold">Bookmarked Properties</h3>
+          </div>
+          <div className="bg-gradient-to-b from-slate-50 to-slate-100 min-h-[220px] p-8">
+            {/* Content placeholder */}
+          </div>
+        </div>
       </div>
-
-      {/* Bottom Row - Bookmarked Properties */}
-      <Card className="border-0 shadow-md overflow-hidden">
-        <CardHeader className="bg-[#0f4c75] text-white">
-          <CardTitle className="flex items-center gap-2 text-base font-medium">
-            <Bookmark className="w-5 h-5" />
-            Bookmarked Properties
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="bg-gray-100 min-h-[200px] p-6">{/* Content placeholder */}</CardContent>
-      </Card>
     </div>
   )
 }
