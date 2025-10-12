@@ -4,9 +4,9 @@ import { TopNav } from "@/components/User/top-nav"
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen hero-gradient">
+    <div className="min-h-screen bg-gradient-to-br from-sky-200 via-blue-100 to-blue-200">
       <TopNav />
-      <div className="flex gap-6 p-6">
+      <div className="flex gap-6 px-8 pb-8">
         <PropertyFilters />
         <PropertyGrid />
       </div>

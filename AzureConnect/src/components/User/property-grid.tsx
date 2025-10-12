@@ -5,55 +5,61 @@ const properties = [
     id: 1,
     name: "Aurelia Heights",
     address: "sknov nksi de dknt mfkmg mskfnjs",
-    price: "₹2,000/month",
+    price: "₱100,000/month",
     beds: 3,
     baths: 2,
     sqft: 1200,
+    rating: "4.55"
   },
   {
     id: 2,
     name: "Aurelia Heights",
     address: "sknov nksi de dknt mfkmg mskfnjs",
-    price: "₹2,000/month",
+    price: "₱100,000/month",
     beds: 3,
     baths: 2,
     sqft: 1200,
+    rating: "4.55"
   },
   {
     id: 3,
     name: "Aurelia Heights",
     address: "sknov nksi de dknt mfkmg mskfnjs",
-    price: "₹2,000/month",
+    price: "₱100,000/month",
     beds: 3,
     baths: 2,
     sqft: 1200,
+    rating: "4.55"
   },
   {
     id: 4,
     name: "Aurelia Heights",
     address: "sknov nksi de dknt mfkmg mskfnjs",
-    price: "₹2,000/month",
+    price: "₱100,000/month",
     beds: 3,
     baths: 2,
     sqft: 1200,
+    rating: "4.55"
   },
   {
     id: 5,
     name: "Aurelia Heights",
     address: "sknov nksi de dknt mfkmg mskfnjs",
-    price: "₹2,000/month",
+    price: "₱100,000/month",
     beds: 3,
     baths: 2,
     sqft: 1200,
+    rating: "4.55"
   },
   {
     id: 6,
     name: "Aurelia Heights",
     address: "sknov nksi de dknt mfkmg mskfnjs",
-    price: "₹2,000/month",
+    price: "₱100,000/month",
     beds: 3,
     baths: 2,
     sqft: 1200,
+    rating: "4.55"
   },
 ]
 
