@@ -7,15 +7,17 @@ export function AgentProfileHero() {
     <div className="relative">
       {/* Hero Background Image */}
       <div className="relative h-48 w-full overflow-hidden">
-        <img src="/real-estate-celebration-event-with-people.jpg" alt="Agent background" className="h-full w-full object-cover" />
+        <img src="/header.jpeg" alt="Agent background" className="h-full w-full object-cover" />
       </div>
+      {/* Colored bar under hero background */}
+      <div className="w-full h-6 bg-[#0f4c75]"></div>
 
       {/* Profile Section */}
       <div className="relative px-6">
         {/* Profile Image */}
         <div className="absolute -top-20 left-6">
           <div className="relative h-40 w-40 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden">
-            <img src="/professional-real-estate-agent-working-on-laptop.jpg" alt="Agent profile" className="h-full w-full object-cover" />
+            <img src="/header.jpeg" alt="Agent profile" className="h-full w-full object-cover" />
           </div>
           {/* Star Badge */}
           <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">

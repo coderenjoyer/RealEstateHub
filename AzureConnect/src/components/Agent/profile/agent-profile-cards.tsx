@@ -2,7 +2,7 @@ import { User, Home, Bookmark } from "lucide-react"
 
 export function AgentProfileCards() {
   return (
-    <div className="bg-white px-8 py-8">
+    <div className="px-8 py-8">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Top Row - About Me and Property Summary */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
