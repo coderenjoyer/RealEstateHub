@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { MessageSquare, Bell, ChevronDown } from "lucide-react"
+import { Bell, ChevronDown } from "lucide-react"
+import { MessengerDropdown } from "./messenger-dropdown"
 
 export function TopNav() {
   return (
@@ -29,13 +30,7 @@ export function TopNav() {
 
       {/* Right Side - Action Buttons & Profile */}
       <div className="flex items-center gap-3">
-        <Button 
-          size="icon" 
-          variant="ghost" 
-          className="p-2.5 bg-sky-500/90 hover:bg-sky-600 text-white rounded-xl transition-all shadow-md"
-        >
-          <MessageSquare className="h-5 w-5" />
-        </Button>
+        <MessengerDropdown />
         <Button 
           size="icon" 
           variant="ghost" 

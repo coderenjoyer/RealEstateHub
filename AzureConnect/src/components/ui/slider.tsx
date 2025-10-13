@@ -1,6 +1,6 @@
 import * as React from "react"
 
-export interface SliderProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface SliderProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> {
   value: number[]
   onValueChange?: (value: number[]) => void
 }
