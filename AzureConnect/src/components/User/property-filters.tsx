@@ -40,7 +40,7 @@ export function PropertyFilters() {
   }
 
   return (
-    <Card className="w-[340px] bg-white/80 backdrop-blur-md rounded-3xl shadow-lg border border-white/50 shrink-0 overflow-hidden">
+    <Card className="w-[340px] bg-white/80 backdrop-blur-md rounded-3xl shadow-lg border border-white/50 shrink-0 overflow-hidden sticky top-20 self-start">
       {/* Header with gradient background */}
       <div className="bg-gradient-to-r from-sky-50 to-blue-50 px-6 py-5 border-b border-gray-200/50">
         <div className="flex items-center justify-between">

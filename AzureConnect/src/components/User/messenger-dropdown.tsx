@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { MessageSquare, Search, MoreHorizontal, X, Phone, Video, Minus, Send, Image, Smile, ThumbsUp } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button } from "../../components/ui/button"
 
 type ChatMessage = {
   id: number
@@ -136,9 +136,9 @@ export function MessengerDropdown() {
         />
       )}
 
-      {/* Chat List Sidebar */}
+      {/* Chat List Dropdown (floating) */}
       {isOpen && (
-        <div className="fixed right-0 top-0 h-screen w-[340px] bg-white shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-200">
+        <div className="fixed right-4 top-20 w-[340px] max-h-[70vh] bg-white shadow-2xl z-50 flex flex-col rounded-2xl overflow-hidden border border-gray-200 animate-in fade-in-0 zoom-in-95 duration-150">
           {/* Header */}
           <div className="p-3 border-b border-gray-200">
             <div className="flex items-center justify-between mb-2">
@@ -237,9 +237,9 @@ export function MessengerDropdown() {
 
       {/* Chat Window */}
       {selectedChat && selectedConversation && (
-        <div className="fixed right-[340px] top-0 h-screen w-[360px] bg-white shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-200">
+        <div className="fixed right-4 bottom-4 w-[340px] h-[460px] bg-white shadow-2xl z-50 flex flex-col rounded-2xl overflow-hidden border border-gray-200 animate-in slide-in-from-right duration-200">
           {/* Chat Header */}
-          <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-3 flex items-center justify-between">
+          <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-2 flex items-center justify-between">
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="relative flex-shrink-0">
                 <div className="h-9 w-9 rounded-full bg-white flex items-center justify-center text-purple-600 font-semibold text-xs">
@@ -258,41 +258,41 @@ export function MessengerDropdown() {
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              <button className="p-1.5 hover:bg-white/20 rounded-full transition-colors">
-                <Phone className="h-5 w-5 text-white" />
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <button className="p-1 hover:bg-white/20 rounded-full transition-colors">
+                <Phone className="h-4 w-4 text-white" />
               </button>
-              <button className="p-1.5 hover:bg-white/20 rounded-full transition-colors">
-                <Video className="h-5 w-5 text-white" />
+              <button className="p-1 hover:bg-white/20 rounded-full transition-colors">
+                <Video className="h-4 w-4 text-white" />
               </button>
-              <button className="p-1.5 hover:bg-white/20 rounded-full transition-colors">
-                <Minus className="h-5 w-5 text-white" />
+              <button className="p-1 hover:bg-white/20 rounded-full transition-colors">
+                <Minus className="h-4 w-4 text-white" />
               </button>
               <button 
-                className="p-1.5 hover:bg-white/20 rounded-full transition-colors"
+                className="p-1 hover:bg-white/20 rounded-full transition-colors"
                 onClick={(e) => {
                   e.stopPropagation()
                   setSelectedChat(null)
                 }}
               >
-                <X className="h-5 w-5 text-white" />
+                <X className="h-4 w-4 text-white" />
               </button>
             </div>
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-2.5 bg-white">
+          <div className="flex-1 overflow-y-auto p-2.5 space-y-2 bg-white">
             {selectedConversation.messages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
                 {msg.sender === 'them' && (
-                  <div className="h-7 w-7 rounded-full bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center text-white font-semibold text-[10px] mr-2 flex-shrink-0">
+              <div className="h-6 w-6 rounded-full bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center text-white font-semibold text-[10px] mr-2 flex-shrink-0">
                     {selectedConversation.avatar}
                   </div>
                 )}
                 <div className={`max-w-[72%] ${msg.sender === 'me' ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
                   {msg.type === 'call' ? (
-                    <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-gray-100">
-                      <div className="p-1.5 bg-red-100 rounded-full">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-gray-100">
+                      <div className="p-1 bg-red-100 rounded-full">
                         <Phone className="h-4 w-4 text-red-600" />
                       </div>
                       <div>
@@ -301,7 +301,7 @@ export function MessengerDropdown() {
                       </div>
                     </div>
                   ) : (
-                    <div className={`px-3.5 py-2 rounded-2xl ${
+                    <div className={`px-3 py-1.5 rounded-2xl ${
                       msg.sender === 'me' 
                         ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' 
                         : 'bg-gray-100 text-gray-900'
@@ -309,31 +309,31 @@ export function MessengerDropdown() {
                       <p className="text-sm">{msg.text}</p>
                     </div>
                   )}
-                  <span className="text-xs text-gray-500 px-1.5">{msg.time}</span>
+                  <span className="text-xs text-gray-500 px-1">{msg.time}</span>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Message Input */}
-          <div className="p-2.5 border-t border-gray-200 bg-white">
+          <div className="p-2 border-t border-gray-200 bg-white">
             <div className="flex items-center gap-1.5">
-              <button className="p-1.5 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
-                <Image className="h-5 w-5 text-sky-600" />
+              <button className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
+                <Image className="h-4 w-4 text-sky-600" />
               </button>
-              <button className="p-1.5 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
-                <Smile className="h-5 w-5 text-sky-600" />
+              <button className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
+                <Smile className="h-4 w-4 text-sky-600" />
               </button>
               <input
                 type="text"
                 placeholder="Aa"
-                className="flex-1 px-3.5 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="flex-1 px-3 py-1.5 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
-              <button className="p-1.5 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
-                <ThumbsUp className="h-5 w-5 text-sky-600" />
+              <button className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
+                <ThumbsUp className="h-4 w-4 text-sky-600" />
               </button>
-              <button className="p-1.5 bg-sky-500 hover:bg-sky-600 rounded-full transition-colors flex-shrink-0">
-                <Send className="h-5 w-5 text-white" />
+              <button className="p-1 bg-sky-500 hover:bg-sky-600 rounded-full transition-colors flex-shrink-0">
+                <Send className="h-4 w-4 text-white" />
               </button>
             </div>
           </div>
