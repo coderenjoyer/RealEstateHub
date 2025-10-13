@@ -12,11 +12,15 @@ interface PropertyCardProps {
     sqft: number
     rating: string
   }
+  onClick?: () => void
 }
 
-export function PropertyCard({ property }: PropertyCardProps) {
+export function PropertyCard({ property, onClick }: PropertyCardProps) {
   return (
-    <Card className="overflow-hidden bg-white rounded-3xl shadow-md hover:shadow-xl transition-all duration-300">
+    <Card 
+      onClick={onClick}
+      className="overflow-hidden bg-white rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
+    >
       {/* Property Image with Gradient */}
       <div className="relative h-48">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-300 via-pink-200 to-sky-200"></div>
