@@ -164,7 +164,7 @@ export function PropertyGrid() {
     <>
       <div className="h-full flex flex-col">
         {/* Scrollable Property Cards Container */}
-        <div className="flex-1 overflow-y-auto pr-2">
+        <div className="flex-1 overflow-y-auto pr-2 pt-16 lg:pt-20">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
             {properties.map((property) => (
               <PropertyCard 
