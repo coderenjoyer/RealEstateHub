@@ -4,7 +4,7 @@ import { TopNav } from "@/components/User/top-nav"
 
 export default function HomePage() {
   return (
-    <div className="h-screen bg-gradient-to-br from-sky-200 via-blue-100 to-blue-200 flex overflow-hidden">
+    <div className="h-screen bg-gradient-to-br from-sky-300 via-blue-200 to-blue-300 flex overflow-hidden">
       {/* Fixed Sidebar */}
       <div className="flex-shrink-0">
         <PropertyFilters />
