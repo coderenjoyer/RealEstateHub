@@ -1,28 +1,47 @@
+"use client"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Bell, ChevronDown } from "lucide-react"
 import { MessengerDropdown } from "./messenger-dropdown"
 
 export function TopNav() {
+  const [activeTab, setActiveTab] = useState("Buy")
   return (
     <div className="flex items-center justify-between px-8 py-5">
       {/* Left Side - Navigation Tabs */}
       <div className="flex items-center gap-3">
         <Button 
-          variant="default" 
-          className="px-8 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-full font-medium text-sm shadow-lg shadow-sky-500/30 transition-all"
+          variant={activeTab === "Buy" ? "default" : "ghost"}
+          onClick={() => setActiveTab("Buy")}
+          className={`px-8 py-2.5 rounded-full font-medium text-sm transition-all ${
+            activeTab === "Buy" 
+              ? "bg-sky-500 hover:bg-sky-600 text-white shadow-lg shadow-sky-500/30" 
+              : "bg-white/20 hover:bg-white/30 text-white/90 hover:text-white backdrop-blur-sm"
+          }`}
         >
           Buy
         </Button>
         <Button 
-          variant="ghost" 
-          className="px-8 py-2.5 text-white/90 hover:text-white hover:bg-white/10 rounded-full font-medium text-sm transition-all"
+          variant={activeTab === "Rent" ? "default" : "ghost"}
+          onClick={() => setActiveTab("Rent")}
+          className={`px-8 py-2.5 rounded-full font-medium text-sm transition-all ${
+            activeTab === "Rent" 
+              ? "bg-sky-500 hover:bg-sky-600 text-white shadow-lg shadow-sky-500/30" 
+              : "bg-white/20 hover:bg-white/30 text-white/90 hover:text-white backdrop-blur-sm"
+          }`}
         >
           Rent
         </Button>
         <Button 
-          variant="ghost" 
-          className="px-8 py-2.5 text-white/90 hover:text-white hover:bg-white/10 rounded-full font-medium text-sm transition-all"
+          variant={activeTab === "Favorites" ? "default" : "ghost"}
+          onClick={() => setActiveTab("Favorites")}
+          className={`px-8 py-2.5 rounded-full font-medium text-sm transition-all ${
+            activeTab === "Favorites" 
+              ? "bg-sky-500 hover:bg-sky-600 text-white shadow-lg shadow-sky-500/30" 
+              : "bg-white/20 hover:bg-white/30 text-white/90 hover:text-white backdrop-blur-sm"
+          }`}
         >
           Favorites
         </Button>

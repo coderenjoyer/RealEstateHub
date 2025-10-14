@@ -4,11 +4,23 @@ import { TopNav } from "@/components/User/top-nav"
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-200 via-blue-100 to-blue-200">
-      <TopNav />
-      <div className="flex gap-6 px-8 pb-8">
+    <div className="h-screen bg-gradient-to-br from-sky-200 via-blue-100 to-blue-200 flex overflow-hidden">
+      {/* Fixed Sidebar */}
+      <div className="flex-shrink-0">
         <PropertyFilters />
-        <PropertyGrid />
+      </div>
+      
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Navigation aligned with property cards */}
+        <div className="flex-shrink-0">
+          <TopNav />
+        </div>
+        
+        {/* Scrollable Property Grid */}
+        <div className="flex-1 px-8 pb-8 overflow-hidden">
+          <PropertyGrid />
+        </div>
       </div>
     </div>
   )

@@ -40,11 +40,11 @@ export function PropertyFilters() {
   }
 
   return (
-    <Card className="w-[340px] bg-white/80 backdrop-blur-md rounded-3xl shadow-lg border border-white/50 shrink-0 overflow-hidden sticky top-20 self-start">
+    <Card className="w-[340px] bg-white/80 backdrop-blur-md rounded-3xl shadow-lg border border-white/50 shrink-0 overflow-hidden h-full">
       {/* Header with gradient background */}
       <div className="bg-gradient-to-r from-sky-50 to-blue-50 px-6 py-5 border-b border-gray-200/50">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-gray-800">Custom Filter</h2>
+          <h2 className="text-base font-bold text-gray-800">Custom Filter</h2>
           <button 
             onClick={handleClearAll}
             className="text-sm text-sky-600 hover:text-sky-700 font-semibold hover:underline transition-all"
@@ -54,20 +54,20 @@ export function PropertyFilters() {
         </div>
       </div>
 
-      {/* Scrollable Filter Content */}
-      <div className="px-6 py-5 space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto custom-scrollbar">
+      {/* Filter Content */}
+      <div className="px-6 py-2 space-y-2">
         
         {/* Location Filter */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2.5 mb-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 mb-1">
             <div className="p-2 bg-gradient-to-br from-sky-100 to-sky-50 rounded-xl shadow-sm">
               <MapPin className="h-4 w-4 text-sky-600" />
             </div>
-            <h3 className="font-bold text-gray-800 text-base">Location</h3>
+            <h3 className="font-bold text-gray-800 text-sm">Location</h3>
           </div>
-          <div className="space-y-2.5 pl-1">
+          <div className="space-y-0.5 pl-1">
             {locations.map((location) => (
-              <label key={location} className="flex items-center cursor-pointer group py-1">
+              <label key={location} className="flex items-center cursor-pointer group py-0.5">
                 <div className="relative">
                   <input
                     type="checkbox"
@@ -82,7 +82,7 @@ export function PropertyFilters() {
                     }}
                   />
                 </div>
-                <span className="ml-3 text-sm text-gray-700 font-medium group-hover:text-gray-900 transition-colors">{location}</span>
+                <span className="ml-3 text-xs text-gray-700 font-medium group-hover:text-gray-900 transition-colors">{location}</span>
               </label>
             ))}
           </div>
@@ -92,18 +92,18 @@ export function PropertyFilters() {
         <div className="border-t border-gray-200"></div>
 
         {/* Price Range Filter with Slider */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2.5 mb-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 mb-1">
             <div className="p-2 bg-gradient-to-br from-sky-100 to-sky-50 rounded-xl shadow-sm">
               <DollarSign className="h-4 w-4 text-sky-600" />
             </div>
-            <h3 className="font-bold text-gray-800 text-base">Price Range</h3>
+            <h3 className="font-bold text-gray-800 text-sm">Price Range</h3>
           </div>
           
           {/* Radio Options */}
-          <div className="space-y-2.5 pl-1">
+          <div className="space-y-0.5 pl-1">
             {priceOptions.map((option) => (
-              <label key={option} className="flex items-center cursor-pointer group py-1">
+              <label key={option} className="flex items-center cursor-pointer group py-0.5">
                 <input
                   type="radio"
                   name="price"
@@ -111,13 +111,13 @@ export function PropertyFilters() {
                   checked={selectedPrice === option}
                   onChange={() => setSelectedPrice(option)}
                 />
-                <span className="ml-3 text-sm text-gray-700 font-medium group-hover:text-gray-900 transition-colors">{option}</span>
+                <span className="ml-3 text-xs text-gray-700 font-medium group-hover:text-gray-900 transition-colors">{option}</span>
               </label>
             ))}
           </div>
 
           {/* Price Range Slider */}
-          <div className="pt-3 space-y-3">
+          <div className="pt-0.5 space-y-1">
             {/* Price Labels */}
             <div className="flex justify-between items-center text-xs font-semibold text-gray-600 px-1">
               <span>15k</span>
@@ -165,7 +165,7 @@ export function PropertyFilters() {
             </div>
 
             {/* Selected Range Display */}
-            <div className="text-center text-sm font-semibold text-gray-700 pt-1">
+            <div className="text-center text-xs font-semibold text-gray-700 pt-1">
               {priceRange[0]}k - {priceRange[1]}k
             </div>
           </div>
@@ -175,16 +175,16 @@ export function PropertyFilters() {
         <div className="border-t border-gray-200"></div>
 
         {/* Type of Place Filter */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2.5 mb-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 mb-1">
             <div className="p-2 bg-gradient-to-br from-sky-100 to-sky-50 rounded-xl shadow-sm">
               <Home className="h-4 w-4 text-sky-600" />
             </div>
-            <h3 className="font-bold text-gray-800 text-base">Type of place</h3>
+            <h3 className="font-bold text-gray-800 text-sm">Type of place</h3>
           </div>
-          <div className="space-y-2.5 pl-1">
+          <div className="space-y-0.5 pl-1">
             {propertyTypes.map((type) => (
-              <label key={type} className="flex items-center cursor-pointer group py-1">
+              <label key={type} className="flex items-center cursor-pointer group py-0.5">
                 <input
                   type="checkbox"
                   className="w-4.5 h-4.5 rounded border-2 border-gray-300 text-sky-600 focus:ring-2 focus:ring-sky-500 focus:ring-offset-0 cursor-pointer transition-all"
@@ -197,7 +197,7 @@ export function PropertyFilters() {
                     )
                   }}
                 />
-                <span className="ml-3 text-sm text-gray-700 font-medium group-hover:text-gray-900 transition-colors">{type}</span>
+                <span className="ml-3 text-xs text-gray-700 font-medium group-hover:text-gray-900 transition-colors">{type}</span>
               </label>
             ))}
           </div>
@@ -207,14 +207,14 @@ export function PropertyFilters() {
         <div className="border-t border-gray-200"></div>
 
         {/* Amenities Filter */}
-        <div className="space-y-3 pb-2">
-          <div className="flex items-center gap-2.5 mb-4">
+        <div className="space-y-1 pb-0.5">
+          <div className="flex items-center gap-2 mb-1">
             <div className="p-2 bg-gradient-to-br from-sky-100 to-sky-50 rounded-xl shadow-sm">
               <Sparkles className="h-4 w-4 text-sky-600" />
             </div>
-            <h3 className="font-bold text-gray-800 text-base">Amenities</h3>
+            <h3 className="font-bold text-gray-800 text-sm">Amenities</h3>
           </div>
-          <div className="flex flex-wrap gap-2.5">
+          <div className="flex flex-wrap gap-1">
             {amenities.map((amenity, idx) => (
               <button
                 key={`${amenity}-${idx}`}
@@ -225,7 +225,7 @@ export function PropertyFilters() {
                       : [...prev, amenity]
                   )
                 }}
-                className={`px-4 py-2 text-sm font-medium rounded-full border-2 transition-all duration-200 ${
+                className={`px-2 py-1 text-xs font-medium rounded-full border-2 transition-all duration-200 ${
                   selectedAmenities.includes(amenity)
                     ? 'bg-sky-500 border-sky-500 text-white shadow-md'
                     : 'bg-white border-gray-200 text-gray-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700'
