@@ -1,51 +1,60 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card } from "../ui/card"
-import { MapPin, DollarSign, Home, Sparkles } from "lucide-react"
+import { useState } from "react";
+import { Card } from "../ui/card";
+import { MapPin, DollarSign, Home, Sparkles } from "lucide-react";
 
 export function PropertyFilters() {
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([])
-  const [selectedPrice, setSelectedPrice] = useState("")
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([])
-  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
-  const [priceRange, setPriceRange] = useState([15, 55]) // Min and Max price in thousands
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [selectedPrice, setSelectedPrice] = useState("");
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState([15, 55]); // Min and Max price in thousands
 
-  const locations = ["Labangon", "Mandaue", "Talisay", "Naga", "More Location"]
-  const priceOptions = ["Under 30k", "40k-60k", "More than 100k", "Custom"]
-  const propertyTypes = ["Apartment", "Condominium", "Single Family Home", "Bungalow", "Villa"]
-  const amenities = ["Garage", "Pool", "Spa", "Gym", "Garden", "Lounge"]
+  const locations = ["Labangon", "Mandaue", "Talisay", "Naga", "More Location"];
+  const priceOptions = ["Under 30k", "40k-60k", "More than 100k", "Custom"];
+  const propertyTypes = [
+    "Apartment",
+    "Condominium",
+    "Single Family Home",
+    "Bungalow",
+    "Villa",
+  ];
+  const amenities = ["Garage", "Pool", "Spa", "Gym", "Garden", "Lounge"];
 
   const handleClearAll = () => {
-    setSelectedLocations([])
-    setSelectedPrice("")
-    setSelectedTypes([])
-    setSelectedAmenities([])
-    setPriceRange([15, 55])
-  }
+    setSelectedLocations([]);
+    setSelectedPrice("");
+    setSelectedTypes([]);
+    setSelectedAmenities([]);
+    setPriceRange([15, 55]);
+  };
 
-  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
-    const newValue = parseInt(e.target.value)
-    const newRange = [...priceRange]
-    
+  const handleSliderChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    const newValue = parseInt(e.target.value);
+    const newRange = [...priceRange];
+
     if (index === 0) {
       // Min slider
-      newRange[0] = Math.min(newValue, priceRange[1] - 5)
+      newRange[0] = Math.min(newValue, priceRange[1] - 5);
     } else {
       // Max slider
-      newRange[1] = Math.max(newValue, priceRange[0] + 5)
+      newRange[1] = Math.max(newValue, priceRange[0] + 5);
     }
-    
-    setPriceRange(newRange)
-  }
+
+    setPriceRange(newRange);
+  };
 
   return (
-    <Card className="w-[340px] bg-white/80 backdrop-blur-md rounded-3xl shadow-lg border border-white/50 shrink-0 overflow-hidden h-full">
-      {/* Header with gradient background */}
-      <div className="bg-gradient-to-r from-sky-50 to-blue-50 px-6 py-5 border-b border-gray-200/50">
+    <Card className="w-[340px] bg-white/80 backdrop-blur-md rounded-3xl rounded-tl-none rounded-bl-none shadow-lg border border-white/50 shrink-0 overflow-hidden h-full">
+      {/* Seamless Header (no box or border) */}
+      <div className="px-6 py-5" style={{ backgroundColor: "#E7F8FF" }}>
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold text-gray-800">Custom Filter</h2>
-          <button 
+          <button
             onClick={handleClearAll}
             className="text-sm text-sky-600 hover:text-sky-700 font-semibold hover:underline transition-all"
           >
@@ -56,7 +65,6 @@ export function PropertyFilters() {
 
       {/* Filter Content */}
       <div className="px-6 py-2 space-y-2">
-        
         {/* Location Filter */}
         <div className="space-y-1">
           <div className="flex items-center gap-2 mb-1">
@@ -67,22 +75,27 @@ export function PropertyFilters() {
           </div>
           <div className="space-y-0.5 pl-1">
             {locations.map((location) => (
-              <label key={location} className="flex items-center cursor-pointer group py-0.5">
+              <label
+                key={location}
+                className="flex items-center cursor-pointer group py-0.5"
+              >
                 <div className="relative">
                   <input
                     type="checkbox"
                     className="w-4.5 h-4.5 rounded border-2 border-gray-300 text-sky-600 focus:ring-2 focus:ring-sky-500 focus:ring-offset-0 cursor-pointer transition-all"
                     checked={selectedLocations.includes(location)}
                     onChange={() => {
-                      setSelectedLocations(prev =>
+                      setSelectedLocations((prev) =>
                         prev.includes(location)
-                          ? prev.filter(l => l !== location)
+                          ? prev.filter((l) => l !== location)
                           : [...prev, location]
-                      )
+                      );
                     }}
                   />
                 </div>
-                <span className="ml-3 text-xs text-gray-700 font-medium group-hover:text-gray-900 transition-colors">{location}</span>
+                <span className="ml-3 text-xs text-gray-700 font-medium group-hover:text-gray-900 transition-colors">
+                  {location}
+                </span>
               </label>
             ))}
           </div>
@@ -99,11 +112,14 @@ export function PropertyFilters() {
             </div>
             <h3 className="font-bold text-gray-800 text-sm">Price Range</h3>
           </div>
-          
+
           {/* Radio Options */}
           <div className="space-y-0.5 pl-1">
             {priceOptions.map((option) => (
-              <label key={option} className="flex items-center cursor-pointer group py-0.5">
+              <label
+                key={option}
+                className="flex items-center cursor-pointer group py-0.5"
+              >
                 <input
                   type="radio"
                   name="price"
@@ -111,7 +127,9 @@ export function PropertyFilters() {
                   checked={selectedPrice === option}
                   onChange={() => setSelectedPrice(option)}
                 />
-                <span className="ml-3 text-xs text-gray-700 font-medium group-hover:text-gray-900 transition-colors">{option}</span>
+                <span className="ml-3 text-xs text-gray-700 font-medium group-hover:text-gray-900 transition-colors">
+                  {option}
+                </span>
               </label>
             ))}
           </div>
@@ -131,13 +149,13 @@ export function PropertyFilters() {
             <div className="relative h-8 flex items-center">
               {/* Track Background */}
               <div className="absolute w-full h-1.5 bg-gray-200 rounded-full"></div>
-              
+
               {/* Active Track */}
-              <div 
+              <div
                 className="absolute h-1.5 bg-sky-600 rounded-full"
                 style={{
                   left: `${((priceRange[0] - 15) / 40) * 100}%`,
-                  right: `${100 - ((priceRange[1] - 15) / 40) * 100}%`
+                  right: `${100 - ((priceRange[1] - 15) / 40) * 100}%`,
                 }}
               ></div>
 
@@ -184,20 +202,25 @@ export function PropertyFilters() {
           </div>
           <div className="space-y-0.5 pl-1">
             {propertyTypes.map((type) => (
-              <label key={type} className="flex items-center cursor-pointer group py-0.5">
+              <label
+                key={type}
+                className="flex items-center cursor-pointer group py-0.5"
+              >
                 <input
                   type="checkbox"
                   className="w-4.5 h-4.5 rounded border-2 border-gray-300 text-sky-600 focus:ring-2 focus:ring-sky-500 focus:ring-offset-0 cursor-pointer transition-all"
                   checked={selectedTypes.includes(type)}
                   onChange={() => {
-                    setSelectedTypes(prev =>
+                    setSelectedTypes((prev) =>
                       prev.includes(type)
-                        ? prev.filter(t => t !== type)
+                        ? prev.filter((t) => t !== type)
                         : [...prev, type]
-                    )
+                    );
                   }}
                 />
-                <span className="ml-3 text-xs text-gray-700 font-medium group-hover:text-gray-900 transition-colors">{type}</span>
+                <span className="ml-3 text-xs text-gray-700 font-medium group-hover:text-gray-900 transition-colors">
+                  {type}
+                </span>
               </label>
             ))}
           </div>
@@ -219,16 +242,16 @@ export function PropertyFilters() {
               <button
                 key={`${amenity}-${idx}`}
                 onClick={() => {
-                  setSelectedAmenities(prev =>
+                  setSelectedAmenities((prev) =>
                     prev.includes(amenity)
-                      ? prev.filter(a => a !== amenity)
+                      ? prev.filter((a) => a !== amenity)
                       : [...prev, amenity]
-                  )
+                  );
                 }}
                 className={`px-2 py-1 text-xs font-medium rounded-full border-2 transition-all duration-200 ${
                   selectedAmenities.includes(amenity)
-                    ? 'bg-sky-500 border-sky-500 text-white shadow-md'
-                    : 'bg-white border-gray-200 text-gray-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700'
+                    ? "bg-sky-500 border-sky-500 text-white shadow-md"
+                    : "bg-white border-gray-200 text-gray-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700"
                 }`}
               >
                 {amenity}
@@ -237,7 +260,6 @@ export function PropertyFilters() {
           </div>
         </div>
       </div>
-
     </Card>
-  )
+  );
 }
