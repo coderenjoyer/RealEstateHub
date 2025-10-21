@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { User, LayoutDashboard, CheckSquare, Users, FileText, ChevronLeft } from "lucide-react"
+import { User, LayoutDashboard, CheckSquare, Users, FileText, ChevronLeft, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const menuItems = [
@@ -19,10 +19,11 @@ export function Sidebar() {
   const { pathname } = useLocation()
 
   const isActive = (itemTo: string) => {
+    // Exact match for root paths, or starts with the path followed by a slash
     if (itemTo === "/admin") {
       return pathname === "/admin"
     }
-    return pathname.startsWith(itemTo)
+    return pathname === itemTo || (pathname.startsWith(itemTo + "/") && pathname !== itemTo + "/")
   }
 
   return (
@@ -34,7 +35,25 @@ export function Sidebar() {
       role="navigation"
       aria-label="Admin navigation"
     >
-      <nav className="flex-1 py-6" role="menu">
+      {/* Collapse Button - Discreet */}
+      <div className="px-6 py-1">
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={!isCollapsed}
+          className="flex items-center justify-center w-8 h-8 text-gray-600 hover:bg-[#8FA8BC] hover:text-gray-800 rounded transition-colors"
+        >
+          <ChevronLeft 
+            className={cn(
+              "w-4 h-4 transition-transform duration-300",
+              isCollapsed && "rotate-180"
+            )} 
+            aria-hidden="true"
+          />
+        </button>
+      </div>
+
+      <nav className="flex-1 py-2" role="menu">
         {menuItems.map((item, index) => {
           const active = isActive(item.to)
 
@@ -83,10 +102,8 @@ export function Sidebar() {
         })}
       </nav>
 
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        aria-expanded={!isCollapsed}
+      <Link
+        to="/login"
         className={cn(
           "flex items-center gap-2 px-6 py-4 text-gray-800",
           "hover:bg-[#8FA8BC] transition-colors",
@@ -94,22 +111,16 @@ export function Sidebar() {
           "border-t border-[#8FA8BC]"
         )}
       >
-        <ChevronLeft 
-          className={cn(
-            "w-5 h-5 transition-transform duration-300",
-            isCollapsed && "rotate-180"
-          )} 
-          aria-hidden="true"
-        />
+        <LogOut className="w-5 h-5" aria-hidden="true" />
         <span 
           className={cn(
             "text-sm font-medium transition-opacity duration-200",
             isCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"
           )}
         >
-          Collapse
+          Logout
         </span>
-      </button>
+      </Link>
     </aside>
   )
 }

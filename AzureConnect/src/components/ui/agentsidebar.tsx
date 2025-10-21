@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { User, BarChart3, FileCheck, List, MessageSquare, ChevronLeft } from "lucide-react"
+import { User, BarChart3, FileCheck, List, MessageSquare, ChevronLeft, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const menuItems = [
@@ -19,7 +19,11 @@ export function Sidebar() {
   const { pathname } = useLocation()
 
   const isActive = (itemTo: string) => {
-    return pathname === itemTo || pathname.startsWith(itemTo + "/")
+    // Exact match for root paths, or starts with the path followed by a slash
+    if (itemTo === "/agent") {
+      return pathname === "/agent"
+    }
+    return pathname === itemTo || (pathname.startsWith(itemTo + "/") && pathname !== itemTo + "/")
   }
 
   return (
@@ -31,7 +35,24 @@ export function Sidebar() {
       role="navigation"
       aria-label="Agent navigation"
     >
-      <nav className="flex-1 py-6" role="menu">
+      {/* Collapse Button - Discreet */}
+      <div className="px-6 py-1">
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={!isCollapsed}
+          className="flex items-center justify-center w-8 h-8 text-gray-600 hover:bg-[#8DB4CC] hover:text-gray-800 rounded transition-colors"
+        >
+          <ChevronLeft 
+            className={cn(
+              "w-4 h-4 transition-transform",
+              isCollapsed && "rotate-180"
+            )} 
+          />
+        </button>
+      </div>
+
+      <nav className="flex-1 py-2" role="menu">
         {menuItems.map((item, index) => {
           const active = isActive(item.to)
 
@@ -71,20 +92,13 @@ export function Sidebar() {
         })}
       </nav>
 
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        aria-expanded={!isCollapsed}
+      <Link
+        to="/login"
         className="flex items-center gap-2 px-6 py-4 text-gray-800 hover:bg-[#8DB4CC] transition-colors"
       >
-        <ChevronLeft 
-          className={cn(
-            "w-5 h-5 transition-transform",
-            isCollapsed && "rotate-180"
-          )} 
-        />
-        {!isCollapsed && <span className="text-sm font-medium">Collapse</span>}
-      </button>
+        <LogOut className="w-5 h-5" />
+        {!isCollapsed && <span className="text-sm font-medium">Logout</span>}
+      </Link>
     </aside>
   )
 }
