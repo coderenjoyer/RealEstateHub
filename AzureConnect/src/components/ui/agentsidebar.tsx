@@ -6,7 +6,7 @@ import { User, BarChart3, FileCheck, List, MessageSquare, ChevronLeft } from "lu
 import { cn } from "@/lib/utils"
 
 const menuItems = [
-  { icon: User, label: "Profile", to: "/agent/profile" },
+  { icon: User, label: "Profile", to: "/agent" },
   { icon: FileCheck, label: "Approvals", to: "/agent/approval" },
   { icon: List, label: "Property List", to: "/agent/proplist" },
   { icon: BarChart3, label: "Reports", to: "/agent/reports" },

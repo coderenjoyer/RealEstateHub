@@ -46,7 +46,7 @@ function App() {
       <Route path="/admin/reports" element={<ReportsPage />} />
       <Route path="/user" element={<UserHomePage />} />
       <Route path="/agent/approval" element={<AgentApprovalPage />} />
-      <Route path="/agent/profile" element={<AgentProfilePage />} />
+      <Route path="/agent" element={<AgentProfilePage />} />
       <Route path="/agent/proplist" element={<AgentListPropertyPage />} />
       <Route path="/agent/reports" element={<AgentReportsPage />} />
       <Route path="/agent/communication" element={<AgentCommunicationPage />} />
