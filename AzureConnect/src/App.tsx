@@ -15,7 +15,7 @@ import AdminProfilePage from "./components/admin/profile/profile-page"
 import ReportsPage from "./components/admin/reports/reports-page"
 const AgentListedPropertiesPage = lazy(() => import("./components/Agent/listedproperties/page"))
 const AgentProfilePage = lazy(() => import("./components/Agent/profile/page"))
-const AgentListPropertyPage = lazy(() => import("./components/Agent/proplist/page"))
+const AgentListPropertyPage = lazy(() => import("./components/Agent/createlist/page"))
 const AgentReportsPage = lazy(() => import("./components/Agent/reports/page"))
 const AgentCommunicationPage = lazy(() => import("./components/Agent/communication/page"))
 const UserHomePage = lazy(() => import("./components/User/user-page"))
@@ -47,7 +47,7 @@ function App() {
       <Route path="/user" element={<UserHomePage />} />
       <Route path="/agent/listed-properties" element={<AgentListedPropertiesPage />} />
       <Route path="/agent" element={<AgentProfilePage />} />
-      <Route path="/agent/proplist" element={<AgentListPropertyPage />} />
+      <Route path="/agent/createlist" element={<AgentListPropertyPage />} />
       <Route path="/agent/reports" element={<AgentReportsPage />} />
       <Route path="/agent/communication" element={<AgentCommunicationPage />} />
         <Route path="*" element={<main className="min-h-screen p-8"><h1 className="text-xl font-semibold">Page not found</h1></main>} />

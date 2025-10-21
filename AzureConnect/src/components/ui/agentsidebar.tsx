@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 const menuItems = [
   { icon: User, label: "Profile", to: "/agent" },
   { icon: FileCheck, label: "Listed Properties", to: "/agent/listed-properties" },
-  { icon: List, label: "Property Listings", to: "/agent/proplist" },
+  { icon: List, label: "Create Listing", to: "/agent/createlist" },
   { icon: BarChart3, label: "Reports", to: "/agent/reports" },
   { icon: MessageSquare, label: "Communication", to: "/agent/communication" },
 ]
