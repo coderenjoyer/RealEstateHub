@@ -1,6 +1,6 @@
 import { Sidebar } from "@/components/ui/agentsidebar"
-import { StatsCards } from "@/components/Agent/approval/stats-cards"
-import { PropertiesTable } from "@/components/Agent/approval/properties-table"
+import { StatsCards } from "@/components/Agent/listedproperties/stats-cards"
+import { PropertiesTable } from "@/components/Agent/listedproperties/properties-table"
 
 export default function DashboardPage() {
   return (
