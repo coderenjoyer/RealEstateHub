@@ -19,6 +19,7 @@ const AgentListPropertyPage = lazy(() => import("./components/Agent/createlist/p
 const AgentReportsPage = lazy(() => import("./components/Agent/reports/page"))
 const AgentCommunicationPage = lazy(() => import("./components/Agent/communication/page"))
 const UserHomePage = lazy(() => import("./components/User/user-page"))
+const UserProfilePage = lazy(() => import("./components/User/profile-page"))
 
 function App() {
   return (
@@ -26,17 +27,7 @@ function App() {
       <Routes>
       <Route
         path="/"
-        element={
-          <main className="min-h-screen">
-            <Header />
-            <HeroSection />
-            <ServicesSection />
-            <WhyChooseSection />
-            <ReviewsSection />
-            <CTASection />
-            <Footer />
-          </main>
-        }
+        element={<UserHomePage />}
       />
       <Route path="/login" element={<LoginParentContainer />} />
       <Route path="/admin" element={<AdminPage />} />
@@ -45,6 +36,7 @@ function App() {
       <Route path="/admin/users" element={<UserManagementPage />} />
       <Route path="/admin/reports" element={<ReportsPage />} />
       <Route path="/user" element={<UserHomePage />} />
+      <Route path="/user/profile" element={<UserProfilePage />} />
       <Route path="/agent/listed-properties" element={<AgentListedPropertiesPage />} />
       <Route path="/agent" element={<AgentProfilePage />} />
       <Route path="/agent/createlist" element={<AgentListPropertyPage />} />

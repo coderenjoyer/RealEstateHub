@@ -3,11 +3,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bell, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { MessengerDropdown } from "./messenger-dropdown";
+import { NotificationDropdown } from "./notification";
+import { useNavigate } from "react-router-dom";
 
 export function TopNav() {
   const [activeTab, setActiveTab] = useState("Buy");
+  const navigate = useNavigate();
   return (
     <div className="flex items-center justify-between px-4 lg:px-8 py-3 lg:py-5 bg-gradient-to-br from-sky-300/95 via-blue-200/95 to-blue-300/95 backdrop-blur-md border-b border-white/20">
       {/* Left Side - Navigation Tabs */}
@@ -52,16 +55,13 @@ export function TopNav() {
       {/* Right Side - Action Buttons & Profile */}
       <div className="flex items-center gap-2 lg:gap-3">
         <MessengerDropdown />
-        <Button
-          size="icon"
-          variant="ghost"
-          className="p-2 lg:p-2.5 bg-sky-500/90 hover:bg-sky-600 text-white rounded-xl transition-all shadow-md"
-        >
-          <Bell className="h-4 w-4 lg:h-5 lg:w-5" />
-        </Button>
+        <NotificationDropdown />
 
         {/* User Profile */}
-        <div className="flex items-center gap-2 lg:gap-3 ml-1 lg:ml-2 bg-sky-500/20 backdrop-blur-sm rounded-full pl-3 lg:pl-4 pr-1 lg:pr-2 py-1.5 lg:py-2">
+        <div 
+          className="flex items-center gap-2 lg:gap-3 ml-1 lg:ml-2 bg-sky-500/20 backdrop-blur-sm rounded-full pl-3 lg:pl-4 pr-1 lg:pr-2 py-1.5 lg:py-2 cursor-pointer hover:bg-sky-500/30 transition-all duration-200"
+          onClick={() => navigate("/user/profile")}
+        >
           <div className="text-right hidden sm:block">
             <p className="text-xs lg:text-sm font-semibold text-white leading-tight">
               John Doe

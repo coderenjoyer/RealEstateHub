@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { MessageSquare, Search, MoreHorizontal, X, Phone, Video, Minus, Send, Image, Smile, ThumbsUp } from "lucide-react"
 import { Button } from "../../components/ui/button"
 
@@ -13,6 +13,8 @@ type ChatMessage = {
 export function MessengerDropdown() {
   const [isOpen, setIsOpen] = useState(false)
   const [selectedChat, setSelectedChat] = useState<number | null>(null)
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const conversations: Array<{
     id: number
@@ -108,6 +110,21 @@ export function MessengerDropdown() {
 
   const selectedConversation = conversations.find(c => c.id === selectedChat)
 
+  const handleFileUpload = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (files && files.length > 0) {
+      // Handle file upload logic here
+      console.log('Files selected:', files)
+      // You can add logic to upload files, show preview, etc.
+    }
+  }
+
+  const emojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓']
+
   return (
     <div className="relative">
       {/* Message Button */}
@@ -115,7 +132,9 @@ export function MessengerDropdown() {
         size="icon" 
         variant="ghost" 
         className="p-2.5 bg-sky-500/90 hover:bg-sky-600 text-white rounded-xl transition-all shadow-md relative"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          setIsOpen(!isOpen)
+        }}
       >
         <MessageSquare className="h-5 w-5" />
         {conversations.filter(c => c.unread).length > 0 && (
@@ -131,7 +150,7 @@ export function MessengerDropdown() {
           className="fixed inset-0 bg-black/15 z-40" 
           onClick={() => {
             setIsOpen(false)
-            setSelectedChat(null)
+            // Don't close selectedChat when clicking backdrop
           }}
         />
       )}
@@ -237,7 +256,7 @@ export function MessengerDropdown() {
 
       {/* Chat Window */}
       {selectedChat && selectedConversation && (
-        <div className="fixed right-4 bottom-4 w-[340px] h-[460px] bg-white shadow-2xl z-50 flex flex-col rounded-2xl overflow-hidden border border-gray-200 animate-in slide-in-from-right duration-200">
+        <div className="fixed right-4 top-210 w-[340px] h-[460px] bg-white shadow-2xl z-50 flex flex-col rounded-2xl overflow-hidden border border-gray-200 animate-in slide-in-from-right duration-200">
           {/* Chat Header */}
           <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-2 flex items-center justify-between">
             <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -317,11 +336,48 @@ export function MessengerDropdown() {
 
           {/* Message Input */}
           <div className="p-2 border-t border-gray-200 bg-white">
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*,video/*,.pdf,.doc,.docx,.txt"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            
+            {/* Emoji Picker */}
+            {showEmojiPicker && (
+              <div className="absolute bottom-16 left-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 max-h-32 overflow-y-auto z-10">
+                <div className="grid grid-cols-8 gap-1">
+                  {emojis.map((emoji, index) => (
+                    <button
+                      key={index}
+                      className="p-1 hover:bg-gray-100 rounded text-lg"
+                      onClick={() => {
+                        // Add emoji to message input
+                        console.log('Emoji selected:', emoji)
+                        setShowEmojiPicker(false)
+                      }}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            
             <div className="flex items-center gap-1.5">
-              <button className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
+              <button 
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+                onClick={handleFileUpload}
+              >
                 <Image className="h-4 w-4 text-sky-600" />
               </button>
-              <button className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
+              <button 
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              >
                 <Smile className="h-4 w-4 text-sky-600" />
               </button>
               <input
