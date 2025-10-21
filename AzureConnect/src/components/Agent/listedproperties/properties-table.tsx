@@ -10,7 +10,7 @@ const properties = [
     location: "Address",
     price: "John Doe",
     rooms: "John Doe",
-    actions: "John Doe",
+    status: "Approved",
   },
   {
     id: 2,
@@ -18,9 +18,10 @@ const properties = [
     location: "Address",
     price: "John Doe",
     rooms: "John Doe",
-    actions: "John Doe",
+    status: "Pending Approval",
   },
 ]
+
 
 export function PropertiesTable() {
   const [searchQuery, setSearchQuery] = useState("")

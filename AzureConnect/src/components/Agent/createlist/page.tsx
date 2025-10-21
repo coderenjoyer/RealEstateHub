@@ -31,25 +31,17 @@ export default function ListPropertyPage() {
     furnished: "",
     petPolicy: "",
     utilities: [] as string[],
-    heating: "",
-    cooling: "",
-    flooring: [] as string[],
   })
 
   const [showPropertyDropdown, setShowPropertyDropdown] = useState(false)
   const [showFurnishedDropdown, setShowFurnishedDropdown] = useState(false)
   const [showPetDropdown, setShowPetDropdown] = useState(false)
-  const [showHeatingDropdown, setShowHeatingDropdown] = useState(false)
-  const [showCoolingDropdown, setShowCoolingDropdown] = useState(false)
   const [currentFeature, setCurrentFeature] = useState("")
   const [uploadedImages, setUploadedImages] = useState<string[]>([])
 
   const propertyTypes = ["House", "Apartment", "Condo", "Townhouse", "Land", "Commercial", "Multi-Family", "Villa", "Studio"]
   const furnishedOptions = ["Furnished", "Semi-Furnished", "Unfurnished"]
   const petPolicies = ["Pets Allowed", "No Pets", "Cats Only", "Dogs Only", "With Restrictions"]
-  const heatingOptions = ["Central", "Forced Air", "Radiant", "Heat Pump", "None"]
-  const coolingOptions = ["Central AC", "Window Units", "Split System", "Evaporative", "None"]
-  
   const commonFeatures = [
     "Swimming Pool", "Garden", "Garage", "Balcony", "Terrace", "Gym",
     "Security System", "Fireplace", "Walk-in Closet", "Laundry Room",
@@ -58,7 +50,6 @@ export default function ListPropertyPage() {
   ]
 
   const utilityOptions = ["Water", "Electricity", "Gas", "Internet", "Cable TV", "Trash Collection"]
-  const flooringOptions = ["Hardwood", "Tile", "Carpet", "Laminate", "Vinyl", "Concrete", "Marble"]
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -88,13 +79,6 @@ export default function ListPropertyPage() {
     }
   }
 
-  const toggleFlooring = (floor: string) => {
-    if (formData.flooring.includes(floor)) {
-      setFormData({ ...formData, flooring: formData.flooring.filter(f => f !== floor) })
-    } else {
-      setFormData({ ...formData, flooring: [...formData.flooring, floor] })
-    }
-  }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
@@ -522,88 +506,6 @@ export default function ListPropertyPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="text-sm font-semibold text-slate-900 mb-2 block">Heating System</label>
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => setShowHeatingDropdown(!showHeatingDropdown)}
-                        className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-white text-left focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between"
-                      >
-                        <span className="text-slate-700">{formData.heating || "Select heating system"}</span>
-                        <ChevronDown className={`w-4 h-4 transition-transform ${showHeatingDropdown ? "rotate-180" : ""}`} />
-                      </button>
-                      {showHeatingDropdown && (
-                        <div className="absolute top-full left-0 right-0 mt-1 border border-slate-200 rounded-lg bg-white shadow-lg z-50">
-                          {heatingOptions.map((option) => (
-                            <button
-                              key={option}
-                              type="button"
-                              onClick={() => {
-                                setFormData({ ...formData, heating: option })
-                                setShowHeatingDropdown(false)
-                              }}
-                              className="w-full px-4 py-3 text-left hover:bg-slate-50 flex items-center justify-between"
-                            >
-                              <span className="text-slate-700">{option}</span>
-                              {formData.heating === option && <Check className="w-4 h-4 text-blue-500" />}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-semibold text-slate-900 mb-2 block">Cooling System</label>
-                    <div className="relative">
-                      <button
-                        type="button"
-                        onClick={() => setShowCoolingDropdown(!showCoolingDropdown)}
-                        className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-white text-left focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between"
-                      >
-                        <span className="text-slate-700">{formData.cooling || "Select cooling system"}</span>
-                        <ChevronDown className={`w-4 h-4 transition-transform ${showCoolingDropdown ? "rotate-180" : ""}`} />
-                      </button>
-                      {showCoolingDropdown && (
-                        <div className="absolute top-full left-0 right-0 mt-1 border border-slate-200 rounded-lg bg-white shadow-lg z-50">
-                          {coolingOptions.map((option) => (
-                            <button
-                              key={option}
-                              type="button"
-                              onClick={() => {
-                                setFormData({ ...formData, cooling: option })
-                                setShowCoolingDropdown(false)
-                              }}
-                              className="w-full px-4 py-3 text-left hover:bg-slate-50 flex items-center justify-between"
-                            >
-                              <span className="text-slate-700">{option}</span>
-                              {formData.cooling === option && <Check className="w-4 h-4 text-blue-500" />}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold text-slate-900 mb-2 block">Flooring Type</label>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {flooringOptions.map((floor) => (
-                      <label key={floor} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={formData.flooring.includes(floor)}
-                          onChange={() => toggleFlooring(floor)}
-                          className="w-4 h-4 text-blue-500 rounded"
-                        />
-                        <span className="text-slate-700">{floor}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
 
                 {formData.listingType === "rent" && (
                   <div>
