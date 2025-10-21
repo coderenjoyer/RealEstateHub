@@ -13,7 +13,7 @@ import ListingApprovalsPage from "./components/admin/listings/admin-listing"
 import UserManagementPage from "./components/admin/user-management/user-page"
 import AdminProfilePage from "./components/admin/profile/profile-page"
 import ReportsPage from "./components/admin/reports/reports-page"
-const AgentApprovalPage = lazy(() => import("./components/Agent/approval/page"))
+const AgentListedPropertiesPage = lazy(() => import("./components/Agent/approval/page"))
 const AgentProfilePage = lazy(() => import("./components/Agent/profile/page"))
 const AgentListPropertyPage = lazy(() => import("./components/Agent/proplist/page"))
 const AgentReportsPage = lazy(() => import("./components/Agent/reports/page"))
@@ -45,7 +45,7 @@ function App() {
       <Route path="/admin/users" element={<UserManagementPage />} />
       <Route path="/admin/reports" element={<ReportsPage />} />
       <Route path="/user" element={<UserHomePage />} />
-      <Route path="/agent/approval" element={<AgentApprovalPage />} />
+      <Route path="/agent/listed-properties" element={<AgentListedPropertiesPage />} />
       <Route path="/agent" element={<AgentProfilePage />} />
       <Route path="/agent/proplist" element={<AgentListPropertyPage />} />
       <Route path="/agent/reports" element={<AgentReportsPage />} />

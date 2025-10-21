@@ -52,8 +52,7 @@ export function PropertiesTable() {
             className="px-4 py-2 rounded-lg border border-slate-300 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-slate-400 transition"
           >
             <option value="all">All Properties</option>
-            <option value="active">Active</option>
-            <option value="vacant">Vacant</option>
+            <option value="vacant">Approved</option>
             <option value="pending">Pending Approval</option>
           </select>
         </div>
