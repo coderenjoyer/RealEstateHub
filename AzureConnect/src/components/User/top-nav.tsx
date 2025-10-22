@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronDown, Menu } from "lucide-react";
+import { ChevronDown, Menu, MessageCircle, Bell } from "lucide-react";
 import { MessengerDropdown } from "./messenger-dropdown";
 import { NotificationDropdown } from "./notification";
 import { useNavigate } from "react-router-dom";
@@ -11,17 +11,49 @@ import { useNavigate } from "react-router-dom";
 interface TopNavProps {
   isSidebarOpen: boolean;
   setIsSidebarOpen: (open: boolean) => void;
+  activeDropdown: "none" | "chats" | "notifications";
+  setActiveDropdown: (dropdown: "none" | "chats" | "notifications") => void;
 }
 
-export function TopNav({ isSidebarOpen, setIsSidebarOpen }: TopNavProps) {
+export function TopNav({ 
+  isSidebarOpen, 
+  setIsSidebarOpen, 
+  activeDropdown, 
+  setActiveDropdown 
+}: TopNavProps) {
   const [activeTab, setActiveTab] = useState("Buy");
   const navigate = useNavigate();
+
+  // ✅ MOCK DATA - Replace with real data from your API/context
+  const unreadChatsCount = 3;  // From your conversations
+  const unreadNotificationsCount = 2;  // From your notifications
+
+  // Handle chats button click
+  const handleChatsClick = () => {
+    if (activeDropdown === "chats") {
+      setActiveDropdown("none");
+    } else {
+      setActiveDropdown("chats");
+    }
+  };
+
+  // Handle notifications button click
+  const handleNotificationsClick = () => {
+    if (activeDropdown === "notifications") {
+      setActiveDropdown("none");
+    } else {
+      setActiveDropdown("notifications");
+    }
+  };
+
+  const handleCloseDropdown = () => {
+    setActiveDropdown("none");
+  };
 
   return (
     <div className="flex items-center justify-between px-4 lg:px-8 py-3 lg:py-5 bg-gradient-to-br from-sky-300/95 via-blue-200/95 to-blue-300/95 backdrop-blur-md border-b border-white/20">
       {/* Left Side - Hamburger + Navigation Tabs */}
       <div className="flex items-center gap-2 lg:gap-3">
-        {/* Hamburger Menu - Only visible on mobile/tablet */}
         <Button
           size="icon"
           variant="ghost"
@@ -31,7 +63,6 @@ export function TopNav({ isSidebarOpen, setIsSidebarOpen }: TopNavProps) {
           <Menu className="h-5 w-5" />
         </Button>
 
-        {/* Navigation Tabs */}
         <div
           className={`flex items-center gap-1.5 bg-white/10 backdrop-blur-md rounded-full p-1 border border-white/50 shadow-inner transition-opacity duration-300 ${
             isSidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"
@@ -54,18 +85,38 @@ export function TopNav({ isSidebarOpen, setIsSidebarOpen }: TopNavProps) {
       </div>
 
       {/* Right Side - Actions */}
-      <div className="flex items-center gap-2 lg:gap-3">
-        <MessengerDropdown />
-        <NotificationDropdown />
-
-        {/* Fallback Bell icon if NotificationDropdown not rendered */}
-        {/* <Button
+      <div className="flex items-center gap-2 lg:gap-3 relative">
+        {/* Chats Button */}
+        <Button
           size="icon"
           variant="ghost"
-          className="p-2 lg:p-2.5 bg-sky-500/90 hover:bg-sky-600 text-white rounded-xl transition-all shadow-md"
+          onClick={handleChatsClick}
+          className={`p-2 lg:p-2.5 bg-sky-500/20 hover:bg-sky-500/30 text-white rounded-xl transition-all duration-200 shadow-md relative ${
+            activeDropdown === "chats" ? "ring-2 ring-green-400 ring-opacity-50 scale-105" : ""
+          }`}
+        >
+          <MessageCircle className="h-4 w-4 lg:h-5 lg:w-5" />
+          {/* ✅ SHOW BADGE ALWAYS when there are unread chats */}
+          {unreadChatsCount > 0 && (
+            <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
+          )}
+        </Button>
+
+        {/* Notifications Button */}
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={handleNotificationsClick}
+          className={`p-2 lg:p-2.5 bg-sky-500/20 hover:bg-sky-500/30 text-white rounded-xl transition-all duration-200 shadow-md relative ${
+            activeDropdown === "notifications" ? "ring-2 ring-orange-400 ring-opacity-50 scale-105" : ""
+          }`}
         >
           <Bell className="h-4 w-4 lg:h-5 lg:w-5" />
-        </Button> */}
+          {/* ✅ SHOW BADGE ALWAYS when there are unread notifications */}
+          {unreadNotificationsCount > 0 && (
+            <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
+          )}
+        </Button>
 
         {/* User Profile */}
         <div
@@ -86,6 +137,20 @@ export function TopNav({ isSidebarOpen, setIsSidebarOpen }: TopNavProps) {
           <ChevronDown className="h-3 w-3 lg:h-4 lg:w-4 text-white/80" />
         </div>
       </div>
+
+      {/* Render ONLY ONE dropdown at a time */}
+      {activeDropdown === "chats" && (
+        <MessengerDropdown 
+          onClose={handleCloseDropdown}
+          unreadCount={unreadChatsCount}  // ✅ Pass unread count
+        />
+      )}
+      {activeDropdown === "notifications" && (
+        <NotificationDropdown 
+          onClose={handleCloseDropdown}
+          unreadCount={unreadNotificationsCount}  // ✅ Pass unread count
+        />
+      )}
     </div>
   );
 }

@@ -6,10 +6,13 @@ import { TopNav } from "@/components/User/top-nav";
 
 export default function HomePage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  // ✅ ADD THESE 2 LINES (LINE 9)
+  const [activeDropdown, setActiveDropdown] = useState<"none" | "chats" | "notifications">("none");
 
   return (
     <div className="h-screen bg-gradient-to-br from-sky-300 via-blue-200 to-blue-300 flex flex-col lg:flex-row overflow-hidden">
-      {/* Sidebar with smooth animations - now controlled by PropertyFilters internally */}
+      {/* Sidebar with smooth animations */}
       <PropertyFilters 
         isOpen={isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)} 
@@ -17,11 +20,13 @@ export default function HomePage() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
-        {/* Top Navigation with Hamburger - Absolutely positioned */}
+        {/* Top Navigation */}
         <div className="absolute top-0 left-0 right-0 z-10">
           <TopNav 
             isSidebarOpen={isSidebarOpen}
             setIsSidebarOpen={setIsSidebarOpen}
+            activeDropdown={activeDropdown}        // ✅ ADD THIS LINE (LINE 23)
+            setActiveDropdown={setActiveDropdown}  // ✅ ADD THIS LINE (LINE 24)
           />
         </div>
 
