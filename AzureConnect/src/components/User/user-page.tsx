@@ -9,23 +9,11 @@ export default function HomePage() {
 
   return (
     <div className="h-screen bg-gradient-to-br from-sky-300 via-blue-200 to-blue-300 flex flex-col lg:flex-row overflow-hidden">
-      {/* Sidebar - Hidden on mobile (unless toggled), Fixed on desktop */}
-      <div
-        className={`fixed top-0 left-0 h-full z-50 transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 flex-shrink-0 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <PropertyFilters />
-      </div>
-
-      {/* Mobile Sidebar Overlay - Click outside to close */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-y-0 right-0 left-0 z-30 bg-black/50 lg:hidden"
-          style={{ marginLeft: '320px' }}
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+      {/* Sidebar with smooth animations - now controlled by PropertyFilters internally */}
+      <PropertyFilters 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)} 
+      />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden relative">

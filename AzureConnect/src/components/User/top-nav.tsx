@@ -26,15 +26,15 @@ export function TopNav({ isSidebarOpen, setIsSidebarOpen }: TopNavProps) {
           size="icon"
           variant="ghost"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="lg:hidden p-2 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-all shadow-md"
+          className="lg:hidden p-2 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-all duration-300 shadow-md"
         >
           <Menu className="h-5 w-5" />
         </Button>
 
         {/* Navigation Tabs */}
         <div
-          className={`flex items-center gap-1.5 bg-white/10 backdrop-blur-md rounded-full p-1 border border-white/50 shadow-inner ${
-            isSidebarOpen ? "hidden" : "flex"
+          className={`flex items-center gap-1.5 bg-white/10 backdrop-blur-md rounded-full p-1 border border-white/50 shadow-inner transition-opacity duration-300 ${
+            isSidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"
           }`}
         >
           {["Buy", "Rent", "Favorites"].map((tab) => (
