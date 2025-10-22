@@ -15,7 +15,7 @@ export function AgentProfileHero() {
       </div>
 
       {/* Profile Section */}
-      <div className="relative max-w-10xl mx-auto px-1 -mt-20">
+      <div className="relative max-w-11xl mx-auto px-1 -mt-20">
         <div className="bg-white rounded-3xl shadow-xl sm:p-8 p-4 min-w-[375px]">
           <div className="flex flex-col md:flex-row gap-8 items-start">
             {/* Profile Image */}

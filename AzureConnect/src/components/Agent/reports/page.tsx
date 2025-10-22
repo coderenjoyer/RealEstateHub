@@ -331,7 +331,7 @@ export default function EnhancedReportsPage() {
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Priority</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Action</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Details</th>
                   </tr>
                 </thead>
                 <tbody>
