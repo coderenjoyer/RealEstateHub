@@ -1,11 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Sidebar } from "@/components/ui/agentsidebar"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { Sidebar } from "../../../components/ui/agentsidebar"
+import { Input } from "../../../components/ui/input"
+import { Button } from "../../../components/ui/button"
 import { Search } from "lucide-react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../components/ui/table"
 
 interface MaintenanceRecord {
   id: number
@@ -91,7 +91,7 @@ export default function MaintenancePage() {
     <div className="flex min-h-screen bg-[#b8d4e6]">
       <Sidebar />
       <main className="flex-1 p-8">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl min-w-[375px] mx-auto">
           {/* Header with Title and Search */}
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-semibold text-gray-900">Maintenance and Services</h1>

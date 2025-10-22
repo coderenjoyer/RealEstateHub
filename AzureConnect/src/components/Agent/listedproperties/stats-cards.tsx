@@ -20,13 +20,13 @@ const stats = [
 
 export function StatsCards() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 min-w-[375px]">
       {stats.map((stat) => {
         const IconComponent = stat.icon
         return (
           <div
             key={stat.label}
-            className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow"
+            className="bg-white rounded-xl shadow-md sm:p-6 p-4 hover:shadow-lg transition-shadow"
           >
             <div className="flex items-start justify-between">
               <div>

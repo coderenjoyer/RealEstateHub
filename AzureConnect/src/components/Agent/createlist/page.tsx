@@ -96,13 +96,13 @@ export default function ListPropertyPage() {
     <div className="flex min-h-screen bg-[#b8d4e6]">
       <Sidebar />
       <main className="flex-1 p-8">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl min-w-[375px] mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-900">List New Property</h1>
             <p className="text-slate-600 mt-2">Fill in the details below to list your property</p>
           </div>
 
-          <div className="bg-white rounded-3xl shadow-lg p-8">
+          <div className="bg-white rounded-3xl shadow-lg sm:p-8 p-4">
             <form onSubmit={handleSubmit} className="space-y-8">
               
               {/* Basic Information Section */}

@@ -56,7 +56,7 @@ export function PropertiesTable() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden">
+    <div className="bg-white rounded-xl shadow-md overflow-hidden min-w-[375px]">
       {/* Header */}
       <div className="p-6 border-b border-slate-200">
         <div className="flex items-center justify-between mb-4">
