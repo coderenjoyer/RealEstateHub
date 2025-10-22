@@ -19,8 +19,10 @@ interface MessengerDropdownProps {
 export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownProps) {
   const [isOpen, setIsOpen] = useState(true)
   const [selectedChat, setSelectedChat] = useState<number | null>(null)
-  const [selectedMessage, setSelectedMessage] = useState<number | null>(null)
+  const [hoveredMessage, setHoveredMessage] = useState<number | null>(null)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [isHoveringEmojiPicker, setIsHoveringEmojiPicker] = useState(false)
+  const [activeFilter, setActiveFilter] = useState<'all' | 'unread'>('all')
   const [conversations, setConversations] = useState<Array<{
     id: number
     name: string
@@ -108,14 +110,76 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
       unread: false,
       online: false,
       messages: [
-        { id: 1, sender: "me", text: "Gegege sud ko taud2", time: "6:30 PM" }
+        { id: 1, sender: "me", text: "Gegege sud ko taud2", time: "6:30 PM", reactions: [] }
+      ]
+    },
+    {
+      id: 7,
+      name: "Long Conversation Test",
+      message: "You: This is a very long conversation to test scrolling functionality",
+      time: "1h",
+      avatar: "LC",
+      unread: true,
+      online: true,
+      messages: [
+        { id: 1, sender: "them", text: "Hey! How are you doing today?", time: "5:00 PM", reactions: [] },
+        { id: 2, sender: "me", text: "I'm doing great! Thanks for asking. How about you?", time: "5:01 PM", reactions: [] },
+        { id: 3, sender: "them", text: "I'm good too! Just working on some projects. What have you been up to?", time: "5:02 PM", reactions: [] },
+        { id: 4, sender: "me", text: "Same here! Been coding all day. It's been quite productive.", time: "5:03 PM", reactions: [] },
+        { id: 5, sender: "them", text: "That's awesome! What kind of projects are you working on?", time: "5:04 PM", reactions: [] },
+        { id: 6, sender: "me", text: "I'm building a real estate platform. It's quite challenging but fun!", time: "5:05 PM", reactions: [] },
+        { id: 7, sender: "them", text: "Wow, that sounds really interesting! Real estate tech is booming right now.", time: "5:06 PM", reactions: [] },
+        { id: 8, sender: "me", text: "Exactly! There's so much potential in this space. What about you?", time: "5:07 PM", reactions: [] },
+        { id: 9, sender: "them", text: "I'm working on a mobile app for fitness tracking. It's my first big project!", time: "5:08 PM", reactions: [] },
+        { id: 10, sender: "me", text: "That's exciting! Mobile development can be tricky but very rewarding.", time: "5:09 PM", reactions: [] },
+        { id: 11, sender: "them", text: "It definitely is! I'm learning React Native and it's been quite a journey.", time: "5:10 PM", reactions: [] },
+        { id: 12, sender: "me", text: "React Native is great! I've used it for a few projects. The ecosystem is really mature now.", time: "5:11 PM", reactions: [] },
+        { id: 13, sender: "them", text: "That's good to hear! Any tips for a beginner?", time: "5:12 PM", reactions: [] },
+        { id: 14, sender: "me", text: "Start with the basics of React first, then move to React Native. The documentation is excellent!", time: "5:13 PM", reactions: [] },
+        { id: 15, sender: "them", text: "Thanks for the advice! I'll definitely check that out.", time: "5:14 PM", reactions: [] },
+        { id: 16, sender: "me", text: "No problem! Feel free to ask if you run into any issues.", time: "5:15 PM", reactions: [] },
+        { id: 17, sender: "them", text: "I really appreciate that! It's always great to have someone to bounce ideas off of.", time: "5:16 PM", reactions: [] },
+        { id: 18, sender: "me", text: "Absolutely! That's what the developer community is all about - helping each other grow.", time: "5:17 PM", reactions: [] },
+        { id: 19, sender: "them", text: "Couldn't agree more! The support in this community is amazing.", time: "5:18 PM", reactions: [] },
+        { id: 20, sender: "me", text: "By the way, are you planning to release your app on both iOS and Android?", time: "5:19 PM", reactions: [] },
+        { id: 21, sender: "them", text: "Yes! That's one of the main reasons I chose React Native - cross-platform development.", time: "5:20 PM", reactions: [] },
+        { id: 22, sender: "me", text: "Smart choice! It'll save you so much time compared to native development.", time: "5:21 PM", reactions: [] },
+        { id: 23, sender: "them", text: "That's what I'm hoping for! Though I know there might be some platform-specific challenges.", time: "5:22 PM", reactions: [] },
+        { id: 24, sender: "me", text: "There will be, but React Native handles most of them pretty well. The community is very active too.", time: "5:23 PM", reactions: [] },
+        { id: 25, sender: "them", text: "That's reassuring! I've been following some React Native blogs and the ecosystem seems really vibrant.", time: "5:24 PM", reactions: [] },
+        { id: 26, sender: "me", text: "It is! And it's only getting better. Facebook is still actively developing it.", time: "5:25 PM", reactions: [] },
+        { id: 27, sender: "them", text: "That's great to know! I'm excited to dive deeper into it.", time: "5:26 PM", reactions: [] },
+        { id: 28, sender: "me", text: "You'll love it! The hot reload feature alone makes development so much faster.", time: "5:27 PM", reactions: [] },
+        { id: 29, sender: "them", text: "I've heard about that! It sounds like a game-changer for productivity.", time: "5:28 PM", reactions: [] },
+        { id: 30, sender: "me", text: "It really is! You can see your changes instantly without rebuilding the entire app.", time: "5:29 PM", reactions: [] },
+        { id: 31, sender: "them", text: "That sounds amazing! I can't wait to experience that workflow.", time: "5:30 PM", reactions: [] },
+        { id: 32, sender: "me", text: "You'll be hooked once you try it! Good luck with your project!", time: "5:31 PM", reactions: [] },
+        { id: 33, sender: "them", text: "Thank you so much! This conversation has been really helpful.", time: "5:32 PM", reactions: [] },
+        { id: 34, sender: "me", text: "You're welcome! Happy coding! 🚀", time: "5:33 PM", reactions: [] },
+        { id: 35, sender: "them", text: "Thanks! Same to you! 🎉", time: "5:34 PM", reactions: [] }
       ]
     }
   ])
   
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
 
   const selectedConversation = conversations.find(c => c.id === selectedChat)
+  
+  // Filter conversations based on active filter
+  const filteredConversations = conversations.filter(conv => {
+    if (activeFilter === 'unread') {
+      return conv.unread
+    }
+    return true // 'all' filter
+  })
+
+  // Function to scroll to bottom of messages
+  const scrollToBottom = () => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
+    }
+  }
   // ✅ FIXED: Use prop unreadCount instead of local calculation
   // const localUnreadCount = conversations.filter(c => c.unread).length
 
@@ -130,9 +194,6 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
     }
   }
 
-  const handleMessageSelect = (messageId: number) => {
-    setSelectedMessage(selectedMessage === messageId ? null : messageId)
-  }
 
   const handleDeleteMessage = (messageId: number) => {
     setConversations(prev => 
@@ -145,7 +206,7 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
           : conv
       )
     )
-    setSelectedMessage(null)
+    setHoveredMessage(null)
   }
 
   const handleAddReaction = (messageId: number, emoji: string) => {
@@ -158,7 +219,7 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
                 msg.id === messageId 
                   ? { 
                       ...msg, 
-                      reactions: [...(msg.reactions || []), emoji] 
+                      reactions: [emoji] // Only one reaction per message
                     }
                   : msg
               )
@@ -167,6 +228,30 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
       )
     )
     setShowEmojiPicker(false)
+    setIsHoveringEmojiPicker(false)
+    setHoveredMessage(null) // Hide options after reacting
+  }
+
+  const handleHeartToggle = (messageId: number) => {
+    setConversations(prev => 
+      prev.map(conv => 
+        conv.id === selectedChat 
+          ? { 
+              ...conv, 
+              messages: conv.messages.map(msg => 
+                msg.id === messageId 
+                  ? { 
+                      ...msg, 
+                      reactions: msg.reactions && msg.reactions.includes('❤️') ? [] : ['❤️']
+                    }
+                  : msg
+              )
+            }
+          : conv
+      )
+    )
+    setIsHoveringEmojiPicker(false)
+    setHoveredMessage(null) // Hide options after toggling heart
   }
 
   const emojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓']
@@ -177,6 +262,22 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
       onClose()
     }
   }, [isOpen, onClose])
+
+  // Auto-scroll to bottom when conversation changes
+  useEffect(() => {
+    if (selectedChat && selectedConversation) {
+      // Small delay to ensure DOM is updated
+      setTimeout(scrollToBottom, 100)
+    }
+  }, [selectedChat, selectedConversation])
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    if (selectedConversation) {
+      // Small delay to ensure DOM is updated
+      setTimeout(scrollToBottom, 100)
+    }
+  }, [selectedConversation?.messages])
 
   // Close when clicking outside
   useEffect(() => {
@@ -255,7 +356,7 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search Messenger"
+                placeholder="Search Chats"
                 className="w-full pl-10 pr-3 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
               />
             </div>
@@ -263,10 +364,24 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
 
           {/* Filter Tabs */}
           <div className="flex items-center gap-1 px-3 py-1.5 border-b border-gray-200">
-            <button className="px-3.5 py-1.5 text-sm font-semibold text-sky-600 bg-sky-50 rounded-full">
+            <button 
+              className={`px-3.5 py-1.5 text-sm font-semibold rounded-full transition-colors ${
+                activeFilter === 'all' 
+                  ? 'text-sky-600 bg-sky-50' 
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+              onClick={() => setActiveFilter('all')}
+            >
               All
             </button>
-            <button className="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-full">
+            <button 
+              className={`px-3.5 py-1.5 text-sm font-semibold rounded-full transition-colors ${
+                activeFilter === 'unread' 
+                  ? 'text-sky-600 bg-sky-50' 
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+              onClick={() => setActiveFilter('unread')}
+            >
               Unread
             </button>
             <button className="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-full">
@@ -276,7 +391,17 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
 
           {/* Conversations List */}
           <div className="flex-1 overflow-y-auto">
-            {conversations.map((conv) => (
+            {filteredConversations.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                <p className="text-lg font-medium">
+                  {activeFilter === 'unread' ? 'No unread messages' : 'No conversations'}
+                </p>
+                <p className="text-sm">
+                  {activeFilter === 'unread' ? 'You\'re all caught up!' : 'Start a conversation'}
+                </p>
+              </div>
+            ) : (
+              filteredConversations.map((conv) => (
               <div
                 key={conv.id}
                 className="flex items-center gap-2.5 p-2.5 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
@@ -317,7 +442,8 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
                   </div>
                 </div>
               </div>
-            ))}
+              ))
+            )}
           </div>
 
           {/* Footer */}
@@ -388,9 +514,21 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-2.5 space-y-2 bg-white min-h-0">
+          <div 
+            ref={messagesContainerRef}
+            className="flex-1 overflow-y-auto p-2.5 space-y-2 bg-white min-h-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+          >
             {selectedConversation.messages.map((msg) => (
-              <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'} relative`}>
+              <div 
+                key={msg.id} 
+                className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'} relative group`}
+                onMouseEnter={() => setHoveredMessage(msg.id)}
+                onMouseLeave={() => {
+                  if (!isHoveringEmojiPicker && !showEmojiPicker) {
+                    setHoveredMessage(null)
+                  }
+                }}
+              >
                 {msg.sender === 'them' && (
                   <div className="h-6 w-6 rounded-full bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center text-white font-semibold text-[10px] mr-2 flex-shrink-0">
                     {selectedConversation.avatar}
@@ -398,12 +536,7 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
                 )}
                 <div className={`max-w-[72%] ${msg.sender === 'me' ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
                   {msg.type === 'call' ? (
-                    <div 
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-gray-100 cursor-pointer transition-colors ${
-                        selectedMessage === msg.id ? 'ring-2 ring-sky-500 bg-sky-50' : ''
-                      }`}
-                      onClick={() => handleMessageSelect(msg.id)}
-                    >
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-gray-100 transition-colors">
                       <div className="p-1 bg-red-100 rounded-full">
                         <Phone className="h-4 w-4 text-red-600" />
                       </div>
@@ -414,55 +547,64 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
                     </div>
                   ) : (
                     <div 
-                      className={`px-3 py-1.5 rounded-2xl cursor-pointer transition-colors ${
+                      className={`px-3 py-1.5 rounded-2xl transition-colors relative max-w-[72%] ${
                         msg.sender === 'me' 
                           ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' 
                           : 'bg-gray-100 text-gray-900'
-                      } ${selectedMessage === msg.id ? 'ring-2 ring-sky-500' : ''}`}
-                      onClick={() => handleMessageSelect(msg.id)}
+                      }`}
                     >
                       <p className="text-sm">{msg.text}</p>
+
+                      {msg.reactions && msg.reactions.length > 0 && (
+                        <span 
+                          className="absolute -bottom-2  right-0 text-lg select-none pointer-events-none"
+                          style={{ lineHeight: '1' }}
+                          aria-label="reaction"
+                          role="img"
+                        >
+                          {msg.reactions[0]}
+                        </span>
+                      )}
                     </div>
-                  )}
-                  
-                  {/* Action buttons for selected message */}
-                  {selectedMessage === msg.id && (
-                    <div className={`flex items-center gap-1 mt-1 ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
-                      <button
-                        className="p-1 hover:bg-gray-200 rounded-full transition-colors"
-                        onClick={() => handleAddReaction(msg.id, '❤️')}
-                        title="Add reaction"
-                      >
-                        <Heart className="h-4 w-4 text-red-500" />
-                      </button>
-                      <button
-                        className="p-1 hover:bg-gray-200 rounded-full transition-colors"
-                        onClick={() => setShowEmojiPicker(true)}
-                        title="More reactions"
-                      >
-                        <Smile className="h-4 w-4 text-yellow-500" />
-                      </button>
-                      <button
-                        className="p-1 hover:bg-red-100 rounded-full transition-colors"
-                        onClick={() => handleDeleteMessage(msg.id)}
-                        title="Delete message"
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </button>
-                    </div>
-                  )}
-                  
-                  {/* Reactions display */}
-                  {msg.reactions && msg.reactions.length > 0 && (
-                    <div className={`flex items-center gap-1 mt-1 ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
-                      {msg.reactions.map((reaction, index) => (
-                        <span key={index} className="text-sm">{reaction}</span>
-                      ))}
-                    </div>
-                  )}
-                  
+                  )} 
                   <span className="text-xs text-gray-500 px-1">{msg.time}</span>
                 </div>
+                
+                {/* Action buttons - show on hover, positioned on the right */}
+                {hoveredMessage === msg.id && (
+                  <div className={`absolute top-1/2 -translate-y-1/2 flex items-center gap-1 ${
+                    msg.sender === 'me' ? 'left-2' : 'right-2'
+                  }`}>
+                    <button
+                      className="p-1.5 hover:bg-gray-200 rounded-full transition-colors bg-white shadow-md"
+                      onClick={() => handleHeartToggle(msg.id)}
+                      title={msg.reactions && msg.reactions.includes('❤️') ? "Remove heart" : "Add heart"}
+                    >
+                      <Heart className={`h-4 w-4 ${
+                        msg.reactions && msg.reactions.includes('❤️') 
+                          ? 'text-red-500' 
+                          : 'text-gray-500'
+                      }`} />
+                    </button>
+                    <button
+                      className="p-1.5 hover:bg-gray-200 rounded-full transition-colors bg-white shadow-md"
+                      onClick={() => {
+                        setShowEmojiPicker(true)
+                        setIsHoveringEmojiPicker(true)
+                      }}
+                      title="More reactions"
+                    >
+                      <Smile className="h-4 w-4 text-gray-500" />
+                    </button>
+                    <button
+                      className="p-1.5 hover:bg-gray-200 rounded-full transition-colors bg-white shadow-md"
+                      onClick={() => handleDeleteMessage(msg.id)}
+                      title="Delete message"
+                    >
+                      <Trash2 className="h-4 w-4 text-gray-500" />
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -470,15 +612,23 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
           {/* Message Input */}
           <div className="p-2 border-t border-gray-200 bg-white">
             {/* Emoji Picker */}
-            {showEmojiPicker && selectedMessage && (
-              <div className="emoji-picker-container absolute bottom-16 left-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 max-h-32 overflow-y-auto z-10">
+            {showEmojiPicker && hoveredMessage && (
+              <div 
+                className="emoji-picker-container absolute bottom-16 right-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 max-h-32 overflow-y-auto z-10"
+                onMouseEnter={() => setIsHoveringEmojiPicker(true)}
+                onMouseLeave={() => {
+                  setIsHoveringEmojiPicker(false)
+                  setShowEmojiPicker(false)
+                  setHoveredMessage(null)
+                }}
+              >
                 <div className="grid grid-cols-8 gap-1">
                   {emojis.map((emoji, index) => (
                     <button
                       key={index}
                       className="p-1 hover:bg-gray-100 rounded text-lg"
                       onClick={() => {
-                        handleAddReaction(selectedMessage, emoji)
+                        handleAddReaction(hoveredMessage, emoji)
                       }}
                     >
                       {emoji}
