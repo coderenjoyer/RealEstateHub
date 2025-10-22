@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Bell, MoreHorizontal, Check, CheckCheck, Home, Heart, MessageSquare, Calendar, AlertCircle } from "lucide-react"
+import { Bell, Check, CheckCheck, Home, Heart, MessageSquare, Calendar, AlertCircle } from "lucide-react"
 import { Button } from "../../components/ui/button"
 
 type Notification = {
@@ -19,8 +19,8 @@ interface NotificationDropdownProps {
 
 export function NotificationDropdown({ onClose, unreadCount }: NotificationDropdownProps) {
   const [isOpen, setIsOpen] = useState(true) // Always open when rendered
-
-  const notifications: Notification[] = [
+  const [activeFilter, setActiveFilter] = useState<'all' | 'unread'>('all')
+  const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: 1,
       title: "New Property Match",
@@ -93,7 +93,7 @@ export function NotificationDropdown({ onClose, unreadCount }: NotificationDropd
       read: true,
       icon: "📊"
     }
-  ]
+  ])
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -113,12 +113,28 @@ export function NotificationDropdown({ onClose, unreadCount }: NotificationDropd
   }
 
   const markAsRead = (id: number) => {
-    console.log('Mark as read:', id)
+    setNotifications(prev => 
+      prev.map(notification => 
+        notification.id === id 
+          ? { ...notification, read: true }
+          : notification
+      )
+    )
   }
 
   const markAllAsRead = () => {
-    console.log('Mark all as read')
+    setNotifications(prev => 
+      prev.map(notification => ({ ...notification, read: true }))
+    )
   }
+
+  // Filter notifications based on active filter
+  const filteredNotifications = notifications.filter(notification => {
+    if (activeFilter === 'unread') {
+      return !notification.read
+    }
+    return true // 'all' filter
+  })
 
   // NEW: Close when clicking outside
   useEffect(() => {
@@ -147,10 +163,6 @@ export function NotificationDropdown({ onClose, unreadCount }: NotificationDropd
     return () => document.removeEventListener('keydown', handleEscape)
   }, [onClose])
 
-  const handleViewAll = () => {
-    setIsOpen(false) // ✅ USE setIsOpen
-    onClose()
-  }
 
   if (!isOpen) return null
 
@@ -177,21 +189,29 @@ export function NotificationDropdown({ onClose, unreadCount }: NotificationDropd
               >
                 <CheckCheck className="h-5 w-5 text-sky-600" />
               </button>
-              <button 
-                className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
-                onClick={() => setIsOpen(false)} // ✅ USE setIsOpen
-              >
-                <MoreHorizontal className="h-5 w-5 text-gray-600" />
-              </button>
             </div>
           </div>
 
           {/* Filter Tabs */}
           <div className="flex items-center gap-1">
-            <button className="px-3.5 py-1.5 text-sm font-semibold text-sky-600 bg-sky-100 rounded-full">
+            <button 
+              className={`px-3.5 py-1.5 text-sm font-semibold rounded-full transition-colors ${
+                activeFilter === 'all' 
+                  ? 'text-sky-600 bg-sky-100' 
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+              onClick={() => setActiveFilter('all')}
+            >
               All
             </button>
-            <button className="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-full">
+            <button 
+              className={`px-3.5 py-1.5 text-sm font-semibold rounded-full transition-colors ${
+                activeFilter === 'unread' 
+                  ? 'text-sky-600 bg-sky-100' 
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+              onClick={() => setActiveFilter('unread')}
+            >
               Unread
             </button>
           </div>
@@ -199,14 +219,18 @@ export function NotificationDropdown({ onClose, unreadCount }: NotificationDropd
 
         {/* Notifications List */}
         <div className="flex-1 overflow-y-auto scrollbar-hide">
-          {notifications.length === 0 ? (
+          {filteredNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-gray-500">
               <Bell className="h-12 w-12 text-gray-300 mb-3" />
-              <p className="text-lg font-medium">No notifications</p>
-              <p className="text-sm">You're all caught up!</p>
+              <p className="text-lg font-medium">
+                {activeFilter === 'unread' ? 'No unread notifications' : 'No notifications'}
+              </p>
+              <p className="text-sm">
+                {activeFilter === 'unread' ? 'You\'re all caught up!' : 'You\'re all caught up!'}
+              </p>
             </div>
           ) : (
-            notifications.map((notification) => (
+            filteredNotifications.map((notification) => (
               <div
                 key={notification.id}
                 className={`flex items-start gap-3 p-4 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0 ${
@@ -262,15 +286,6 @@ export function NotificationDropdown({ onClose, unreadCount }: NotificationDropd
           )}
         </div>
 
-        {/* Footer */}
-        <div className="p-3 border-t border-gray-200 bg-gray-50">
-          <button 
-            className="w-full text-center text-sky-600 hover:bg-sky-100 py-2 rounded-lg text-sm font-semibold transition-colors"
-            onClick={handleViewAll}
-          >
-            View All Notifications
-          </button>
-        </div>
       </div>
     </div>
   )

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react"
-import { Search, MoreHorizontal, X, Phone, Video, Minus, Send, Image, Smile, ThumbsUp } from "lucide-react"
+import { Search, X, Phone, Video, Minus, Send, Image, Smile, ThumbsUp, Trash2, Heart } from "lucide-react"
 import { Button } from "../../components/ui/button"
 
 type ChatMessage = {
@@ -8,6 +8,7 @@ type ChatMessage = {
   text: string
   time: string
   type?: 'call'
+  reactions?: string[]
 }
 
 interface MessengerDropdownProps {
@@ -18,10 +19,9 @@ interface MessengerDropdownProps {
 export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownProps) {
   const [isOpen, setIsOpen] = useState(true)
   const [selectedChat, setSelectedChat] = useState<number | null>(null)
+  const [selectedMessage, setSelectedMessage] = useState<number | null>(null)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const conversations: Array<{
+  const [conversations, setConversations] = useState<Array<{
     id: number
     name: string
     message: string
@@ -31,7 +31,7 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
     online: boolean
     subtitle?: string
     messages: ChatMessage[]
-  }> = [
+  }>>([
     {
       id: 1,
       name: "SD for real this time",
@@ -111,7 +111,9 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
         { id: 1, sender: "me", text: "Gegege sud ko taud2", time: "6:30 PM" }
       ]
     }
-  ]
+  ])
+  
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const selectedConversation = conversations.find(c => c.id === selectedChat)
   // ✅ FIXED: Use prop unreadCount instead of local calculation
@@ -126,6 +128,45 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
     if (files && files.length > 0) {
       console.log('Files selected:', files)
     }
+  }
+
+  const handleMessageSelect = (messageId: number) => {
+    setSelectedMessage(selectedMessage === messageId ? null : messageId)
+  }
+
+  const handleDeleteMessage = (messageId: number) => {
+    setConversations(prev => 
+      prev.map(conv => 
+        conv.id === selectedChat 
+          ? { 
+              ...conv, 
+              messages: conv.messages.filter(msg => msg.id !== messageId) 
+            }
+          : conv
+      )
+    )
+    setSelectedMessage(null)
+  }
+
+  const handleAddReaction = (messageId: number, emoji: string) => {
+    setConversations(prev => 
+      prev.map(conv => 
+        conv.id === selectedChat 
+          ? { 
+              ...conv, 
+              messages: conv.messages.map(msg => 
+                msg.id === messageId 
+                  ? { 
+                      ...msg, 
+                      reactions: [...(msg.reactions || []), emoji] 
+                    }
+                  : msg
+              )
+            }
+          : conv
+      )
+    )
+    setShowEmojiPicker(false)
   }
 
   const emojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓']
@@ -144,6 +185,10 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
       if (!target.closest('.messenger-dropdown-container')) {
         setIsOpen(false) // ✅ USE setIsOpen
         onClose()
+      }
+      // Close emoji picker when clicking outside
+      if (!target.closest('.emoji-picker-container')) {
+        setShowEmojiPicker(false)
       }
     }
 
@@ -196,12 +241,6 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
                 )}
               </div>
               <div className="flex items-center gap-1.5">
-                <button 
-                  className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
-                  onClick={() => setIsOpen(false)} // ✅ USE setIsOpen
-                >
-                  <MoreHorizontal className="h-5 w-5 text-gray-600" />
-                </button>
                 <button 
                   className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
                   onClick={() => setIsOpen(false)} // ✅ USE setIsOpen
@@ -351,7 +390,7 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-2.5 space-y-2 bg-white min-h-0">
             {selectedConversation.messages.map((msg) => (
-              <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
+              <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'} relative`}>
                 {msg.sender === 'them' && (
                   <div className="h-6 w-6 rounded-full bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center text-white font-semibold text-[10px] mr-2 flex-shrink-0">
                     {selectedConversation.avatar}
@@ -359,7 +398,12 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
                 )}
                 <div className={`max-w-[72%] ${msg.sender === 'me' ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
                   {msg.type === 'call' ? (
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-gray-100">
+                    <div 
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-gray-100 cursor-pointer transition-colors ${
+                        selectedMessage === msg.id ? 'ring-2 ring-sky-500 bg-sky-50' : ''
+                      }`}
+                      onClick={() => handleMessageSelect(msg.id)}
+                    >
                       <div className="p-1 bg-red-100 rounded-full">
                         <Phone className="h-4 w-4 text-red-600" />
                       </div>
@@ -369,14 +413,54 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
                       </div>
                     </div>
                   ) : (
-                    <div className={`px-3 py-1.5 rounded-2xl ${
-                      msg.sender === 'me' 
-                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' 
-                        : 'bg-gray-100 text-gray-900'
-                    }`}>
+                    <div 
+                      className={`px-3 py-1.5 rounded-2xl cursor-pointer transition-colors ${
+                        msg.sender === 'me' 
+                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' 
+                          : 'bg-gray-100 text-gray-900'
+                      } ${selectedMessage === msg.id ? 'ring-2 ring-sky-500' : ''}`}
+                      onClick={() => handleMessageSelect(msg.id)}
+                    >
                       <p className="text-sm">{msg.text}</p>
                     </div>
                   )}
+                  
+                  {/* Action buttons for selected message */}
+                  {selectedMessage === msg.id && (
+                    <div className={`flex items-center gap-1 mt-1 ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
+                      <button
+                        className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                        onClick={() => handleAddReaction(msg.id, '❤️')}
+                        title="Add reaction"
+                      >
+                        <Heart className="h-4 w-4 text-red-500" />
+                      </button>
+                      <button
+                        className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                        onClick={() => setShowEmojiPicker(true)}
+                        title="More reactions"
+                      >
+                        <Smile className="h-4 w-4 text-yellow-500" />
+                      </button>
+                      <button
+                        className="p-1 hover:bg-red-100 rounded-full transition-colors"
+                        onClick={() => handleDeleteMessage(msg.id)}
+                        title="Delete message"
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </button>
+                    </div>
+                  )}
+                  
+                  {/* Reactions display */}
+                  {msg.reactions && msg.reactions.length > 0 && (
+                    <div className={`flex items-center gap-1 mt-1 ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
+                      {msg.reactions.map((reaction, index) => (
+                        <span key={index} className="text-sm">{reaction}</span>
+                      ))}
+                    </div>
+                  )}
+                  
                   <span className="text-xs text-gray-500 px-1">{msg.time}</span>
                 </div>
               </div>
@@ -386,16 +470,15 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
           {/* Message Input */}
           <div className="p-2 border-t border-gray-200 bg-white">
             {/* Emoji Picker */}
-            {showEmojiPicker && (
-              <div className="absolute bottom-16 left-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 max-h-32 overflow-y-auto z-10">
+            {showEmojiPicker && selectedMessage && (
+              <div className="emoji-picker-container absolute bottom-16 left-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 max-h-32 overflow-y-auto z-10">
                 <div className="grid grid-cols-8 gap-1">
                   {emojis.map((emoji, index) => (
                     <button
                       key={index}
                       className="p-1 hover:bg-gray-100 rounded text-lg"
                       onClick={() => {
-                        console.log('Emoji selected:', emoji)
-                        setShowEmojiPicker(false)
+                        handleAddReaction(selectedMessage, emoji)
                       }}
                     >
                       {emoji}
