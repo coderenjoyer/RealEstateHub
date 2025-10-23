@@ -6,9 +6,8 @@ import { TopNav } from "@/components/User/top-nav";
 
 export default function HomePage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
-  // ✅ ADD THESE 2 LINES (LINE 9)
-  const [activeDropdown, setActiveDropdown] = useState<"none" | "chats" | "notifications">("none");
+  const [activeDropdown, setActiveDropdown] = useState<"none" | "chats" | "notifications" | "profile">("none");
+  const [activeTab, setActiveTab] = useState("Buy");
 
   return (
     <div className="h-screen bg-gradient-to-br from-sky-300 via-blue-200 to-blue-300 flex flex-col lg:flex-row overflow-hidden">
@@ -25,14 +24,16 @@ export default function HomePage() {
           <TopNav 
             isSidebarOpen={isSidebarOpen}
             setIsSidebarOpen={setIsSidebarOpen}
-            activeDropdown={activeDropdown}        // ✅ ADD THIS LINE (LINE 23)
-            setActiveDropdown={setActiveDropdown}  // ✅ ADD THIS LINE (LINE 24)
+            activeDropdown={activeDropdown}
+            setActiveDropdown={setActiveDropdown}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
           />
         </div>
 
         {/* Scrollable Property Grid */}
         <div className="flex-1 px-4 lg:px-8 pb-8 overflow-hidden">
-          <PropertyGrid />
+          <PropertyGrid activeTab={activeTab} />
         </div>
       </div>
     </div>

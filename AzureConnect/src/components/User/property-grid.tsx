@@ -4,6 +4,7 @@ import { useState } from "react"
 import { PropertyCard } from "@/components/User/property-card"
 import { PropertyDetailsPanel } from "@/components/User/propertry-details"
 import { useBookmark } from "@/contexts/BookmarkContext"
+import { Heart, Home } from "lucide-react"
 
 const properties = [
   {
@@ -158,30 +159,58 @@ const properties = [
   },
 ]
 
-export function PropertyGrid() {
-  const [selectedProperty, setSelectedProperty] = useState<typeof properties[0] | null>(null)
-  const { toggleBookmark, isBookmarked } = useBookmark()
+interface PropertyGridProps {
+  activeTab: string;
+}
 
-  const handleBookmark = (propertyId: number, isBookmarked: boolean) => {
+export function PropertyGrid({ activeTab }: PropertyGridProps) {
+  const [selectedProperty, setSelectedProperty] = useState<typeof properties[0] | null>(null)
+  const { toggleBookmark, isBookmarked, bookmarkedProperties } = useBookmark()
+
+  const handleBookmark = (propertyId: number) => {
     toggleBookmark(propertyId)
   }
+
+  // Filter properties based on active tab
+  const filteredProperties = activeTab === "Favorites" 
+    ? properties.filter(property => bookmarkedProperties.includes(property.id))
+    : properties;
 
   return (
     <>
       <div className="h-full flex flex-col">
         {/* Scrollable Property Cards Container */}
         <div className="flex-1 overflow-y-auto pr-2 pt-[90px] lg:pt-[110px] scrollbar-hide">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
-            {properties.map((property) => (
-              <PropertyCard 
-                key={property.id} 
-                property={property}
-                isBookmarked={isBookmarked(property.id)}
-                onBookmark={handleBookmark}
-                onClick={() => setSelectedProperty(property)}
-              />
-            ))}
-          </div>
+          {activeTab === "Favorites" && filteredProperties.length === 0 ? (
+            /* Empty State for Favorites */
+            <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+              <div className="text-center py-16 bg-white rounded-2xl shadow-lg max-w-md px-8">
+                <div className="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Heart className="w-12 h-12 text-yellow-500" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-2">No favorites yet</h3>
+                <p className="text-slate-600 mb-6">
+                  Start exploring properties and click the bookmark icon to save your favorites here.
+                </p>
+                <div className="flex items-center justify-center gap-2 text-sm text-slate-500">
+                  <Home className="w-4 h-4" />
+                  <span>{filteredProperties.length} Favorited Properties</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
+              {filteredProperties.map((property) => (
+                <PropertyCard 
+                  key={property.id} 
+                  property={property}
+                  isBookmarked={isBookmarked(property.id)}
+                  onBookmark={(propertyId) => handleBookmark(propertyId)}
+                  onClick={() => setSelectedProperty(property)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

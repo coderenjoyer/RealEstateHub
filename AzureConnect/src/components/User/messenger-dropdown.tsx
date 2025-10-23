@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react"
-import { Search, X, Phone, Video, Minus, Send, Image, Smile, ThumbsUp, Trash2, Heart } from "lucide-react"
+import { Search, X, Phone, Video, Minus, Send, Image, Smile, Paperclip, Trash2, Heart } from "lucide-react"
 
 type ChatMessage = {
   id: number
@@ -474,12 +474,6 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
               </div>
             </div>
             <div className="flex items-center gap-1 flex-shrink-0">
-              <button className="p-1 hover:bg-white/20 rounded-full transition-colors">
-                <Phone className="h-4 w-4 text-white" />
-              </button>
-              <button className="p-1 hover:bg-white/20 rounded-full transition-colors">
-                <Video className="h-4 w-4 text-white" />
-              </button>
               <button 
                 className="p-1 hover:bg-white/20 rounded-full transition-colors"
                 onClick={handleCloseChat}
@@ -638,8 +632,12 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
                 placeholder="Aa"
                 className="flex-1 px-3 py-1.5 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
               />
-              <button className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
-                <ThumbsUp className="h-4 w-4 text-sky-600" />
+              <button 
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+                onClick={handleFileUpload}
+                title="Send files"
+              >
+                <Paperclip className="h-4 w-4 text-sky-600" />
               </button>
               <button className="p-1 bg-sky-500 hover:bg-sky-600 rounded-full transition-colors flex-shrink-0">
                 <Send className="h-4 w-4 text-white" />
