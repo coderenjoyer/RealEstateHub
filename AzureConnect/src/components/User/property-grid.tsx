@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { PropertyCard } from "@/components/User/property-card"
-import { PropertyDetailsPanel } from "@/components/User/propertry-details"
-import { useBookmark } from "@/contexts/BookmarkContext"
-import { Heart, Home } from "lucide-react"
+import { useState } from "react";
+import { PropertyCard } from "@/components/User/property-card";
+import { PropertyDetailsPanel } from "@/components/User/propertry-details";
+import { useBookmark } from "@/contexts/BookmarkContext";
+import { Heart, Home } from "lucide-react";
 
 const properties = [
   {
@@ -15,7 +15,13 @@ const properties = [
     beds: 3,
     baths: 2,
     sqft: 1200,
-    rating: "4.55"
+    rating: "4.55",
+    agent: {
+      id: 1,
+      name: "Sarah Johnson",
+      avatar: "SJ",
+      online: true,
+    },
   },
   {
     id: 2,
@@ -25,7 +31,13 @@ const properties = [
     beds: 2,
     baths: 2,
     sqft: 950,
-    rating: "4.32"
+    rating: "4.32",
+    agent: {
+      id: 2,
+      name: "Michael Rodriguez",
+      avatar: "MR",
+      online: false,
+    },
   },
   {
     id: 3,
@@ -35,7 +47,13 @@ const properties = [
     beds: 4,
     baths: 3,
     sqft: 1500,
-    rating: "4.78"
+    rating: "4.78",
+    agent: {
+      id: 3,
+      name: "Property Investment Group",
+      avatar: "PI",
+      online: false,
+    },
   },
   {
     id: 4,
@@ -45,7 +63,7 @@ const properties = [
     beds: 1,
     baths: 1,
     sqft: 650,
-    rating: "4.21"
+    rating: "4.21",
   },
   {
     id: 5,
@@ -55,7 +73,7 @@ const properties = [
     beds: 3,
     baths: 3,
     sqft: 1800,
-    rating: "4.89"
+    rating: "4.89",
   },
   {
     id: 6,
@@ -65,7 +83,7 @@ const properties = [
     beds: 3,
     baths: 2,
     sqft: 1100,
-    rating: "4.45"
+    rating: "4.45",
   },
   {
     id: 7,
@@ -75,7 +93,7 @@ const properties = [
     beds: 1,
     baths: 1,
     sqft: 500,
-    rating: "4.12"
+    rating: "4.12",
   },
   {
     id: 8,
@@ -85,7 +103,7 @@ const properties = [
     beds: 2,
     baths: 2,
     sqft: 1050,
-    rating: "4.67"
+    rating: "4.67",
   },
   {
     id: 9,
@@ -95,7 +113,7 @@ const properties = [
     beds: 4,
     baths: 3,
     sqft: 1600,
-    rating: "4.82"
+    rating: "4.82",
   },
   {
     id: 10,
@@ -105,7 +123,7 @@ const properties = [
     beds: 3,
     baths: 2,
     sqft: 1000,
-    rating: "4.38"
+    rating: "4.38",
   },
   {
     id: 11,
@@ -115,7 +133,7 @@ const properties = [
     beds: 2,
     baths: 1,
     sqft: 800,
-    rating: "4.56"
+    rating: "4.56",
   },
   {
     id: 12,
@@ -125,7 +143,7 @@ const properties = [
     beds: 2,
     baths: 2,
     sqft: 1150,
-    rating: "4.71"
+    rating: "4.71",
   },
   {
     id: 13,
@@ -135,7 +153,7 @@ const properties = [
     beds: 3,
     baths: 2,
     sqft: 1250,
-    rating: "4.29"
+    rating: "4.29",
   },
   {
     id: 14,
@@ -145,7 +163,7 @@ const properties = [
     beds: 3,
     baths: 2,
     sqft: 1300,
-    rating: "4.63"
+    rating: "4.63",
   },
   {
     id: 15,
@@ -155,26 +173,32 @@ const properties = [
     beds: 3,
     baths: 3,
     sqft: 1400,
-    rating: "4.75"
+    rating: "4.75",
   },
-]
+];
 
 interface PropertyGridProps {
   activeTab: string;
+  onContactAgent?: (agentId: number, agentName: string) => void;
 }
 
-export function PropertyGrid({ activeTab }: PropertyGridProps) {
-  const [selectedProperty, setSelectedProperty] = useState<typeof properties[0] | null>(null)
-  const { toggleBookmark, isBookmarked, bookmarkedProperties } = useBookmark()
+export function PropertyGrid({ activeTab, onContactAgent }: PropertyGridProps) {
+  const [selectedProperty, setSelectedProperty] = useState<
+    (typeof properties)[0] | null
+  >(null);
+  const { toggleBookmark, isBookmarked, bookmarkedProperties } = useBookmark();
 
   const handleBookmark = (propertyId: number) => {
-    toggleBookmark(propertyId)
-  }
+    toggleBookmark(propertyId);
+  };
 
   // Filter properties based on active tab
-  const filteredProperties = activeTab === "Favorites" 
-    ? properties.filter(property => bookmarkedProperties.includes(property.id))
-    : properties;
+  const filteredProperties =
+    activeTab === "Favorites"
+      ? properties.filter((property) =>
+          bookmarkedProperties.includes(property.id)
+        )
+      : properties;
 
   return (
     <>
@@ -188,9 +212,12 @@ export function PropertyGrid({ activeTab }: PropertyGridProps) {
                 <div className="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Heart className="w-12 h-12 text-yellow-500" />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-2">No favorites yet</h3>
+                <h3 className="text-xl font-semibold text-slate-900 mb-2">
+                  No favorites yet
+                </h3>
                 <p className="text-slate-600 mb-6">
-                  Start exploring properties and click the bookmark icon to save your favorites here.
+                  Start exploring properties and click the bookmark icon to save
+                  your favorites here.
                 </p>
                 <div className="flex items-center justify-center gap-2 text-sm text-slate-500">
                   <Home className="w-4 h-4" />
@@ -201,8 +228,8 @@ export function PropertyGrid({ activeTab }: PropertyGridProps) {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
               {filteredProperties.map((property) => (
-                <PropertyCard 
-                  key={property.id} 
+                <PropertyCard
+                  key={property.id}
                   property={property}
                   isBookmarked={isBookmarked(property.id)}
                   onBookmark={(propertyId) => handleBookmark(propertyId)}
@@ -218,8 +245,9 @@ export function PropertyGrid({ activeTab }: PropertyGridProps) {
         <PropertyDetailsPanel
           property={selectedProperty}
           onClose={() => setSelectedProperty(null)}
+          onContactAgent={onContactAgent}
         />
       )}
     </>
-  )
+  );
 }

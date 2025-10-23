@@ -1,78 +1,104 @@
-import { useState } from "react"
-import { X, Star, MapPin, Bed, Bath, Maximize } from "lucide-react"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { X, Star, MapPin, Bed, Bath, Maximize } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface PropertyDetailsPanelProps {
   property: {
-    id: number
-    name: string
-    address: string
-    price: string
-    beds: number
-    baths: number
-    sqft: number
-    rating: string
-    images?: string[]
-  }
-  onClose: () => void
+    id: number;
+    name: string;
+    address: string;
+    price: string;
+    beds: number;
+    baths: number;
+    sqft: number;
+    rating: string;
+    images?: string[];
+    agent?: {
+      id: number;
+      name: string;
+      avatar: string;
+      online: boolean;
+    };
+  };
+  onClose: () => void;
+  onContactAgent?: (agentId: number, agentName: string) => void;
 }
 
-export function PropertyDetailsPanel({ property, onClose }: PropertyDetailsPanelProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "reviews" | "about">("overview")
-  
+export function PropertyDetailsPanel({
+  property,
+  onClose,
+  onContactAgent,
+}: PropertyDetailsPanelProps) {
+  const [activeTab, setActiveTab] = useState<"overview" | "reviews" | "about">(
+    "overview"
+  );
+
   // Default images if none provided
   const defaultImages = [
     "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
     "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop"
-  ]
-  
-  const images = property.images || defaultImages
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop",
+  ];
+
+  const images = property.images || defaultImages;
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const handleImageClick = (index: number) => {
-    setSelectedImageIndex(index)
-  }
+    setSelectedImageIndex(index);
+  };
+
+  const handleContactAgentClick = () => {
+    if (property.agent && onContactAgent) {
+      onContactAgent(property.agent.id, property.agent.name);
+      // Close the property details panel after contacting agent
+      onClose();
+    }
+  };
 
   const reviews = [
     {
       id: 1,
       text: "Spdnckd dkrf vdkxn. The management here really understood our needs during move in very accommodating during move process.",
       rating: 5,
-      author: "Mark L."
+      author: "Mark L.",
     },
     {
       id: 2,
       text: "Spdnckd dkrf vdkxn. The management here really understood our needs during move in very accommodating during process.",
       rating: 5,
-      author: "Sarah M."
+      author: "Sarah M.",
     },
     {
       id: 3,
       text: "Spdnckd dkrf vdkxn. The management here really understood our needs during move in very accommodating during move process.",
       rating: 4,
-      author: "James K."
-    }
-  ]
+      author: "James K.",
+    },
+  ];
 
   return (
-    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-start justify-end p-8" onClick={onClose}>
-      <Card className="w-[500px] h-[calc(100vh-4rem)] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-right duration-300" onClick={(e) => e.stopPropagation()}>
-        
+    <div
+      className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-start justify-end p-8"
+      onClick={onClose}
+    >
+      <Card
+        className="w-[500px] h-[calc(100vh-4rem)] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-right duration-300"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header with Image Gallery */}
         <div className="relative">
           {/* Main Image */}
           <div className="h-48 relative overflow-hidden">
-            <img 
-              src={images[selectedImageIndex]} 
+            <img
+              src={images[selectedImageIndex]}
               alt={property.name}
               className="w-full h-full object-cover"
             />
-            
+
             {/* Overlay Gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-            
+
             {/* Close Button */}
             <button
               onClick={onClose}
@@ -96,13 +122,13 @@ export function PropertyDetailsPanel({ property, onClose }: PropertyDetailsPanel
                 key={index}
                 onClick={() => handleImageClick(index)}
                 className={`w-24 h-20 rounded-xl overflow-hidden flex-shrink-0 transition-all duration-200 ${
-                  selectedImageIndex === index 
-                    ? 'border-2 border-sky-500 opacity-100' 
-                    : 'opacity-60 hover:opacity-100 border-2 border-transparent'
+                  selectedImageIndex === index
+                    ? "border-2 border-sky-500 opacity-100"
+                    : "opacity-60 hover:opacity-100 border-2 border-transparent"
                 }`}
               >
-                <img 
-                  src={image} 
+                <img
+                  src={image}
                   alt={`${property.name} view ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
@@ -113,15 +139,26 @@ export function PropertyDetailsPanel({ property, onClose }: PropertyDetailsPanel
 
         {/* Property Title and Location */}
         <div className="px-6 pb-4">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">{property.name}</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            {property.name}
+          </h2>
           <div className="flex items-center gap-2 text-gray-600">
             <MapPin className="h-4 w-4" />
             <p className="text-sm">{property.address}</p>
           </div>
-          
+
           {/* Contact Agent Button */}
-          <Button className="w-full mt-4 bg-sky-500 hover:bg-sky-600 text-white rounded-full py-6 font-semibold shadow-lg shadow-sky-500/30">
-            Contact Agent ➜
+          <Button
+            onClick={handleContactAgentClick}
+            className={`w-full mt-4 rounded-full py-6 font-semibold shadow-lg transition-all duration-200 ${
+              property.agent
+                ? "bg-sky-500 hover:bg-sky-600 text-white shadow-sky-500/30 cursor-pointer"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+            disabled={!property.agent}
+            title={property.agent ? "Contact Agent" : "No agent assigned"}
+          >
+            {property.agent ? "Contact Agent ➜" : "No Agent Available"}
           </Button>
         </div>
 
@@ -164,36 +201,55 @@ export function PropertyDetailsPanel({ property, onClose }: PropertyDetailsPanel
           {activeTab === "overview" && (
             <div className="space-y-4">
               <div className="bg-gray-50 rounded-2xl p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Property Details</h3>
+                <h3 className="font-semibold text-gray-900 mb-3">
+                  Property Details
+                </h3>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="flex flex-col items-center gap-2 p-3 bg-white rounded-xl">
                     <Bed className="h-5 w-5 text-sky-600" />
-                    <span className="text-sm font-medium text-gray-600">Bedrooms</span>
-                    <span className="text-lg font-bold text-gray-900">{property.beds}</span>
+                    <span className="text-sm font-medium text-gray-600">
+                      Bedrooms
+                    </span>
+                    <span className="text-lg font-bold text-gray-900">
+                      {property.beds}
+                    </span>
                   </div>
                   <div className="flex flex-col items-center gap-2 p-3 bg-white rounded-xl">
                     <Bath className="h-5 w-5 text-sky-600" />
-                    <span className="text-sm font-medium text-gray-600">Bathrooms</span>
-                    <span className="text-lg font-bold text-gray-900">{property.baths}</span>
+                    <span className="text-sm font-medium text-gray-600">
+                      Bathrooms
+                    </span>
+                    <span className="text-lg font-bold text-gray-900">
+                      {property.baths}
+                    </span>
                   </div>
                   <div className="flex flex-col items-center gap-2 p-3 bg-white rounded-xl">
                     <Maximize className="h-5 w-5 text-sky-600" />
-                    <span className="text-sm font-medium text-gray-600">Sq Ft</span>
-                    <span className="text-lg font-bold text-gray-900">{property.sqft}</span>
+                    <span className="text-sm font-medium text-gray-600">
+                      Sq Ft
+                    </span>
+                    <span className="text-lg font-bold text-gray-900">
+                      {property.sqft}
+                    </span>
                   </div>
                 </div>
               </div>
 
               <div className="bg-gray-50 rounded-2xl p-4">
                 <h3 className="font-semibold text-gray-900 mb-2">Price</h3>
-                <p className="text-2xl font-bold text-sky-600">{property.price}</p>
+                <p className="text-2xl font-bold text-sky-600">
+                  {property.price}
+                </p>
               </div>
 
               <div className="bg-gray-50 rounded-2xl p-4">
-                <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  Description
+                </h3>
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  Beautiful villa located in a prime location with modern amenities and spacious rooms. 
-                  Perfect for families looking for comfort and convenience. Features include a modern kitchen, 
+                  Beautiful villa located in a prime location with modern
+                  amenities and spacious rooms. Perfect for families looking for
+                  comfort and convenience. Features include a modern kitchen,
                   large living area, and well-maintained garden.
                 </p>
               </div>
@@ -201,11 +257,16 @@ export function PropertyDetailsPanel({ property, onClose }: PropertyDetailsPanel
               <div className="bg-gray-50 rounded-2xl p-4">
                 <h3 className="font-semibold text-gray-900 mb-3">Amenities</h3>
                 <div className="flex flex-wrap gap-2">
-                  {["Parking", "Garden", "Pool", "Gym", "Security"].map((amenity) => (
-                    <span key={amenity} className="px-3 py-1.5 bg-sky-100 text-sky-700 rounded-full text-xs font-medium">
-                      {amenity}
-                    </span>
-                  ))}
+                  {["Parking", "Garden", "Pool", "Gym", "Security"].map(
+                    (amenity) => (
+                      <span
+                        key={amenity}
+                        className="px-3 py-1.5 bg-sky-100 text-sky-700 rounded-full text-xs font-medium"
+                      >
+                        {amenity}
+                      </span>
+                    )
+                  )}
                 </div>
               </div>
             </div>
@@ -215,15 +276,21 @@ export function PropertyDetailsPanel({ property, onClose }: PropertyDetailsPanel
             <div className="space-y-4">
               {reviews.map((review) => (
                 <div key={review.id} className="bg-sky-50 rounded-2xl p-4">
-                  <p className="text-sm text-gray-700 leading-relaxed mb-3">{review.text}</p>
+                  <p className="text-sm text-gray-700 leading-relaxed mb-3">
+                    {review.text}
+                  </p>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-gray-500">{review.author}</span>
+                    <span className="text-xs font-medium text-gray-500">
+                      {review.author}
+                    </span>
                     <div className="flex items-center gap-1">
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star
                           key={i}
                           className={`h-4 w-4 ${
-                            i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                            i < review.rating
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-gray-300"
                           }`}
                         />
                       ))}
@@ -237,14 +304,18 @@ export function PropertyDetailsPanel({ property, onClose }: PropertyDetailsPanel
           {activeTab === "about" && (
             <div className="space-y-4">
               <div className="bg-gray-50 rounded-2xl p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">About This Property</h3>
+                <h3 className="font-semibold text-gray-900 mb-3">
+                  About This Property
+                </h3>
                 <p className="text-sm text-gray-600 leading-relaxed mb-4">
-                  Aurelia Heights represents modern luxury living at its finest. Built in 2020, this property 
-                  offers state-of-the-art facilities and premium finishes throughout.
+                  Aurelia Heights represents modern luxury living at its finest.
+                  Built in 2020, this property offers state-of-the-art
+                  facilities and premium finishes throughout.
                 </p>
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  The development features 24/7 security, beautifully landscaped grounds, and is conveniently 
-                  located near schools, shopping centers, and major transport links.
+                  The development features 24/7 security, beautifully landscaped
+                  grounds, and is conveniently located near schools, shopping
+                  centers, and major transport links.
                 </p>
               </div>
 
@@ -274,5 +345,5 @@ export function PropertyDetailsPanel({ property, onClose }: PropertyDetailsPanel
         </div>
       </Card>
     </div>
-  )
+  );
 }

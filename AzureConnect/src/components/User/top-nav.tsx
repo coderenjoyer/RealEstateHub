@@ -12,18 +12,24 @@ interface TopNavProps {
   isSidebarOpen: boolean;
   setIsSidebarOpen: (open: boolean) => void;
   activeDropdown: "none" | "chats" | "notifications" | "profile";
-  setActiveDropdown: (dropdown: "none" | "chats" | "notifications" | "profile") => void;
+  setActiveDropdown: (
+    dropdown: "none" | "chats" | "notifications" | "profile"
+  ) => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  selectedChatId?: number;
+  onCloseDropdown?: () => void;
 }
 
-export function TopNav({ 
-  isSidebarOpen, 
-  setIsSidebarOpen, 
-  activeDropdown, 
+export function TopNav({
+  isSidebarOpen,
+  setIsSidebarOpen,
+  activeDropdown,
   setActiveDropdown,
   activeTab,
-  setActiveTab
+  setActiveTab,
+  selectedChatId,
+  onCloseDropdown,
 }: TopNavProps) {
   const navigate = useNavigate();
   const unreadChatsCount = 3;
@@ -55,6 +61,7 @@ export function TopNav({
 
   const handleCloseDropdown = () => {
     setActiveDropdown("none");
+    onCloseDropdown?.();
   };
 
   const handleNavigateToProfile = () => {
@@ -109,7 +116,9 @@ export function TopNav({
           variant="ghost"
           onClick={handleChatsClick}
           className={`p-2 lg:p-2.5 bg-sky-500/20 hover:bg-sky-500/30 text-white rounded-xl transition-all duration-200 shadow-md relative ${
-            activeDropdown === "chats" ? "ring-2 ring-green-400 ring-opacity-50 scale-105" : ""
+            activeDropdown === "chats"
+              ? "ring-2 ring-green-400 ring-opacity-50 scale-105"
+              : ""
           }`}
         >
           <MessageCircle className="h-4 w-4 lg:h-5 lg:w-5" />
@@ -124,7 +133,9 @@ export function TopNav({
           variant="ghost"
           onClick={handleNotificationsClick}
           className={`p-2 lg:p-2.5 bg-sky-500/20 hover:bg-sky-500/30 text-white rounded-xl transition-all duration-200 shadow-md relative ${
-            activeDropdown === "notifications" ? "ring-2 ring-orange-400 ring-opacity-50 scale-105" : ""
+            activeDropdown === "notifications"
+              ? "ring-2 ring-orange-400 ring-opacity-50 scale-105"
+              : ""
           }`}
         >
           <Bell className="h-4 w-4 lg:h-5 lg:w-5" />
@@ -138,7 +149,9 @@ export function TopNav({
           <div
             onClick={handleProfileClick}
             className={`flex items-center gap-2 lg:gap-3 ml-1 lg:ml-2 bg-sky-500/20 backdrop-blur-sm rounded-full pl-3 lg:pl-4 pr-1 lg:pr-2 py-1.5 lg:py-2 cursor-pointer hover:bg-sky-500/30 transition-all duration-200 ${
-              activeDropdown === "profile" ? "ring-2 ring-sky-400 ring-opacity-50 scale-105" : ""
+              activeDropdown === "profile"
+                ? "ring-2 ring-sky-400 ring-opacity-50 scale-105"
+                : ""
             }`}
           >
             <div className="text-right hidden sm:block">
@@ -152,9 +165,11 @@ export function TopNav({
                 JD
               </AvatarFallback>
             </Avatar>
-            <ChevronDown className={`h-3 w-3 lg:h-4 lg:w-4 text-white/80 transition-transform duration-200 ${
-              activeDropdown === "profile" ? "rotate-180" : ""
-            }`} />
+            <ChevronDown
+              className={`h-3 w-3 lg:h-4 lg:w-4 text-white/80 transition-transform duration-200 ${
+                activeDropdown === "profile" ? "rotate-180" : ""
+              }`}
+            />
           </div>
 
           {/* Profile Dropdown */}
@@ -170,13 +185,14 @@ export function TopNav({
 
       {/* Render dropdowns */}
       {activeDropdown === "chats" && (
-        <MessengerDropdown 
+        <MessengerDropdown
           onClose={handleCloseDropdown}
           unreadCount={unreadChatsCount}
+          initialChatId={selectedChatId}
         />
       )}
       {activeDropdown === "notifications" && (
-        <NotificationDropdown 
+        <NotificationDropdown
           onClose={handleCloseDropdown}
           unreadCount={unreadNotificationsCount}
         />

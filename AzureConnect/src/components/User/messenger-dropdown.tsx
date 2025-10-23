@@ -24,11 +24,13 @@ type ChatMessage = {
 interface MessengerDropdownProps {
   onClose: () => void;
   unreadCount: number;
+  initialChatId?: number;
 }
 
 export function MessengerDropdown({
   onClose,
   unreadCount,
+  initialChatId,
 }: MessengerDropdownProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [selectedChat, setSelectedChat] = useState<number | null>(null);
@@ -600,6 +602,13 @@ export function MessengerDropdown({
     "😥",
     "😓",
   ];
+
+  // Set initial chat if provided
+  useEffect(() => {
+    if (initialChatId) {
+      setSelectedChat(initialChatId);
+    }
+  }, [initialChatId]);
 
   // ✅ FIXED: Use setIsOpen
   useEffect(() => {
