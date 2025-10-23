@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { Bell, Check, CheckCheck, Home, Heart, MessageSquare, Calendar, AlertCircle } from "lucide-react"
-import { Button } from "../../components/ui/button"
 
 type Notification = {
   id: number
@@ -171,7 +170,7 @@ export function NotificationDropdown({ onClose, unreadCount }: NotificationDropd
       {/* Dropdown Content */}
       <div className="bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-200 flex flex-col max-h-[70vh]">
         {/* Header - ✅ USE unreadCount + Button + setIsOpen */}
-        <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-sky-50 to-blue-50">
+        <div className="p-4 border-b border-gray-200 bg-white">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               {/* ✅ UNREADCOUNT USED - Show dot */}
