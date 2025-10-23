@@ -8,13 +8,33 @@ function UserProfilePage() {
   
   // State management for edit functionality
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editMode, setEditMode] = useState<'profile' | 'cover' | null>(null);
+  const [editMode, setEditMode] = useState<'profile' | 'cover' | 'bio' | 'preferences' | null>(null);
   const [profileImage, setProfileImage] = useState("/header.jpeg");
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
+  // Bio state
+  const [bio, setBio] = useState(`I'm a passionate real estate enthusiast with over 5 years of experience in property investment and development. 
+My journey in real estate began when I purchased my first condominium unit in Makati, and since then, 
+I've been fascinated by the dynamic Philippine property market.
 
-  const handleEditClick = (mode: 'profile' | 'cover') => {
+I specialize in residential properties, particularly condominiums and townhouses in Metro Manila. 
+I enjoy helping others navigate the complex world of property investment and have successfully 
+guided numerous friends and family members through their property purchases.
+
+When I'm not exploring new properties, you can find me reading about market trends, 
+attending real estate seminars, or enjoying the vibrant city life of Manila.`);
+
+  // Preferences state
+  const [preferences, setPreferences] = useState({
+    propertyType: "Condominium, Townhouse",
+    preferredLocation: "Makati, BGC, Ortigas",
+    budgetRange: "₱3M - ₱8M",
+    investmentGoal: "Long-term rental income"
+  });
+
+  const handleEditClick = (mode: 'profile' | 'cover' | 'bio' | 'preferences') => {
     setEditMode(mode);
     setIsEditModalOpen(true);
     setIsDropdownOpen(false);
@@ -55,6 +75,18 @@ function UserProfilePage() {
     setEditMode(null);
   };
 
+  const handleSaveBio = () => {
+    // In a real app, you would save the bio to your backend here
+    setIsEditModalOpen(false);
+    setEditMode(null);
+  };
+
+  const handleSavePreferences = () => {
+    // In a real app, you would save the preferences to your backend here
+    setIsEditModalOpen(false);
+    setEditMode(null);
+  };
+
   const handleCancelEdit = () => {
     setIsEditModalOpen(false);
     setPreviewImage(null);
@@ -63,7 +95,7 @@ function UserProfilePage() {
 
   return (
     <div 
-      className="h-screen bg-gradient-to-br from-sky-300/95 via-blue-200/95 to-blue-300/95"
+      className="min-h-screen bg-gradient-to-br from-sky-200 via-blue-100 to-cyan-100"
       onClick={handleClickOutside}
     >
       {/* Hero Background Section */}
@@ -217,46 +249,49 @@ function UserProfilePage() {
             <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 lg:p-8">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900">About Me</h2>
-                <Button variant="outline" size="sm" className="flex items-center gap-2 self-start sm:self-auto">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center gap-2 self-start sm:self-auto"
+                  onClick={() => handleEditClick('bio')}
+                >
                   <Edit3 className="w-4 h-4" />
                   Edit Bio
                 </Button>
               </div>
               <div className="prose prose-slate max-w-none">
-                <p className="text-slate-700 leading-relaxed mb-4">
-                  I'm a passionate real estate enthusiast with over 5 years of experience in property investment and development. 
-                  My journey in real estate began when I purchased my first condominium unit in Makati, and since then, 
-                  I've been fascinated by the dynamic Philippine property market.
-                </p>
-                <p className="text-slate-700 leading-relaxed mb-4">
-                  I specialize in residential properties, particularly condominiums and townhouses in Metro Manila. 
-                  I enjoy helping others navigate the complex world of property investment and have successfully 
-                  guided numerous friends and family members through their property purchases.
-                </p>
-                <p className="text-slate-700 leading-relaxed">
-                  When I'm not exploring new properties, you can find me reading about market trends, 
-                  attending real estate seminars, or enjoying the vibrant city life of Manila.
-                </p>
+                <p className="text-slate-700 leading-relaxed whitespace-pre-line">{bio}</p>
               </div>
             </div>
 
             {/* Preferences Section */}
             <div className="bg-white rounded-3xl shadow-xl p-8 mt-8">
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Property Preferences</h2>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+                <h2 className="text-2xl font-bold text-slate-900">Property Preferences</h2>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center gap-2 self-start sm:self-auto"
+                  onClick={() => handleEditClick('preferences')}
+                >
+                  <Edit3 className="w-4 h-4" />
+                  Edit Preferences
+                </Button>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
                     <Home className="w-5 h-5 text-blue-600" />
                     <div>
                       <p className="font-semibold text-blue-900">Property Type</p>
-                      <p className="text-sm text-blue-700">Condominium, Townhouse</p>
+                      <p className="text-sm text-blue-700">{preferences.propertyType}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-200">
                     <MapPin className="w-5 h-5 text-green-600" />
                     <div>
                       <p className="font-semibold text-green-900">Preferred Location</p>
-                      <p className="text-sm text-green-700">Makati, BGC, Ortigas</p>
+                      <p className="text-sm text-green-700">{preferences.preferredLocation}</p>
                     </div>
                   </div>
                 </div>
@@ -265,14 +300,14 @@ function UserProfilePage() {
                     <Briefcase className="w-5 h-5 text-purple-600" />
                     <div>
                       <p className="font-semibold text-purple-900">Budget Range</p>
-                      <p className="text-sm text-purple-700">₱3M - ₱8M</p>
+                      <p className="text-sm text-purple-700">{preferences.budgetRange}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-xl border border-orange-200">
                     <Award className="w-5 h-5 text-orange-600" />
                     <div>
                       <p className="font-semibold text-orange-900">Investment Goal</p>
-                      <p className="text-sm text-orange-700">Long-term rental income</p>
+                      <p className="text-sm text-orange-700">{preferences.investmentGoal}</p>
                     </div>
                   </div>
                 </div>
@@ -340,11 +375,16 @@ function UserProfilePage() {
       {/* Edit Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto ${
+            editMode === 'bio' || editMode === 'preferences' ? 'max-w-2xl' : 'max-w-md'
+          }`}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-slate-900">
-                  Edit {editMode === 'profile' ? 'Profile Picture' : 'Cover Photo'}
+                  {editMode === 'profile' && 'Edit Profile Picture'}
+                  {editMode === 'cover' && 'Edit Cover Photo'}
+                  {editMode === 'bio' && 'Edit Bio'}
+                  {editMode === 'preferences' && 'Edit Property Preferences'}
                 </h3>
                 <button
                   onClick={handleCancelEdit}
@@ -355,63 +395,153 @@ function UserProfilePage() {
               </div>
 
               <div className="space-y-6">
-                {/* Current Image Preview */}
-                <div className="text-center">
-                  <div className="relative inline-block">
-                    <div className={`relative overflow-hidden rounded-xl border-4 border-white shadow-lg ${
-                      editMode === 'profile' ? 'w-32 h-32' : 'w-full h-32'
-                    }`}>
-                      <img 
-                        src={editMode === 'profile' ? profileImage : '/header.jpeg'} 
-                        alt="Current" 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="absolute -bottom-2 -right-2 bg-blue-500 rounded-full p-2 shadow-md border-2 border-white">
-                      <Camera className="w-4 h-4 text-white" />
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-600 mt-2">Current {editMode === 'profile' ? 'Profile Picture' : 'Cover Photo'}</p>
-                </div>
-
-                {/* Upload Section */}
-                <div className="space-y-4">
-                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                      id="image-upload"
-                    />
-                    <label htmlFor="image-upload" className="cursor-pointer">
-                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm font-medium text-gray-700 mb-1">Click to upload new image</p>
-                      <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                    </label>
-                  </div>
-
-                  {/* Preview New Image */}
-                  {previewImage && (
+                {/* Image Upload Modal */}
+                {(editMode === 'profile' || editMode === 'cover') && (
+                  <>
+                    {/* Current Image Preview */}
                     <div className="text-center">
                       <div className="relative inline-block">
-                        <div className={`relative overflow-hidden rounded-xl border-4 border-blue-200 shadow-lg ${
+                        <div className={`relative overflow-hidden rounded-xl border-4 border-white shadow-lg ${
                           editMode === 'profile' ? 'w-32 h-32' : 'w-full h-32'
                         }`}>
                           <img 
-                            src={previewImage} 
-                            alt="Preview" 
+                            src={editMode === 'profile' ? profileImage : (coverImage || '/header.jpeg')} 
+                            alt="Current" 
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        <div className="absolute -bottom-2 -right-2 bg-green-500 rounded-full p-2 shadow-md border-2 border-white">
-                          <ImageIcon className="w-4 h-4 text-white" />
+                        <div className="absolute -bottom-2 -right-2 bg-blue-500 rounded-full p-2 shadow-md border-2 border-white">
+                          <Camera className="w-4 h-4 text-white" />
                         </div>
                       </div>
-                      <p className="text-sm text-green-600 mt-2">New {editMode === 'profile' ? 'Profile Picture' : 'Cover Photo'} Preview</p>
+                      <p className="text-sm text-gray-600 mt-2">Current {editMode === 'profile' ? 'Profile Picture' : 'Cover Photo'}</p>
                     </div>
-                  )}
-                </div>
+
+                    {/* Upload Section */}
+                    <div className="space-y-4">
+                      <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                          id="image-upload"
+                        />
+                        <label htmlFor="image-upload" className="cursor-pointer">
+                          <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                          <p className="text-sm font-medium text-gray-700 mb-1">Click to upload new image</p>
+                          <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                        </label>
+                      </div>
+
+                      {/* Preview New Image */}
+                      {previewImage && (
+                        <div className="text-center">
+                          <div className="relative inline-block">
+                            <div className={`relative overflow-hidden rounded-xl border-4 border-blue-200 shadow-lg ${
+                              editMode === 'profile' ? 'w-32 h-32' : 'w-full h-32'
+                            }`}>
+                              <img 
+                                src={previewImage} 
+                                alt="Preview" 
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="absolute -bottom-2 -right-2 bg-green-500 rounded-full p-2 shadow-md border-2 border-white">
+                              <ImageIcon className="w-4 h-4 text-white" />
+                            </div>
+                          </div>
+                          <p className="text-sm text-green-600 mt-2">New {editMode === 'profile' ? 'Profile Picture' : 'Cover Photo'} Preview</p>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                {/* Bio Edit Modal */}
+                {editMode === 'bio' && (
+                  <div className="space-y-4">
+                    <div>
+                      <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-2">
+                        About Me
+                      </label>
+                      <textarea
+                        id="bio"
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        rows={8}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                        placeholder="Tell us about yourself..."
+                      />
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      Share your interests, experience, and what you're looking for in properties.
+                    </p>
+                  </div>
+                )}
+
+                {/* Preferences Edit Modal */}
+                {editMode === 'preferences' && (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label htmlFor="propertyType" className="block text-sm font-medium text-gray-700 mb-2">
+                          Property Type
+                        </label>
+                        <input
+                          type="text"
+                          id="propertyType"
+                          value={preferences.propertyType}
+                          onChange={(e) => setPreferences({...preferences, propertyType: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="e.g., Condominium, Townhouse"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="preferredLocation" className="block text-sm font-medium text-gray-700 mb-2">
+                          Preferred Location
+                        </label>
+                        <input
+                          type="text"
+                          id="preferredLocation"
+                          value={preferences.preferredLocation}
+                          onChange={(e) => setPreferences({...preferences, preferredLocation: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="e.g., Makati, BGC, Ortigas"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="budgetRange" className="block text-sm font-medium text-gray-700 mb-2">
+                          Budget Range
+                        </label>
+                        <input
+                          type="text"
+                          id="budgetRange"
+                          value={preferences.budgetRange}
+                          onChange={(e) => setPreferences({...preferences, budgetRange: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="e.g., ₱3M - ₱8M"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="investmentGoal" className="block text-sm font-medium text-gray-700 mb-2">
+                          Investment Goal
+                        </label>
+                        <input
+                          type="text"
+                          id="investmentGoal"
+                          value={preferences.investmentGoal}
+                          onChange={(e) => setPreferences({...preferences, investmentGoal: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="e.g., Long-term rental income"
+                        />
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      Update your property preferences to get better recommendations.
+                    </p>
+                  </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4">
@@ -423,8 +553,12 @@ function UserProfilePage() {
                     Cancel
                   </Button>
                   <Button
-                    onClick={handleSaveImage}
-                    disabled={!previewImage}
+                    onClick={
+                      editMode === 'bio' ? handleSaveBio :
+                      editMode === 'preferences' ? handleSavePreferences :
+                      handleSaveImage
+                    }
+                    disabled={(editMode === 'profile' || editMode === 'cover') && !previewImage}
                     className="flex-1 bg-blue-500 hover:bg-blue-600"
                   >
                     Save Changes
