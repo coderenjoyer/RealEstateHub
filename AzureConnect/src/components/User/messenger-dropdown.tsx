@@ -35,127 +35,127 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
   }>>([
     {
       id: 1,
-      name: "SD for real this time",
-      message: "kiss ko lalat: naay bag oh meeting ...",
+      name: "Sarah Johnson - Real Estate Agent",
+      message: "Hi! I have some great properties that match your criteria...",
       time: "3m",
-      avatar: "SD",
+      avatar: "SJ",
       unread: false,
       online: true,
       messages: [
-        { id: 1, sender: "them", text: "naa nay meet?", time: "6:20 PM" },
-        { id: 2, sender: "me", text: "kiss ko lalat", time: "6:23 PM" },
-        { id: 3, sender: "them", text: "@Lorenz James Bas", time: "6:23 PM" },
-        { id: 4, sender: "them", text: "naay bag oh meeting oyyy", time: "6:25 PM" }
+        { id: 1, sender: "them", text: "Hi! I have some great properties that match your criteria", time: "6:20 PM" },
+        { id: 2, sender: "me", text: "That sounds interesting! What areas are you focusing on?", time: "6:23 PM" },
+        { id: 3, sender: "them", text: "I have listings in BGC, Makati, and Ortigas. All premium locations", time: "6:25 PM" },
+        { id: 4, sender: "them", text: "Would you like to schedule a viewing this weekend?", time: "6:26 PM" }
       ]
     },
     {
       id: 2,
-      name: "PH Pokemon TCG Buy And Sell",
-      subtitle: "Card Advice By Jezrah",
-      message: "Patrick Kim sent a photo.",
+      name: "Property Investment Group",
+      subtitle: "Real Estate Investors Network",
+      message: "Mike Chen shared a new investment opportunity.",
       time: "3m",
-      avatar: "PP",
+      avatar: "PI",
       unread: true,
       online: false,
       messages: [
-        { id: 1, sender: "them", text: "Patrick Kim sent a photo.", time: "6:15 PM" }
+        { id: 1, sender: "them", text: "Mike Chen shared a new investment opportunity in Cebu", time: "6:15 PM" }
       ]
     },
     {
       id: 3,
-      name: "PH Pokemon TCG Buy And Sell",
-      subtitle: "Buy&Sell by Jezrah",
-      message: "John: Bubble mew psa 10 4k o...",
+      name: "Luxury Properties Manila",
+      subtitle: "Premium Real Estate",
+      message: "New luxury condo in BGC - 3BR, 2BA, ₱15M",
       time: "4m",
-      avatar: "PP",
+      avatar: "LP",
       unread: true,
       online: false,
       messages: [
-        { id: 1, sender: "them", text: "Bubble mew psa 10 4k o...", time: "6:10 PM" }
+        { id: 1, sender: "them", text: "New luxury condo in BGC - 3BR, 2BA, ₱15M. Interested?", time: "6:10 PM" }
       ]
     },
     {
       id: 4,
-      name: "Eskwadsakalam🔥🔥",
-      message: "KITOYI😂: sakpan hilanat...",
+      name: "Property Management Team",
+      message: "Your rental property maintenance is scheduled for tomorrow",
       time: "10m",
-      avatar: "ES",
+      avatar: "PM",
       unread: true,
       online: false,
       messages: [
-        { id: 1, sender: "them", text: "sakpan hilanat...", time: "5:55 PM" }
+        { id: 1, sender: "them", text: "Your rental property maintenance is scheduled for tomorrow at 9 AM", time: "5:55 PM" }
       ]
     },
     {
       id: 5,
-      name: "Fernandez Manette Ferdinand",
-      message: "GD pm kuya on line kiss pka nag ...",
+      name: "Michael Rodriguez - Mortgage Broker",
+      message: "Your loan pre-approval is ready! Let's discuss the next steps",
       time: "30m",
-      avatar: "FM",
+      avatar: "MR",
       unread: false,
       online: false,
       messages: [
         { id: 1, sender: "them", text: "Missed audio call", time: "6:44 PM", type: "call" },
-        { id: 2, sender: "them", text: "Abot na mama nmu kuya....", time: "6:45 PM" },
-        { id: 3, sender: "me", text: "Ga klasi pako pa", time: "6:46 PM" }
+        { id: 2, sender: "them", text: "Your loan pre-approval is ready! Let's discuss the next steps", time: "6:45 PM" },
+        { id: 3, sender: "me", text: "Great! I'll call you back in a few minutes", time: "6:46 PM" }
       ]
     },
     {
       id: 6,
-      name: "Gaymers 🏳️‍🌈",
-      message: "You: Gegege sud ko taud2",
+      name: "Real Estate News & Updates",
+      message: "You: Thanks for the market insights!",
       time: "30m",
-      avatar: "G",
+      avatar: "RE",
       unread: false,
       online: false,
       messages: [
-        { id: 1, sender: "me", text: "Gegege sud ko taud2", time: "6:30 PM", reactions: [] }
+        { id: 1, sender: "me", text: "Thanks for the market insights! Very helpful", time: "6:30 PM", reactions: [] }
       ]
     },
     {
       id: 7,
-      name: "Long Conversation Test",
-      message: "You: This is a very long conversation to test scrolling functionality",
+      name: "Property Viewing Group",
+      message: "You: The penthouse in BGC looks amazing!",
       time: "1h",
-      avatar: "LC",
+      avatar: "PV",
       unread: true,
       online: true,
       messages: [
-        { id: 1, sender: "them", text: "Hey! How are you doing today?", time: "5:00 PM", reactions: [] },
-        { id: 2, sender: "me", text: "I'm doing great! Thanks for asking. How about you?", time: "5:01 PM", reactions: [] },
-        { id: 3, sender: "them", text: "I'm good too! Just working on some projects. What have you been up to?", time: "5:02 PM", reactions: [] },
-        { id: 4, sender: "me", text: "Same here! Been coding all day. It's been quite productive.", time: "5:03 PM", reactions: [] },
-        { id: 5, sender: "them", text: "That's awesome! What kind of projects are you working on?", time: "5:04 PM", reactions: [] },
-        { id: 6, sender: "me", text: "I'm building a real estate platform. It's quite challenging but fun!", time: "5:05 PM", reactions: [] },
-        { id: 7, sender: "them", text: "Wow, that sounds really interesting! Real estate tech is booming right now.", time: "5:06 PM", reactions: [] },
-        { id: 8, sender: "me", text: "Exactly! There's so much potential in this space. What about you?", time: "5:07 PM", reactions: [] },
-        { id: 9, sender: "them", text: "I'm working on a mobile app for fitness tracking. It's my first big project!", time: "5:08 PM", reactions: [] },
-        { id: 10, sender: "me", text: "That's exciting! Mobile development can be tricky but very rewarding.", time: "5:09 PM", reactions: [] },
-        { id: 11, sender: "them", text: "It definitely is! I'm learning React Native and it's been quite a journey.", time: "5:10 PM", reactions: [] },
-        { id: 12, sender: "me", text: "React Native is great! I've used it for a few projects. The ecosystem is really mature now.", time: "5:11 PM", reactions: [] },
-        { id: 13, sender: "them", text: "That's good to hear! Any tips for a beginner?", time: "5:12 PM", reactions: [] },
-        { id: 14, sender: "me", text: "Start with the basics of React first, then move to React Native. The documentation is excellent!", time: "5:13 PM", reactions: [] },
-        { id: 15, sender: "them", text: "Thanks for the advice! I'll definitely check that out.", time: "5:14 PM", reactions: [] },
-        { id: 16, sender: "me", text: "No problem! Feel free to ask if you run into any issues.", time: "5:15 PM", reactions: [] },
-        { id: 17, sender: "them", text: "I really appreciate that! It's always great to have someone to bounce ideas off of.", time: "5:16 PM", reactions: [] },
-        { id: 18, sender: "me", text: "Absolutely! That's what the developer community is all about - helping each other grow.", time: "5:17 PM", reactions: [] },
-        { id: 19, sender: "them", text: "Couldn't agree more! The support in this community is amazing.", time: "5:18 PM", reactions: [] },
-        { id: 20, sender: "me", text: "By the way, are you planning to release your app on both iOS and Android?", time: "5:19 PM", reactions: [] },
-        { id: 21, sender: "them", text: "Yes! That's one of the main reasons I chose React Native - cross-platform development.", time: "5:20 PM", reactions: [] },
-        { id: 22, sender: "me", text: "Smart choice! It'll save you so much time compared to native development.", time: "5:21 PM", reactions: [] },
-        { id: 23, sender: "them", text: "That's what I'm hoping for! Though I know there might be some platform-specific challenges.", time: "5:22 PM", reactions: [] },
-        { id: 24, sender: "me", text: "There will be, but React Native handles most of them pretty well. The community is very active too.", time: "5:23 PM", reactions: [] },
-        { id: 25, sender: "them", text: "That's reassuring! I've been following some React Native blogs and the ecosystem seems really vibrant.", time: "5:24 PM", reactions: [] },
-        { id: 26, sender: "me", text: "It is! And it's only getting better. Facebook is still actively developing it.", time: "5:25 PM", reactions: [] },
-        { id: 27, sender: "them", text: "That's great to know! I'm excited to dive deeper into it.", time: "5:26 PM", reactions: [] },
-        { id: 28, sender: "me", text: "You'll love it! The hot reload feature alone makes development so much faster.", time: "5:27 PM", reactions: [] },
-        { id: 29, sender: "them", text: "I've heard about that! It sounds like a game-changer for productivity.", time: "5:28 PM", reactions: [] },
-        { id: 30, sender: "me", text: "It really is! You can see your changes instantly without rebuilding the entire app.", time: "5:29 PM", reactions: [] },
-        { id: 31, sender: "them", text: "That sounds amazing! I can't wait to experience that workflow.", time: "5:30 PM", reactions: [] },
-        { id: 32, sender: "me", text: "You'll be hooked once you try it! Good luck with your project!", time: "5:31 PM", reactions: [] },
-        { id: 33, sender: "them", text: "Thank you so much! This conversation has been really helpful.", time: "5:32 PM", reactions: [] },
-        { id: 34, sender: "me", text: "You're welcome! Happy coding! 🚀", time: "5:33 PM", reactions: [] },
-        { id: 35, sender: "them", text: "Thanks! Same to you! 🎉", time: "5:34 PM", reactions: [] }
+        { id: 1, sender: "them", text: "Hey! Are you still interested in the BGC penthouse?", time: "5:00 PM", reactions: [] },
+        { id: 2, sender: "me", text: "Yes! I'd love to schedule a viewing. When's available?", time: "5:01 PM", reactions: [] },
+        { id: 3, sender: "them", text: "I have slots this weekend. Saturday 2 PM or Sunday 10 AM?", time: "5:02 PM", reactions: [] },
+        { id: 4, sender: "me", text: "Saturday 2 PM works perfectly for me!", time: "5:03 PM", reactions: [] },
+        { id: 5, sender: "them", text: "Great! I'll send you the address and parking details", time: "5:04 PM", reactions: [] },
+        { id: 6, sender: "me", text: "Perfect! What's the asking price again?", time: "5:05 PM", reactions: [] },
+        { id: 7, sender: "them", text: "It's ₱18M negotiable. The owner is motivated to sell", time: "5:06 PM", reactions: [] },
+        { id: 8, sender: "me", text: "That's within my budget range. What about the HOA fees?", time: "5:07 PM", reactions: [] },
+        { id: 9, sender: "them", text: "HOA is ₱8,500/month. Includes gym, pool, and 24/7 security", time: "5:08 PM", reactions: [] },
+        { id: 10, sender: "me", text: "That's reasonable for the amenities. How old is the building?", time: "5:09 PM", reactions: [] },
+        { id: 11, sender: "them", text: "Built in 2018, so it's relatively new. All modern fixtures", time: "5:10 PM", reactions: [] },
+        { id: 12, sender: "me", text: "Excellent! What about the view from the unit?", time: "5:11 PM", reactions: [] },
+        { id: 13, sender: "them", text: "It has a stunning city view! Floor-to-ceiling windows", time: "5:12 PM", reactions: [] },
+        { id: 14, sender: "me", text: "Sounds amazing! I'm really looking forward to the viewing", time: "5:13 PM", reactions: [] },
+        { id: 15, sender: "them", text: "I'll also bring the floor plans and recent comparable sales", time: "5:14 PM", reactions: [] },
+        { id: 16, sender: "me", text: "That would be very helpful. Thank you for being so thorough!", time: "5:15 PM", reactions: [] },
+        { id: 17, sender: "them", text: "My pleasure! I want to make sure you have all the information you need", time: "5:16 PM", reactions: [] },
+        { id: 18, sender: "me", text: "I appreciate that. This could be the perfect home for us", time: "5:17 PM", reactions: [] },
+        { id: 19, sender: "them", text: "I have a good feeling about this one! See you Saturday", time: "5:18 PM", reactions: [] },
+        { id: 20, sender: "me", text: "Looking forward to it! Should I bring anything specific?", time: "5:19 PM", reactions: [] },
+        { id: 21, sender: "them", text: "Just bring a valid ID and your pre-approval letter if you have one", time: "5:20 PM", reactions: [] },
+        { id: 22, sender: "me", text: "Perfect! I have both ready. See you at 2 PM", time: "5:21 PM", reactions: [] },
+        { id: 23, sender: "them", text: "Great! I'll text you the exact address and building access code", time: "5:22 PM", reactions: [] },
+        { id: 24, sender: "me", text: "Thank you! I'm excited to see this property", time: "5:23 PM", reactions: [] },
+        { id: 25, sender: "them", text: "Me too! It's one of my favorite listings right now", time: "5:24 PM", reactions: [] },
+        { id: 26, sender: "me", text: "That's a great sign! Talk to you soon", time: "5:25 PM", reactions: [] },
+        { id: 27, sender: "them", text: "Have a great evening! See you Saturday", time: "5:26 PM", reactions: [] },
+        { id: 28, sender: "me", text: "You too! Thanks again for everything", time: "5:27 PM", reactions: [] },
+        { id: 29, sender: "them", text: "My pleasure! Looking forward to showing you the penthouse", time: "5:28 PM", reactions: [] },
+        { id: 30, sender: "me", text: "Same here! Have a wonderful evening", time: "5:29 PM", reactions: [] },
+        { id: 31, sender: "them", text: "Thank you! See you Saturday at 2 PM", time: "5:30 PM", reactions: [] },
+        { id: 32, sender: "me", text: "Perfect! Have a great rest of your day", time: "5:31 PM", reactions: [] },
+        { id: 33, sender: "them", text: "You too! Talk to you soon", time: "5:32 PM", reactions: [] },
+        { id: 34, sender: "me", text: "Looking forward to it! Take care", time: "5:33 PM", reactions: [] },
+        { id: 35, sender: "them", text: "Same here! See you Saturday", time: "5:34 PM", reactions: [] }
       ]
     }
   ])

@@ -174,12 +174,10 @@ export function NotificationDropdown({ onClose, unreadCount }: NotificationDropd
         <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-sky-50 to-blue-50">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              {/* ✅ UNREADCOUNT USED - Show badge */}
+              {/* ✅ UNREADCOUNT USED - Show dot */}
               <h2 className="text-xl font-bold text-gray-900">Notifications</h2>
               {unreadCount > 0 && (
-                <Button size="sm" variant="destructive" className="h-5 w-5 p-0 text-xs">
-                  {unreadCount}
-                </Button>
+                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
               )}
             </div>
             <div className="flex items-center gap-1.5">
