@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react"
 import { Search, X, Phone, Video, Minus, Send, Image, Smile, ThumbsUp, Trash2, Heart } from "lucide-react"
-import { Button } from "../../components/ui/button"
 
 type ChatMessage = {
   id: number
@@ -310,10 +309,6 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
     return () => document.removeEventListener('keydown', handleEscape)
   }, [onClose])
 
-  const handleViewAll = () => {
-    setIsOpen(false) // ✅ USE setIsOpen
-    onClose()
-  }
 
   const handleCloseChat = () => {
     setSelectedChat(null)
@@ -333,12 +328,10 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
           <div className="p-3 border-b border-gray-200">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold text-gray-900">Chats</h2>
-                {/* ✅ USE unreadCount - Show badge */}
+                <h2 className="text-xl font-bold text-gray-900">Messages</h2>
+                {/* ✅ USE unreadCount - Show dot */}
                 {unreadCount > 0 && (
-                  <Button size="sm" variant="destructive" className="h-5 w-5 p-0 text-xs">
-                    {unreadCount}
-                  </Button>
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                 )}
               </div>
               <div className="flex items-center gap-1.5">
@@ -356,7 +349,7 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search Chats"
+                placeholder="Search Messages"
                 className="w-full pl-10 pr-3 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
               />
             </div>
@@ -383,9 +376,6 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
               onClick={() => setActiveFilter('unread')}
             >
               Unread
-            </button>
-            <button className="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-full">
-              Groups
             </button>
           </div>
 
@@ -447,14 +437,6 @@ export function MessengerDropdown({ onClose, unreadCount }: MessengerDropdownPro
           </div>
 
           {/* Footer */}
-          <div className="p-2.5 border-t border-gray-200">
-            <button 
-              className="w-full text-center text-sky-600 hover:bg-sky-50 py-2 rounded-lg text-sm font-semibold transition-colors"
-              onClick={handleViewAll}
-            >
-              See all in Messenger
-            </button>
-          </div>
         </div>
       )}
 

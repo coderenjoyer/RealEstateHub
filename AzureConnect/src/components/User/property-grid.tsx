@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { PropertyCard } from "@/components/User/property-card"
 import { PropertyDetailsPanel } from "@/components/User/propertry-details"
+import { useBookmark } from "@/contexts/BookmarkContext"
 
 const properties = [
   {
@@ -159,6 +160,11 @@ const properties = [
 
 export function PropertyGrid() {
   const [selectedProperty, setSelectedProperty] = useState<typeof properties[0] | null>(null)
+  const { toggleBookmark, isBookmarked } = useBookmark()
+
+  const handleBookmark = (propertyId: number, isBookmarked: boolean) => {
+    toggleBookmark(propertyId)
+  }
 
   return (
     <>
@@ -170,6 +176,8 @@ export function PropertyGrid() {
               <PropertyCard 
                 key={property.id} 
                 property={property}
+                isBookmarked={isBookmarked(property.id)}
+                onBookmark={handleBookmark}
                 onClick={() => setSelectedProperty(property)}
               />
             ))}

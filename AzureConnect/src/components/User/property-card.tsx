@@ -15,9 +15,11 @@ interface PropertyCardProps {
     images?: string[]
   }
   onClick?: () => void
+  onBookmark?: (propertyId: number, isBookmarked: boolean) => void
+  isBookmarked?: boolean
 }
 
-export function PropertyCard({ property, onClick }: PropertyCardProps) {
+export function PropertyCard({ property, onClick, onBookmark, isBookmarked = false }: PropertyCardProps) {
   // Default images if none provided
   const defaultImages = [
     "/how-to-design-a-house.jpg",
@@ -32,6 +34,11 @@ export function PropertyCard({ property, onClick }: PropertyCardProps) {
   const handleImageClick = (index: number, event: React.MouseEvent) => {
     event.stopPropagation() // Prevent card click when clicking on thumbnail
     setSelectedImageIndex(index)
+  }
+
+  const handleBookmarkClick = (event: React.MouseEvent) => {
+    event.stopPropagation() // Prevent card click when clicking on bookmark
+    onBookmark?.(property.id, !isBookmarked)
   }
 
   return (
@@ -58,8 +65,22 @@ export function PropertyCard({ property, onClick }: PropertyCardProps) {
         </div>
 
         {/* Bookmark Button */}
-        <button className="absolute top-4 right-4 p-2 bg-white/95 backdrop-blur-sm rounded-xl hover:bg-white transition-colors shadow-sm">
-          <Bookmark className="h-4 w-4 text-gray-600" />
+        <button 
+          onClick={handleBookmarkClick}
+          className={`absolute top-4 right-4 p-2 backdrop-blur-sm rounded-xl transition-all duration-200 shadow-sm ${
+            isBookmarked 
+              ? 'bg-yellow-400/95 hover:bg-yellow-500' 
+              : 'bg-white/95 hover:bg-white'
+          }`}
+          title={isBookmarked ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          <Bookmark 
+            className={`h-4 w-4 transition-colors duration-200 ${
+              isBookmarked 
+                ? 'text-yellow-800 fill-yellow-800' 
+                : 'text-gray-600'
+            }`} 
+          />
         </button>
       </div>
 

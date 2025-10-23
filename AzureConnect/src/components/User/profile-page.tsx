@@ -121,7 +121,7 @@ function UserProfilePage() {
                   {/* Dropdown Menu */}
                   {isDropdownOpen && (
                     <div 
-                      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50"
+                      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <button

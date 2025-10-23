@@ -13,6 +13,7 @@ import ListingApprovalsPage from "./components/admin/listings/admin-listing";
 import UserManagementPage from "./components/admin/user-management/user-page";
 import AdminProfilePage from "./components/admin/profile/profile-page";
 import ReportsPage from "./components/admin/reports/reports-page";
+import { BookmarkProvider } from "./contexts/BookmarkContext";
 const AgentListedPropertiesPage = lazy(
   () => import("./components/Agent/listedproperties/page")
 );
@@ -26,17 +27,19 @@ const AgentCommunicationPage = lazy(
 );
 const UserHomePage = lazy(() => import("./components/User/user-page"));
 const UserProfilePage = lazy(() => import("./components/User/profile-page"));
+const FavoritesPage = lazy(() => import("./components/User/favorites"));
 
 function App() {
   return (
-    <Suspense
-      fallback={
-        <main className="min-h-screen p-8">
-          <h1 className="text-xl font-semibold">Loading...</h1>
-        </main>
-      }
-    >
-      <Routes>
+    <BookmarkProvider>
+      <Suspense
+        fallback={
+          <main className="min-h-screen p-8">
+            <h1 className="text-xl font-semibold">Loading...</h1>
+          </main>
+        }
+      >
+        <Routes>
         <Route
           path="/"
           element={
@@ -60,6 +63,7 @@ function App() {
         <Route path="/admin/reports" element={<ReportsPage />} />
         <Route path="/user" element={<UserHomePage />} />
         <Route path="/user/profile" element={<UserProfilePage />} />
+        <Route path="/user/favorites" element={<FavoritesPage />} />
         <Route
           path="/agent/listed-properties"
           element={<AgentListedPropertiesPage />}
@@ -79,8 +83,9 @@ function App() {
             </main>
           }
         />
-      </Routes>
-    </Suspense>
+        </Routes>
+      </Suspense>
+    </BookmarkProvider>
   );
 }
 export default App;
