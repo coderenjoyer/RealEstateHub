@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { User, LayoutDashboard, CheckSquare, Users, FileText, ChevronLeft, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useSidebar } from "@/contexts/SidebarContext"
 
 const menuItems = [
   { icon: User, label: "Admin Profile", to: "/admin/profile" },
@@ -14,7 +15,7 @@ const menuItems = [
 ]
 
 export function Sidebar() {
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const { isCollapsed, setIsCollapsed } = useSidebar()
   const [hoveredItem, setHoveredItem] = useState<number | null>(null)
   const { pathname } = useLocation()
 
@@ -29,7 +30,7 @@ export function Sidebar() {
   return (
     <aside 
       className={cn(
-        "bg-[#A3B8C9] transition-all duration-300 flex flex-col relative",
+        "bg-[#A3B8C9] transition-all duration-300 flex flex-col fixed left-0 top-0 h-full z-40",
         isCollapsed ? "w-16" : "w-64"
       )}
       role="navigation"

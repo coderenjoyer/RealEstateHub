@@ -4,9 +4,10 @@ import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { User, BarChart3, FileCheck, List, MessageSquare, ChevronLeft, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useSidebar } from "@/contexts/SidebarContext"
 
 const menuItems = [
-  { icon: User, label: "Profile", to: "/agent" },
+  { icon: User, label: "Profile", to: "/agent/profile" },
   { icon: FileCheck, label: "Listed Properties", to: "/agent/listed-properties" },
   { icon: List, label: "Create Listing", to: "/agent/createlist" },
   { icon: BarChart3, label: "Reports", to: "/agent/reports" },
@@ -14,7 +15,7 @@ const menuItems = [
 ]
 
 export function Sidebar() {
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const { isCollapsed, setIsCollapsed } = useSidebar()
   const [hoveredItem, setHoveredItem] = useState<number | null>(null)
   const { pathname } = useLocation()
 
@@ -29,7 +30,7 @@ export function Sidebar() {
   return (
     <aside 
       className={cn(
-        "bg-[#a8c5d9] transition-all duration-300 flex flex-col",
+        "bg-[#a8c5d9] transition-all duration-300 flex flex-col fixed left-0 top-0 h-full z-40",
         isCollapsed ? "w-16" : "w-64"
       )}
       role="navigation"

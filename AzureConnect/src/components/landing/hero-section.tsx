@@ -2,7 +2,7 @@ import { Button } from "../ui/button"
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center hero-gradient">
+    <section id="home" className="relative min-h-screen flex items-center justify-center hero-gradient scroll-mt-24">
       <div className="absolute inset-0 bg-black/20"></div>
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"

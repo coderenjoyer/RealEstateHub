@@ -5,7 +5,7 @@ type TabKey = "signup" | "signin";
 
 const LoginModal: React.FC = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<TabKey>("signup");
+  const [activeTab, setActiveTab] = useState<TabKey>("signin");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 

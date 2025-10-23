@@ -37,9 +37,8 @@ function App() {
       }
     >
       <Routes>
-        <Route path="/" element={<UserHomePage />} />
         <Route
-          path="/landing"
+          path="/"
           element={
             <main className="min-h-screen">
               <Header />
@@ -51,6 +50,7 @@ function App() {
               <Footer />
             </main>
           }
+          
         />
         <Route path="/login" element={<LoginParentContainer />} />
         <Route path="/admin" element={<AdminPage />} />
@@ -64,6 +64,7 @@ function App() {
           path="/agent/listed-properties"
           element={<AgentListedPropertiesPage />}
         />
+        <Route path="/agent/profile" element={<AgentProfilePage />} />
         <Route path="/agent/createlist" element={<AgentListPropertyPage />} />
         <Route path="/agent/reports" element={<AgentReportsPage />} />
         <Route

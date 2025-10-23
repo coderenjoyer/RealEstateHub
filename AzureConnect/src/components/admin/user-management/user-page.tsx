@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Sidebar } from "../../ui/adminsidebar"
+import { AdminLayout } from "@/components/layouts/AdminLayout"
 import { Plus } from "lucide-react"
 import { AccountCard } from "./user-card"
 
@@ -119,10 +119,8 @@ export default function UserManagementPage() {
   const currentAccounts = activeTab === "agent" ? agentAccounts : userAccounts
 
   return (
-    <div className="flex h-screen bg-[#B8C9D9]">
-      <Sidebar />
-
-      <main className="flex-1 overflow-auto">
+    <AdminLayout>
+      <div className="overflow-auto">
         <div className="p-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex gap-2">
@@ -156,7 +154,7 @@ export default function UserManagementPage() {
             ))}
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   )
 }

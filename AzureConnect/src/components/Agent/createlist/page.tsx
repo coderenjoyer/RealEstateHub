@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import { ImagePlus, Check, ChevronDown, X, Plus, Home, DollarSign, MapPin, FileText, User, Trash2 } from "lucide-react"
-import { Sidebar } from "@/components/ui/agentsidebar"
+import { AgentLayout } from "@/components/layouts/AgentLayout"
 
 export default function ListPropertyPage() {
   const [formData, setFormData] = useState({
@@ -93,9 +93,8 @@ export default function ListPropertyPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#b8d4e6]">
-      <Sidebar />
-      <main className="flex-1 p-8">
+    <AgentLayout>
+      <div className="p-8">
         <div className="max-w-7xl min-w-[375px] mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-900">List New Property</h1>
@@ -657,7 +656,7 @@ export default function ListPropertyPage() {
             </form>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AgentLayout>
   )
 }

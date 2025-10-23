@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Sidebar } from "../../../components/ui/agentsidebar"
+import { AgentLayout } from "@/components/layouts/AgentLayout"
 import { Search, Filter, Download, Eye, X, AlertTriangle, CheckCircle, Clock, XCircle, Calendar, User, FileText, ChevronDown } from "lucide-react"
 
 interface Report {
@@ -205,9 +205,8 @@ export default function EnhancedReportsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#b8d4e6]">
-      <Sidebar />
-      <main className="flex-1 p-8">
+    <AgentLayout>
+      <div className="p-8">
         <div className="max-w-7xl min-w-[375px] mx-auto">
           {/* Header */}
           <div className="mb-8">
@@ -443,7 +442,7 @@ export default function EnhancedReportsPage() {
             )}
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Detail Modal */}
       {isModalOpen && selectedReport && (
@@ -589,6 +588,6 @@ export default function EnhancedReportsPage() {
           </div>
         </div>
       )}
-    </div>
+    </AgentLayout>
   )
 }
