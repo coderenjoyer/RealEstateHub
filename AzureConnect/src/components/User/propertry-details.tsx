@@ -13,12 +13,27 @@ interface PropertyDetailsPanelProps {
     baths: number
     sqft: number
     rating: string
+    images?: string[]
   }
   onClose: () => void
 }
 
 export function PropertyDetailsPanel({ property, onClose }: PropertyDetailsPanelProps) {
   const [activeTab, setActiveTab] = useState<"overview" | "reviews" | "about">("overview")
+  
+  // Default images if none provided
+  const defaultImages = [
+    "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop"
+  ]
+  
+  const images = property.images || defaultImages
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+
+  const handleImageClick = (index: number) => {
+    setSelectedImageIndex(index)
+  }
 
   const reviews = [
     {
@@ -48,7 +63,16 @@ export function PropertyDetailsPanel({ property, onClose }: PropertyDetailsPanel
         {/* Header with Image Gallery */}
         <div className="relative">
           {/* Main Image */}
-          <div className="h-48 bg-gradient-to-br from-rose-300 via-pink-200 to-rose-200 relative">
+          <div className="h-48 relative overflow-hidden">
+            <img 
+              src={images[selectedImageIndex]} 
+              alt={property.name}
+              className="w-full h-full object-cover"
+            />
+            
+            {/* Overlay Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+            
             {/* Close Button */}
             <button
               onClick={onClose}
@@ -63,36 +87,27 @@ export function PropertyDetailsPanel({ property, onClose }: PropertyDetailsPanel
                 Villa
               </span>
             </div>
-
-            {/* House Illustration */}
-            <div className="absolute bottom-0 left-0 right-0">
-              <svg viewBox="0 0 280 120" className="w-full h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M60 120V75L140 40L220 75V120H60Z" fill="#be123c" />
-                <path d="M45 75L140 25L235 75L220 80L140 40L60 80L45 75Z" fill="#9f1239" />
-                <ellipse cx="140" cy="50" rx="15" ry="8" fill="#881337" />
-                <rect x="85" y="85" width="28" height="25" rx="2" fill="#fbbf24" />
-                <rect x="167" y="85" width="28" height="25" rx="2" fill="#fbbf24" />
-                <line x1="99" y1="85" x2="99" y2="110" stroke="#be123c" strokeWidth="2" />
-                <line x1="85" y1="97.5" x2="113" y2="97.5" stroke="#be123c" strokeWidth="2" />
-                <line x1="181" y1="85" x2="181" y2="110" stroke="#be123c" strokeWidth="2" />
-                <line x1="167" y1="97.5" x2="195" y2="97.5" stroke="#be123c" strokeWidth="2" />
-                <rect x="125" y="90" width="30" height="30" rx="2" fill="#78350f" />
-                <circle cx="148" cy="105" r="2" fill="#fbbf24" />
-              </svg>
-            </div>
           </div>
 
           {/* Thumbnail Gallery */}
           <div className="px-6 py-4 flex gap-3">
-            <div className="w-24 h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 border-sky-500">
-              <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=200&h=200&fit=crop" alt="Property" className="w-full h-full object-cover" />
-            </div>
-            <div className="w-24 h-20 rounded-xl overflow-hidden flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
-              <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=200&h=200&fit=crop" alt="Property" className="w-full h-full object-cover" />
-            </div>
-            <div className="w-24 h-20 rounded-xl overflow-hidden flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
-              <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=200&h=200&fit=crop" alt="Property" className="w-full h-full object-cover" />
-            </div>
+            {images.map((image, index) => (
+              <button
+                key={index}
+                onClick={() => handleImageClick(index)}
+                className={`w-24 h-20 rounded-xl overflow-hidden flex-shrink-0 transition-all duration-200 ${
+                  selectedImageIndex === index 
+                    ? 'border-2 border-sky-500 opacity-100' 
+                    : 'opacity-60 hover:opacity-100 border-2 border-transparent'
+                }`}
+              >
+                <img 
+                  src={image} 
+                  alt={`${property.name} view ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ))}
           </div>
         </div>
 

@@ -1,14 +1,81 @@
-import { MapPin, Phone, Mail, Calendar, Heart, Home, Star, Edit3, Globe, Briefcase, GraduationCap, Award, Users, ArrowLeft } from "lucide-react"
+import { MapPin, Phone, Mail, Calendar, Heart, Home, Star, Edit3, Briefcase, Award, ArrowLeft, X, Upload, Camera, Image as ImageIcon, User, Image } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom"
+import { useState } from "react"
 
 function UserProfilePage() {
   const navigate = useNavigate();
+  
+  // State management for edit functionality
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editMode, setEditMode] = useState<'profile' | 'cover' | null>(null);
+  const [profileImage, setProfileImage] = useState("/header.jpeg");
+  const [coverImage, setCoverImage] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const handleEditClick = (mode: 'profile' | 'cover') => {
+    setEditMode(mode);
+    setIsEditModalOpen(true);
+    setIsDropdownOpen(false);
+  };
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleClickOutside = (event: React.MouseEvent) => {
+    if (event.target === event.currentTarget) {
+      setIsDropdownOpen(false);
+    }
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setPreviewImage(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveImage = () => {
+    if (previewImage && editMode) {
+      if (editMode === 'profile') {
+        setProfileImage(previewImage);
+      } else {
+        setCoverImage(previewImage);
+      }
+    }
+    setIsEditModalOpen(false);
+    setPreviewImage(null);
+    setEditMode(null);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditModalOpen(false);
+    setPreviewImage(null);
+    setEditMode(null);
+  };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-sky-300/95 via-blue-200/95 to-blue-300/95">
+    <div 
+      className="h-screen bg-gradient-to-br from-sky-300/95 via-blue-200/95 to-blue-300/95"
+      onClick={handleClickOutside}
+    >
       {/* Hero Background Section */}
-      <div className="relative h-64 w-full overflow-hidden bg-gradient-to-br from-blue-500 via-blue-400 to-sky-300">
+      <div className="relative h-48 sm:h-56 md:h-64 w-full overflow-hidden bg-gradient-to-br from-blue-500 via-blue-400 to-sky-300">
+        {coverImage && (
+          <img 
+            src={coverImage} 
+            alt="Cover" 
+            className="w-full h-full object-cover"
+          />
+        )}
+        {/* Cover Photo Edit Button */}
         {/* Decorative Pattern Overlay */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 border-4 border-white rounded-full"></div>
@@ -18,98 +85,123 @@ function UserProfilePage() {
       </div>
 
       {/* Back Button */}
-      <div className="absolute top-4 left-4 z-10">
+      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-10">
         <Button 
           variant="outline" 
           size="sm" 
           onClick={() => navigate("/user")}
-          className="flex items-center gap-2 bg-white/90 hover:bg-white text-slate-700 border-slate-300 shadow-md"
+          className="flex items-center gap-1 sm:gap-2 bg-white/90 hover:bg-white text-slate-700 border-slate-300 shadow-md text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2"
         >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Properties
+          <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span className="hidden sm:inline">Back to Properties</span>
+          <span className="sm:hidden">Back</span>
         </Button>
       </div>
 
       {/* Profile Section */}
-      <div className="relative max-w-10xl mx-auto px-[500px] -mt-20">
-        <div className="bg-white rounded-3xl shadow-xl sm:p-8 p-4 min-w-[375px]">
-          <div className="flex flex-col md:flex-row gap-8 items-start">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 sm:-mt-20">
+        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 lg:p-8">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 lg:gap-8 items-start">
             {/* Profile Image */}
-            <div className="relative flex-shrink-0">
-              <div className="relative h-40 w-40 rounded-2xl border-4 border-white bg-white shadow-lg overflow-hidden">
-                <img src="/header.jpeg" alt="User profile" className="h-full w-full object-cover" />
+            <div className="relative flex-shrink-0 mx-auto sm:mx-0">
+              <div className="relative h-32 w-32 sm:h-36 sm:w-36 lg:h-40 lg:w-40 rounded-xl sm:rounded-2xl border-4 border-white bg-white shadow-lg overflow-hidden">
+                <img src={profileImage} alt="User profile" className="h-full w-full object-cover" />
               </div>
-              {/* Heart Badge */}
-              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2">
-                <div className="bg-pink-400 rounded-full p-2 shadow-md border-2 border-white">
-                  <Heart className="w-5 h-5 text-white fill-white" />
+              {/* Edit Profile Badge with Dropdown */}
+              <div className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2">
+                <div className="relative">
+                  <button 
+                    onClick={toggleDropdown}
+                    className="bg-blue-500 hover:bg-blue-600 rounded-full p-1.5 sm:p-2 shadow-md border-2 border-white transition-colors duration-200"
+                    title="Edit Profile"
+                  >
+                    <Edit3 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  </button>
+                  
+                  {/* Dropdown Menu */}
+                  {isDropdownOpen && (
+                    <div 
+                      className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        onClick={() => handleEditClick('profile')}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                      >
+                        <User className="w-4 h-4 text-blue-500" />
+                        <span className="text-sm font-medium text-gray-700">Edit Profile Picture</span>
+                      </button>
+                      <button
+                        onClick={() => handleEditClick('cover')}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                      >
+                        <Image className="w-4 h-4 text-blue-500" />
+                        <span className="text-sm font-medium text-gray-700">Edit Cover Photo</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Profile Info */}
-            <div className="flex-1">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h1 className="text-3xl font-bold text-slate-900 mb-2">John </h1>
-                  <p className="text-lg text-slate-600 font-medium">Property Enthusiast</p>
-                </div>
-                <Button className="bg-blue-500 hover:bg-blue-600 text-white px-6">
-                  Edit Profile
-                </Button>
+            <div className="flex-1 w-full text-center sm:text-left">
+              <div className="mb-4">
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">John </h1>
+                <p className="text-base sm:text-lg text-slate-600 font-medium">Property Enthusiast</p>
               </div>
 
               {/* Location */}
-              <div className="flex items-center gap-2 text-slate-600 mb-6">
-                <MapPin className="w-5 h-5 text-blue-500" />
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-slate-600 mb-4 sm:mb-6">
+                <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
                 <span className="text-sm font-medium">Makati City, Metro Manila</span>
               </div>
 
               {/* Stats Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Heart className="w-4 h-4 text-blue-600" />
-                    <p className="text-xs font-semibold text-blue-900 uppercase tracking-wide">Saved Properties</p>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-blue-200">
+                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                    <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
+                    <p className="text-xs font-semibold text-blue-900 uppercase tracking-wide">Saved</p>
                   </div>
-                  <p className="text-3xl font-bold text-blue-700">24</p>
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-700">24</p>
                 </div>
-                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Home className="w-4 h-4 text-green-600" />
-                    <p className="text-xs font-semibold text-green-900 uppercase tracking-wide">Properties Viewed</p>
+                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-green-200">
+                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                    <Home className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
+                    <p className="text-xs font-semibold text-green-900 uppercase tracking-wide">Viewed</p>
                   </div>
-                  <p className="text-3xl font-bold text-green-700">156</p>
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-700">156</p>
                 </div>
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Star className="w-4 h-4 text-purple-600" />
-                    <p className="text-xs font-semibold text-purple-900 uppercase tracking-wide">Reviews Made</p>
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-purple-200">
+                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                    <Star className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600" />
+                    <p className="text-xs font-semibold text-purple-900 uppercase tracking-wide">Reviews</p>
                   </div>
-                  <p className="text-3xl font-bold text-purple-700">18</p>
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-700">18</p>
                 </div>
-                <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border border-yellow-200">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Award className="w-4 h-4 text-yellow-600" />
-                    <p className="text-xs font-semibold text-yellow-900 uppercase tracking-wide">Avg Rating Given</p>
+                <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-yellow-200">
+                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                    <Award className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-600" />
+                    <p className="text-xs font-semibold text-yellow-900 uppercase tracking-wide">Rating</p>
                   </div>
-                  <p className="text-3xl font-bold text-yellow-700">4.2</p>
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-yellow-700">4.2</p>
                 </div>
               </div>
 
               {/* Contact Info */}
-              <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-lg border border-slate-200">
-                  <Phone className="w-4 h-4 text-blue-500" />
-                  <span className="text-sm font-medium text-slate-700">+63 917 123 4567</span>
+              <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4">
+                <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-center sm:text-left">
+                  <Phone className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm font-medium text-slate-700">+63 917 123 4567</span>
                 </div>
-                <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-lg border border-slate-200">
-                  <Mail className="w-4 h-4 text-blue-500" />
-                  <span className="text-sm font-medium text-slate-700">sarah.johnson@email.com</span>
+                <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-center sm:text-left">
+                  <Mail className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm font-medium text-slate-700">sarah.johnson@email.com</span>
                 </div>
-                <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-lg border border-slate-200">
-                  <Calendar className="w-4 h-4 text-blue-500" />
-                  <span className="text-sm font-medium text-slate-700">Member since Mar 2023</span>
+                <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-center sm:text-left">
+                  <Calendar className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm font-medium text-slate-700">Member since Mar 2023</span>
                 </div>
               </div>
             </div>
@@ -118,14 +210,14 @@ function UserProfilePage() {
       </div>
 
       {/* Additional Profile Sections */}
-      <div className="max-w-10xl mx-auto px-[500px] mt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Bio Section */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-3xl shadow-xl p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-slate-900">About Me</h2>
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
+            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 lg:p-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900">About Me</h2>
+                <Button variant="outline" size="sm" className="flex items-center gap-2 self-start sm:self-auto">
                   <Edit3 className="w-4 h-4" />
                   Edit Bio
                 </Button>
@@ -244,6 +336,105 @@ function UserProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-slate-900">
+                  Edit {editMode === 'profile' ? 'Profile Picture' : 'Cover Photo'}
+                </h3>
+                <button
+                  onClick={handleCancelEdit}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Current Image Preview */}
+                <div className="text-center">
+                  <div className="relative inline-block">
+                    <div className={`relative overflow-hidden rounded-xl border-4 border-white shadow-lg ${
+                      editMode === 'profile' ? 'w-32 h-32' : 'w-full h-32'
+                    }`}>
+                      <img 
+                        src={editMode === 'profile' ? profileImage : '/header.jpeg'} 
+                        alt="Current" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="absolute -bottom-2 -right-2 bg-blue-500 rounded-full p-2 shadow-md border-2 border-white">
+                      <Camera className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2">Current {editMode === 'profile' ? 'Profile Picture' : 'Cover Photo'}</p>
+                </div>
+
+                {/* Upload Section */}
+                <div className="space-y-4">
+                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      id="image-upload"
+                    />
+                    <label htmlFor="image-upload" className="cursor-pointer">
+                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-gray-700 mb-1">Click to upload new image</p>
+                      <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                    </label>
+                  </div>
+
+                  {/* Preview New Image */}
+                  {previewImage && (
+                    <div className="text-center">
+                      <div className="relative inline-block">
+                        <div className={`relative overflow-hidden rounded-xl border-4 border-blue-200 shadow-lg ${
+                          editMode === 'profile' ? 'w-32 h-32' : 'w-full h-32'
+                        }`}>
+                          <img 
+                            src={previewImage} 
+                            alt="Preview" 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="absolute -bottom-2 -right-2 bg-green-500 rounded-full p-2 shadow-md border-2 border-white">
+                          <ImageIcon className="w-4 h-4 text-white" />
+                        </div>
+                      </div>
+                      <p className="text-sm text-green-600 mt-2">New {editMode === 'profile' ? 'Profile Picture' : 'Cover Photo'} Preview</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    onClick={handleCancelEdit}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSaveImage}
+                    disabled={!previewImage}
+                    className="flex-1 bg-blue-500 hover:bg-blue-600"
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

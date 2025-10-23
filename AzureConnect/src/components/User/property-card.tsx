@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card"
 import { Bookmark, Bed, Bath, Maximize } from "lucide-react"
+import { useState } from "react"
 
 interface PropertyCardProps {
   property: {
@@ -11,11 +12,28 @@ interface PropertyCardProps {
     baths: number
     sqft: number
     rating: string
+    images?: string[]
   }
   onClick?: () => void
 }
 
 export function PropertyCard({ property, onClick }: PropertyCardProps) {
+  // Default images if none provided
+  const defaultImages = [
+    "/how-to-design-a-house.jpg",
+    "/luxury-bedroom.jpg", 
+    "/office space.jpg",
+    "/swimming_pool.jpg"
+  ]
+  
+  const images = property.images || defaultImages
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+
+  const handleImageClick = (index: number, event: React.MouseEvent) => {
+    event.stopPropagation() // Prevent card click when clicking on thumbnail
+    setSelectedImageIndex(index)
+  }
+
   return (
     <Card 
       onClick={onClick}
@@ -24,7 +42,7 @@ export function PropertyCard({ property, onClick }: PropertyCardProps) {
       {/* Property Image */}
       <div className="relative h-48 overflow-hidden">
         <img 
-          src="/how-to-design-a-house.jpg" 
+          src={images[selectedImageIndex]} 
           alt={property.name}
           className="w-full h-full object-cover"
         />
@@ -43,6 +61,27 @@ export function PropertyCard({ property, onClick }: PropertyCardProps) {
         <button className="absolute top-4 right-4 p-2 bg-white/95 backdrop-blur-sm rounded-xl hover:bg-white transition-colors shadow-sm">
           <Bookmark className="h-4 w-4 text-gray-600" />
         </button>
+      </div>
+
+      {/* Thumbnail Images */}
+      <div className="flex gap-2 p-3 bg-gray-50">
+        {images.map((image, index) => (
+          <button
+            key={index}
+            onClick={(e) => handleImageClick(index, e)}
+            className={`flex-1 h-16 rounded-lg overflow-hidden transition-all duration-200 ${
+              selectedImageIndex === index 
+                ? 'ring-2 ring-blue-500 ring-offset-2' 
+                : 'hover:opacity-80'
+            }`}
+          >
+            <img 
+              src={image} 
+              alt={`${property.name} view ${index + 1}`}
+              className="w-full h-full object-cover"
+            />
+          </button>
+        ))}
       </div>
 
       {/* Property Details */}
