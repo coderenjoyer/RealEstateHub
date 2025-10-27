@@ -9,7 +9,10 @@ import {
   Heart,
   ShoppingCart,
   Key,
+  SlidersHorizontal,
+  RotateCcw,
 } from "lucide-react";
+import { Slider } from "@mui/material";
 
 interface PropertyFiltersProps {
   isOpen: boolean;
@@ -24,13 +27,12 @@ export function PropertyFilters({
   activeTab,
   setActiveTab,
 }: PropertyFiltersProps) {
-  const [selectedPrice, setSelectedPrice] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState([15, 55]);
-  const [customMinPrice, setCustomMinPrice] = useState("");
-  const [customMaxPrice, setCustomMaxPrice] = useState("");
-  const priceOptions = ["Under 30k", "40k-60k", "More than 100k", "Custom"];
+  const [minPriceInput, setMinPriceInput] = useState("");
+  const [maxPriceInput, setMaxPriceInput] = useState("");
+  const [priceRange, setPriceRange] = useState<number[]>([15000, 55000]);
+  const [showSlider, setShowSlider] = useState(false);
   const propertyTypes = [
     "Apartment",
     "Condominium",
@@ -41,42 +43,48 @@ export function PropertyFilters({
   const amenities = ["Garage", "Pool", "Spa", "Gym", "Garden", "Lounge"];
 
   const handleClearAll = () => {
-    setSelectedPrice("");
     setSelectedTypes([]);
     setSelectedAmenities([]);
-    setPriceRange([15, 55]);
-    setCustomMinPrice("");
-    setCustomMaxPrice("");
+    setMinPriceInput("");
+    setMaxPriceInput("");
+    setPriceRange([15000, 55000]);
+    setShowSlider(false);
   };
 
-  const handleSliderChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    const newValue = parseInt(e.target.value);
-    const newRange = [...priceRange];
-    if (index === 0) newRange[0] = Math.min(newValue, priceRange[1] - 5);
-    else newRange[1] = Math.max(newValue, priceRange[0] + 5);
-    setPriceRange(newRange);
-  };
-
-  const handlePriceOptionChange = (option: string) => {
-    setSelectedPrice(option);
-    // Reset custom inputs when switching away from Custom
-    if (option !== "Custom") {
-      setCustomMinPrice("");
-      setCustomMaxPrice("");
+  const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^\d]/g, "");
+    setMinPriceInput(value);
+    if (
+      value &&
+      maxPriceInput &&
+      parseInt(value) > 0 &&
+      parseInt(maxPriceInput) > 0
+    ) {
+      setPriceRange([parseInt(value), parseInt(maxPriceInput)]);
+      setShowSlider(true);
+    } else {
+      setShowSlider(false);
     }
   };
 
-  const handleCustomMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^\d]/g, ""); // Only allow digits
-    setCustomMinPrice(value);
+  const handleMaxPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^\d]/g, "");
+    setMaxPriceInput(value);
+    if (
+      value &&
+      minPriceInput &&
+      parseInt(value) > 0 &&
+      parseInt(minPriceInput) > 0
+    ) {
+      setPriceRange([parseInt(minPriceInput), parseInt(value)]);
+      setShowSlider(true);
+    } else {
+      setShowSlider(false);
+    }
   };
 
-  const handleCustomMaxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^\d]/g, ""); // Only allow digits
-    setCustomMaxPrice(value);
+  const handleSliderChange = (_event: Event, newValue: number | number[]) => {
+    setPriceRange(newValue as number[]);
   };
 
   const tabs = [
@@ -105,21 +113,30 @@ export function PropertyFilters({
           lg:relative lg:translate-x-0 lg:rounded-tl-none lg:rounded-bl-none
         `}
       >
-        <div className="px-6 py-5 flex-shrink-0">
+        <div className="px-6 py-4 flex-shrink-0 border-b border-gray-200 bg-white">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-gray-800">Custom Filter</h2>
+            {/* Title with icon */}
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 bg-sky-50 rounded-lg">
+                <SlidersHorizontal className="h-4.5 w-4.5 text-sky-600" />
+              </div>
+              <h2 className="text-base font-bold text-gray-900">Filters</h2>
+            </div>
+
+            {/* Action buttons */}
             <div className="flex items-center gap-2">
               <button
                 onClick={handleClearAll}
-                className="text-sm text-sky-600 hover:text-sky-700 font-semibold hover:underline transition-all"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-all duration-150"
               >
+                <RotateCcw className="h-3.5 w-3.5" />
                 Clear
               </button>
               <button
                 onClick={onClose}
-                className="lg:hidden p-1.5 hover:bg-sky-100 rounded-lg transition-all duration-200"
+                className="lg:hidden p-1.5 hover:bg-gray-100 rounded-lg transition-colors duration-150"
               >
-                <X className="h-5 w-5 text-gray-600" />
+                <X className="h-4.5 w-4.5 text-gray-600" />
               </button>
             </div>
           </div>
@@ -153,7 +170,7 @@ export function PropertyFilters({
 
           <div className="border-t border-gray-200" />
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center gap-2">
               <div className="p-2 bg-gradient-to-br from-sky-100 to-sky-50 rounded-xl shadow-sm">
                 <DollarSign className="h-4 w-4 text-sky-600" />
@@ -161,112 +178,65 @@ export function PropertyFilters({
               <h3 className="font-bold text-gray-800 text-sm">Price Range</h3>
             </div>
 
-            <div className="space-y-1 pl-1">
-              {priceOptions.map((option) => (
-                <label
-                  key={option}
-                  className="flex items-center cursor-pointer group py-1"
-                >
-                  <input
-                    type="radio"
-                    name="price"
-                    className="w-4.5 h-4.5 border-2 border-gray-300 text-sky-600 focus:ring-2 focus:ring-sky-500 focus:ring-offset-0 cursor-pointer transition-all"
-                    checked={selectedPrice === option}
-                    onChange={() => handlePriceOptionChange(option)}
-                  />
-                  <span className="ml-3 text-sm text-gray-700 font-medium group-hover:text-gray-900 transition-colors">
-                    {option}
-                  </span>
+            {/* Min and Max Price Inputs */}
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-semibold text-gray-600 block mb-1.5">
+                  Minimum Price (₱)
                 </label>
-              ))}
+                <input
+                  type="text"
+                  value={minPriceInput}
+                  onChange={handleMinPriceChange}
+                  placeholder="e.g., 15000"
+                  className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none transition-all bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-gray-600 block mb-1.5">
+                  Maximum Price (₱)
+                </label>
+                <input
+                  type="text"
+                  value={maxPriceInput}
+                  onChange={handleMaxPriceChange}
+                  placeholder="e.g., 55000"
+                  className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none transition-all bg-white"
+                />
+              </div>
             </div>
 
-            {selectedPrice === "Custom" && (
-              <div className="pt-3 pl-1 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 block">
-                    Min Price (₱)
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={customMinPrice}
-                      onChange={handleCustomMinChange}
-                      placeholder="e.g., 15000"
-                      className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none transition-all bg-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold text-gray-600 block">
-                    Max Price (₱)
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={customMaxPrice}
-                      onChange={handleCustomMaxChange}
-                      placeholder="e.g., 55000"
-                      className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none transition-all bg-white"
-                    />
-                  </div>
-                </div>
-
-                {customMinPrice && customMaxPrice && (
-                  <div className="text-center py-2 px-3 bg-sky-50 border border-sky-200 rounded-lg">
-                    <p className="text-xs font-semibold text-sky-700">
-                      ₱{parseInt(customMinPrice).toLocaleString()} - ₱
-                      {parseInt(customMaxPrice).toLocaleString()}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {selectedPrice !== "Custom" && (
-              <div className="pt-2 space-y-2">
-                <div className="flex justify-between items-center text-xs font-semibold text-gray-600 px-1">
-                  <span>15k</span>
-                  <span>25k</span>
-                  <span>35k</span>
-                  <span>45k</span>
-                  <span>55k</span>
-                </div>
-
-                <div className="relative h-8 flex items-center">
-                  <div className="w-full h-1.5 bg-gray-200 rounded-full"></div>
-                  <div
-                    className="absolute h-1.5 bg-sky-600 rounded-full"
-                    style={{
-                      left: `${((priceRange[0] - 15) / 40) * 100}%`,
-                      right: `${100 - ((priceRange[1] - 15) / 40) * 100}%`,
+            {/* Material UI Slider - appears when both values are set */}
+            {showSlider && (
+              <div className="pt-2 space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="px-1">
+                  <Slider
+                    value={priceRange}
+                    onChange={handleSliderChange}
+                    valueLabelDisplay="auto"
+                    min={parseInt(minPriceInput) || 15000}
+                    max={parseInt(maxPriceInput) || 55000}
+                    step={1000}
+                    valueLabelFormat={(value) => `₱${value.toLocaleString()}`}
+                    sx={{
+                      color: "#0ea5e9",
+                      "& .MuiSlider-thumb": {
+                        backgroundColor: "#0ea5e9",
+                        "&:hover": {
+                          boxShadow: "0 0 0 8px rgba(14, 165, 233, 0.16)",
+                        },
+                      },
+                      "& .MuiSlider-valueLabel": {
+                        backgroundColor: "#0ea5e9",
+                        color: "#fff",
+                      },
                     }}
-                  ></div>
-
-                  <input
-                    type="range"
-                    min="15"
-                    max="55"
-                    step="5"
-                    value={priceRange[0]}
-                    onChange={(e) => handleSliderChange(e, 0)}
-                    className="absolute w-full h-1.5 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-sky-600 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md"
-                  />
-
-                  <input
-                    type="range"
-                    min="15"
-                    max="55"
-                    step="5"
-                    value={priceRange[1]}
-                    onChange={(e) => handleSliderChange(e, 1)}
-                    className="absolute w-full h-1.5 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-sky-600 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-md"
                   />
                 </div>
-
-                <div className="text-center text-sm font-semibold text-gray-700">
-                  {priceRange[0]}k - {priceRange[1]}k
+                <div className="text-center text-xs font-semibold text-sky-700 bg-sky-50 py-2 px-3 rounded-lg">
+                  ₱{priceRange[0].toLocaleString()} - ₱
+                  {priceRange[1].toLocaleString()}
                 </div>
               </div>
             )}
