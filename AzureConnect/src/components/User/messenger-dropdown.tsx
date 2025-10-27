@@ -5,11 +5,8 @@ import {
   Phone,
   Minus,
   Send,
-  Image,
-  Smile,
   Paperclip,
   Trash2,
-  Heart,
 } from "lucide-react";
 
 type ChatMessage = {
@@ -35,8 +32,6 @@ export function MessengerDropdown({
   const [isOpen, setIsOpen] = useState(true);
   const [selectedChat, setSelectedChat] = useState<number | null>(null);
   const [hoveredMessage, setHoveredMessage] = useState<number | null>(null);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [isHoveringEmojiPicker, setIsHoveringEmojiPicker] = useState(false);
   const [activeFilter, setActiveFilter] = useState<"all" | "unread">("all");
   const [conversations, setConversations] = useState<
     Array<{
@@ -493,115 +488,6 @@ export function MessengerDropdown({
     setHoveredMessage(null);
   };
 
-  const handleAddReaction = (messageId: number, emoji: string) => {
-    setConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === selectedChat
-          ? {
-              ...conv,
-              messages: conv.messages.map((msg) =>
-                msg.id === messageId
-                  ? {
-                      ...msg,
-                      reactions: [emoji], // Only one reaction per message
-                    }
-                  : msg
-              ),
-            }
-          : conv
-      )
-    );
-    setShowEmojiPicker(false);
-    setIsHoveringEmojiPicker(false);
-    setHoveredMessage(null); // Hide options after reacting
-  };
-
-  const handleHeartToggle = (messageId: number) => {
-    setConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === selectedChat
-          ? {
-              ...conv,
-              messages: conv.messages.map((msg) =>
-                msg.id === messageId
-                  ? {
-                      ...msg,
-                      reactions:
-                        msg.reactions && msg.reactions.includes("❤️")
-                          ? []
-                          : ["❤️"],
-                    }
-                  : msg
-              ),
-            }
-          : conv
-      )
-    );
-    setIsHoveringEmojiPicker(false);
-    setHoveredMessage(null); // Hide options after toggling heart
-  };
-
-  const emojis = [
-    "😀",
-    "😃",
-    "😄",
-    "😁",
-    "😆",
-    "😅",
-    "😂",
-    "🤣",
-    "😊",
-    "😇",
-    "🙂",
-    "🙃",
-    "😉",
-    "😌",
-    "😍",
-    "🥰",
-    "😘",
-    "😗",
-    "😙",
-    "😚",
-    "😋",
-    "😛",
-    "😝",
-    "😜",
-    "🤪",
-    "🤨",
-    "🧐",
-    "🤓",
-    "😎",
-    "🤩",
-    "🥳",
-    "😏",
-    "😒",
-    "😞",
-    "😔",
-    "😟",
-    "😕",
-    "🙁",
-    "☹️",
-    "😣",
-    "😖",
-    "😫",
-    "😩",
-    "🥺",
-    "😢",
-    "😭",
-    "😤",
-    "😠",
-    "😡",
-    "🤬",
-    "🤯",
-    "😳",
-    "🥵",
-    "🥶",
-    "😱",
-    "😨",
-    "😰",
-    "😥",
-    "😓",
-  ];
 
   // Set initial chat if provided
   useEffect(() => {
@@ -640,10 +526,6 @@ export function MessengerDropdown({
       if (!target.closest(".messenger-dropdown-container")) {
         setIsOpen(false); // ✅ USE setIsOpen
         onClose();
-      }
-      // Close emoji picker when clicking outside
-      if (!target.closest(".emoji-picker-container")) {
-        setShowEmojiPicker(false);
       }
     };
 
@@ -866,9 +748,7 @@ export function MessengerDropdown({
                 } relative group`}
                 onMouseEnter={() => setHoveredMessage(msg.id)}
                 onMouseLeave={() => {
-                  if (!isHoveringEmojiPicker && !showEmojiPicker) {
-                    setHoveredMessage(null);
-                  }
+                  setHoveredMessage(null);
                 }}
               >
                 {msg.sender === "them" && (
@@ -918,40 +798,13 @@ export function MessengerDropdown({
                   <span className="text-xs text-gray-500 px-1">{msg.time}</span>
                 </div>
 
-                {/* Action buttons - show on hover, positioned on the right */}
+                {/* Action buttons - show on hover, positioned close to message */}
                 {hoveredMessage === msg.id && (
                   <div
                     className={`absolute top-1/2 -translate-y-1/2 flex items-center gap-1 ${
-                      msg.sender === "me" ? "left-2" : "right-2"
+                      msg.sender === "me" ? "-left-0.5" : "-right-0.5"
                     }`}
                   >
-                    <button
-                      className="p-1.5 hover:bg-gray-200 rounded-full transition-colors bg-white shadow-md"
-                      onClick={() => handleHeartToggle(msg.id)}
-                      title={
-                        msg.reactions && msg.reactions.includes("❤️")
-                          ? "Remove heart"
-                          : "Add heart"
-                      }
-                    >
-                      <Heart
-                        className={`h-4 w-4 ${
-                          msg.reactions && msg.reactions.includes("❤️")
-                            ? "text-red-500"
-                            : "text-gray-500"
-                        }`}
-                      />
-                    </button>
-                    <button
-                      className="p-1.5 hover:bg-gray-200 rounded-full transition-colors bg-white shadow-md"
-                      onClick={() => {
-                        setShowEmojiPicker(true);
-                        setIsHoveringEmojiPicker(true);
-                      }}
-                      title="More reactions"
-                    >
-                      <Smile className="h-4 w-4 text-gray-500" />
-                    </button>
                     <button
                       className="p-1.5 hover:bg-gray-200 rounded-full transition-colors bg-white shadow-md"
                       onClick={() => handleDeleteMessage(msg.id)}
@@ -967,46 +820,7 @@ export function MessengerDropdown({
 
           {/* Message Input */}
           <div className="p-2 border-t border-gray-200 bg-white">
-            {/* Emoji Picker */}
-            {showEmojiPicker && hoveredMessage && (
-              <div
-                className="emoji-picker-container absolute bottom-16 right-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 max-h-32 overflow-y-auto z-10"
-                onMouseEnter={() => setIsHoveringEmojiPicker(true)}
-                onMouseLeave={() => {
-                  setIsHoveringEmojiPicker(false);
-                  setShowEmojiPicker(false);
-                  setHoveredMessage(null);
-                }}
-              >
-                <div className="grid grid-cols-8 gap-1">
-                  {emojis.map((emoji, index) => (
-                    <button
-                      key={index}
-                      className="p-1 hover:bg-gray-100 rounded text-lg"
-                      onClick={() => {
-                        handleAddReaction(hoveredMessage, emoji);
-                      }}
-                    >
-                      {emoji}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
             <div className="flex items-center gap-1.5">
-              <button
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
-                onClick={handleFileUpload}
-              >
-                <Image className="h-4 w-4 text-sky-600" />
-              </button>
-              <button
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              >
-                <Smile className="h-4 w-4 text-sky-600" />
-              </button>
               <input
                 type="text"
                 placeholder="Aa"
