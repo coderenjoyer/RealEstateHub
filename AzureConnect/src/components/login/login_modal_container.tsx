@@ -1,10 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import LoginModal from "./login_modal";
 
 const LoginModalContainer: React.FC = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
   return (
     <div
-      className="rounded-3xl shadow-2xl overflow-hidden relative"
+      className={`rounded-3xl shadow-2xl overflow-hidden relative transition-all duration-1000 ease-out ${
+        isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+      }`}
       style={{
         background:
           "linear-gradient(to bottom, #7BBDE8 0%, #4A8FB8 40%, #0A4174 100%)",
@@ -12,10 +20,11 @@ const LoginModalContainer: React.FC = () => {
     >
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
         <div
-          className="absolute w-96 h-96 rounded-full border-4 border-white/30"
+          className="absolute w-96 h-96 rounded-full border-4 border-white/30 animate-pulse"
           style={{
             top: "-10%",
             right: "-5%",
+            animation: "float 6s ease-in-out infinite",
           }}
         />
         <div
@@ -23,6 +32,7 @@ const LoginModalContainer: React.FC = () => {
           style={{
             bottom: "-8%",
             left: "-8%",
+            animation: "float 8s ease-in-out infinite reverse",
           }}
         />
         <div
@@ -30,6 +40,7 @@ const LoginModalContainer: React.FC = () => {
           style={{
             top: "30%",
             left: "15%",
+            animation: "float 7s ease-in-out infinite",
           }}
         />
         <div
@@ -37,6 +48,7 @@ const LoginModalContainer: React.FC = () => {
           style={{
             top: "60%",
             right: "20%",
+            animation: "float 5s ease-in-out infinite reverse",
           }}
         />
 
@@ -47,6 +59,7 @@ const LoginModalContainer: React.FC = () => {
             top: "-25%",
             left: "25%",
             transform: "rotate(25deg)",
+            animation: "shimmer 3s ease-in-out infinite",
           }}
         />
         <div
@@ -56,6 +69,7 @@ const LoginModalContainer: React.FC = () => {
             top: "-25%",
             right: "35%",
             transform: "rotate(-20deg)",
+            animation: "shimmer 3s ease-in-out infinite reverse",
           }}
         />
 
@@ -118,16 +132,19 @@ const LoginModalContainer: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-0 min-h-[700px] relative z-10">
         <div className="p-10 sm:p-14 lg:p-24 flex flex-col justify-center relative">
           <div
-            className="absolute w-24 h-24 rounded-lg bg-white/10 backdrop-blur-sm"
+            className={`absolute w-24 h-24 rounded-lg bg-white/10 backdrop-blur-sm transition-all duration-1000 delay-300 ${
+              isVisible ? 'opacity-100 scale-100 rotate-15' : 'opacity-0 scale-75 rotate-0'
+            }`}
             style={{
               top: "15%",
               left: "10%",
-              transform: "rotate(15deg)",
             }}
           />
 
           <h1
-            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-wide mb-20 text-white relative"
+            className={`text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-wide mb-20 text-white relative transition-all duration-1000 delay-500 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`}
             style={{
               fontFamily: "Montserrat, sans-serif",
               textShadow: "0 4px 16px rgba(0,0,0,0.3)",
@@ -137,7 +154,9 @@ const LoginModalContainer: React.FC = () => {
           </h1>
 
           <p
-            className="text-lg sm:text-xl lg:text-2xl text-white leading-relaxed font-light relative"
+            className={`text-lg sm:text-xl lg:text-2xl text-white leading-relaxed font-light relative transition-all duration-1000 delay-700 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`}
             style={{
               fontFamily: "Ubuntu, sans-serif",
               textShadow: "0 2px 8px rgba(0,0,0,0.2)",
@@ -145,10 +164,11 @@ const LoginModalContainer: React.FC = () => {
           >
             We have{" "}
             <span
-              className="font-bold italic"
+              className="font-bold italic animate-pulse"
               style={{
                 fontFamily: "Montserrat, sans-serif",
                 textShadow: "0 3px 10px rgba(0,0,0,0.4)",
+                animationDelay: "1s",
               }}
             >
               plenty of places
@@ -157,11 +177,13 @@ const LoginModalContainer: React.FC = () => {
             <br />
             but only one will feel like{" "}
             <span
-              className="font-bold text-white"
+              className="font-bold text-white animate-bounce"
               style={{
                 fontFamily: "Montserrat, sans-serif",
                 textShadow: "0 4px 12px rgba(0,0,0,0.5)",
                 letterSpacing: "0.02em",
+                animationDuration: "2s",
+                animationDelay: "1.5s",
               }}
             >
               home
@@ -171,10 +193,20 @@ const LoginModalContainer: React.FC = () => {
         </div>
 
         <div className="p-8 sm:p-10 lg:p-12 flex items-center justify-center relative">
-          <div className="absolute top-8 right-8 w-16 h-16 border-t-2 border-r-2 border-white/30 rounded-tr-xl" />
-          <div className="absolute bottom-8 left-8 w-16 h-16 border-b-2 border-l-2 border-white/30 rounded-bl-xl" />
+          <div 
+            className={`absolute top-8 right-8 w-16 h-16 border-t-2 border-r-2 border-white/30 rounded-tr-xl transition-all duration-1000 delay-900 ${
+              isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
+            }`}
+          />
+          <div 
+            className={`absolute bottom-8 left-8 w-16 h-16 border-b-2 border-l-2 border-white/30 rounded-bl-xl transition-all duration-1000 delay-1100 ${
+              isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
+            }`}
+          />
 
-          <div className="w-full max-w-md flex items-center justify-center">
+          <div className={`w-full max-w-md flex items-center justify-center transition-all duration-1000 delay-1000 ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}>
             <LoginModal />
           </div>
         </div>

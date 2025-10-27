@@ -8,9 +8,22 @@ const LoginModal: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>("signin");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const handleTabChange = (tab: TabKey) => {
+    if (tab !== activeTab) {
+      setIsAnimating(true);
+      setTimeout(() => {
+        setActiveTab(tab);
+        setTimeout(() => {
+          setIsAnimating(false);
+        }, 50);
+      }, 200);
+    }
+  };
 
   const inputBase =
-    "w-full rounded-[10px] border border-[#a8c1d3] bg-[#b8cfdd]/60 placeholder:text-white/80 text-white/90 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#5d8ab0] focus:border-transparent";
+    "w-full rounded-[10px] border border-[#a8c1d3] bg-[#b8cfdd]/60 placeholder:text-white/80 text-white/90 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#5d8ab0] focus:border-transparent transition-all duration-300 hover:bg-[#b8cfdd]/80 hover:border-[#5d8ab0]";
 
   const inputFont = {
     fontFamily:
@@ -21,13 +34,13 @@ const LoginModal: React.FC = () => {
   return (
     <div className="relative w-full max-w-md rounded-2xl bg-[#cfe3ee] p-6 shadow-2xl">
       <div className="mb-8 flex items-center justify-between">
-        <div className="inline-flex items-center rounded-full bg-[#3f6f97] p-1 shadow">
+        <div className="inline-flex items-center rounded-full bg-[#3f6f97] p-1.5 shadow gap-2">
           <button
-            onClick={() => setActiveTab("signup")}
-            className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+            onClick={() => handleTabChange("signup")}
+            className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 transform hover:scale-105 flex-shrink-0 ${
               activeTab === "signup"
-                ? "bg-white/40 text-white shadow-sm"
-                : "text-white/90"
+                ? "bg-white/40 text-white shadow-sm scale-105"
+                : "text-white/90 hover:text-white hover:bg-white/20"
             }`}
             style={{
               fontFamily:
@@ -38,11 +51,11 @@ const LoginModal: React.FC = () => {
             Sign up
           </button>
           <button
-            onClick={() => setActiveTab("signin")}
-            className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+            onClick={() => handleTabChange("signin")}
+            className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 transform hover:scale-105 flex-shrink-0 ${
               activeTab === "signin"
-                ? "bg-white/40 text-white shadow-sm"
-                : "text-white/90"
+                ? "bg-white/40 text-white shadow-sm scale-105"
+                : "text-white/90 hover:text-white hover:bg-white/20"
             }`}
             style={{
               fontFamily:
@@ -54,8 +67,8 @@ const LoginModal: React.FC = () => {
           </button>
         </div>
         <button
-          aria-label="Close"
-          className="grid size-9 place-items-center rounded-full bg-white/40 text-[#436a86] transition hover:bg-white/60"
+          aria-label="Back to Home"
+          className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/30 text-[#436a86] transition-all duration-300 hover:bg-white/50 hover:scale-105 hover:shadow-md backdrop-blur-sm"
           onClick={() => navigate('/')}
         >
           <svg
@@ -63,19 +76,29 @@ const LoginModal: React.FC = () => {
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="1.8"
-            className="size-5"
+            strokeWidth="2"
+            className="size-4"
           >
-            <path strokeLinecap="round" d="M6 6l12 12M18 6 6 18" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
+          <span 
+            className="text-sm font-medium"
+            style={{
+              fontFamily: "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
+            }}
+          >
+            Back to Home
+          </span>
         </button>
       </div>
 
-      {activeTab === "signup" ? (
-        <div className="space-y-4">
-          <h2 className="text-[#17364b] text-base font-semibold">
-            Create an account
-          </h2>
+      <div className="relative overflow-hidden">
+        <div className={`transition-all duration-500 ease-in-out ${isAnimating ? 'opacity-0 transform translate-y-2 scale-95' : 'opacity-100 transform translate-y-0 scale-100'}`}>
+          {activeTab === "signup" ? (
+            <div className="space-y-4">
+              <h2 className="text-[#17364b] text-base font-semibold animate-fadeInUp">
+                Create an account
+              </h2>
 
           <div className="grid grid-cols-2 gap-3">
             <input
@@ -192,13 +215,13 @@ const LoginModal: React.FC = () => {
             </button>
           </div>
 
-          <button className="mt-6 w-full rounded-xl bg-[#5d86aa] px-6 py-3 text-white shadow transition hover:bg-[#52799a]">
+          <button className="mt-6 w-full rounded-xl bg-[#5d86aa] px-6 py-3 text-white shadow transition-all duration-300 hover:bg-[#52799a] hover:scale-105 hover:shadow-lg transform active:scale-95">
             Create an account
           </button>
         </div>
       ) : (
         <div className="space-y-4">
-          <h2 className="text-[#17364b] text-base font-semibold">
+          <h2 className="text-[#17364b] text-base font-semibold animate-fadeInUp">
             Welcome back
           </h2>
           <div className="relative">
@@ -243,12 +266,12 @@ const LoginModal: React.FC = () => {
               </svg>
             </button>
           </div>
-          <button className="mt-2 w-full rounded-xl bg-[#5d86aa] px-6 py-3 text-white shadow transition hover:bg-[#52799a]">
+          <button className="mt-2 w-full rounded-xl bg-[#5d86aa] px-6 py-3 text-white shadow transition-all duration-300 hover:bg-[#52799a] hover:scale-105 hover:shadow-lg transform active:scale-95">
             Log in account
           </button>
           <button
             type="button"
-            className="mx-auto block text-sm font-medium text-[#ffffff] underline-offset-4 hover:underline"
+            className="mx-auto block text-sm font-medium text-[#ffffff] underline-offset-4 hover:underline transition-all duration-300 hover:text-white/80 transform hover:scale-105"
             style={{
               fontFamily:
                 "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
@@ -259,6 +282,8 @@ const LoginModal: React.FC = () => {
           </button>
         </div>
       )}
+        </div>
+      </div>
 
       <div className="mt-6 text-center text-xs text-[#23455b]/80"></div>
     </div>
