@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowRight } from 'lucide-react'
 
 export function WhyChooseSection() {
@@ -19,6 +19,18 @@ export function WhyChooseSection() {
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+
+  // Auto-slide functionality
+  useEffect(() => {
+    if (isHovered) return // Pause when hovered
+    
+    const interval = setInterval(() => {
+      nextImage()
+    }, 4000) // Change image every 4 seconds
+
+    return () => clearInterval(interval)
+  }, [isHovered])
 
   const nextImage = () => {
     if (isTransitioning) return
@@ -28,8 +40,10 @@ export function WhyChooseSection() {
       setCurrentImageIndex((prevIndex) => 
         prevIndex === images.length - 1 ? 0 : prevIndex + 1
       )
-      setIsTransitioning(false)
-    }, 150)
+      setTimeout(() => {
+        setIsTransitioning(false)
+      }, 100)
+    }, 300)
   }
 
   return (
@@ -50,40 +64,52 @@ export function WhyChooseSection() {
           </div>
 
           <div className="relative">
-            <div className="relative overflow-hidden rounded-lg group">
+            <div 
+              className="relative overflow-hidden rounded-lg group"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
               <div className="relative w-full h-96">
-                <img
-                  key={currentImageIndex}
-                  src={images[currentImageIndex].src}
-                  alt={images[currentImageIndex].alt}
-                  className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-in-out ${
-                    isTransitioning 
-                      ? 'opacity-0 scale-105 blur-sm' 
-                      : 'opacity-100 scale-100 blur-0'
-                  }`}
-                />
+                {images.map((image, index) => (
+                  <img
+                    key={index}
+                    src={image.src}
+                    alt={image.alt}
+                    className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out transform ${
+                      index === currentImageIndex
+                        ? 'opacity-100 scale-100 translate-x-0'
+                        : index === (currentImageIndex - 1 + images.length) % images.length
+                        ? 'opacity-0 scale-105 -translate-x-full'
+                        : 'opacity-0 scale-105 translate-x-full'
+                    }`}
+                  />
+                ))}
               </div>
               <button
                 onClick={nextImage}
                 disabled={isTransitioning}
-                className={`absolute top-1/2 right-4 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white px-4 py-2 rounded-lg font-medium backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg ${
+                className={`absolute top-1/2 right-4 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white px-3 py-2 rounded-full font-medium backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:shadow-xl ${
                   isTransitioning ? 'opacity-50 cursor-not-allowed' : 'opacity-100 cursor-pointer'
-                }`}
+                } ${isHovered ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'}`}
               >
-                <span>
-                  <ArrowRight className="w-4 h-4" />
-                </span>
+                <ArrowRight className="w-4 h-4" />
               </button>
               
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-3">
                 {images.map((_, index) => (
-                  <div
+                  <button
                     key={index}
-                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    onClick={() => {
+                      if (!isTransitioning) {
+                        setCurrentImageIndex(index)
+                      }
+                    }}
+                    className={`transition-all duration-300 rounded-full ${
                       index === currentImageIndex 
-                        ? 'bg-white scale-125' 
-                        : 'bg-white/50 hover:bg-white/75'
+                        ? 'w-8 h-2 bg-white scale-100' 
+                        : 'w-2 h-2 bg-white/50 hover:bg-white/75 hover:scale-125'
                     }`}
+                    disabled={isTransitioning}
                   />
                 ))}
               </div>
