@@ -113,14 +113,14 @@ export function PropertyFilters({
           lg:relative lg:translate-x-0 lg:rounded-tl-none lg:rounded-bl-none
         `}
       >
-        <div className="px-6 py-4 flex-shrink-0 border-b border-gray-200 bg-white">
+        <div className="px-6 py-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             {/* Title with icon */}
             <div className="flex items-center gap-2.5">
-              <div className="p-1.5 bg-sky-50 rounded-lg">
-                <SlidersHorizontal className="h-4.5 w-4.5 text-sky-600" />
+              <div className="p-1.5 bg-sky-100/50 backdrop-blur-sm rounded-lg shadow-sm border border-sky-200/30">
+                <SlidersHorizontal className="h-4.5 w-4.5 text-sky-700" />
               </div>
-              <h2 className="text-base font-bold text-gray-900">Filters</h2>
+              <h2 className="text-base font-bold text-gray-800">Filters</h2>
             </div>
 
             {/* Action buttons */}
