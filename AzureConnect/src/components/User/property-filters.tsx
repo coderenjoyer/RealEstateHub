@@ -1,26 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, DollarSign, Home, Sparkles, X, Search } from "lucide-react";
+import {
+  DollarSign,
+  Home,
+  Sparkles,
+  X,
+  Heart,
+  ShoppingCart,
+  Key,
+} from "lucide-react";
 
 interface PropertyFiltersProps {
   isOpen: boolean;
   onClose: () => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
 }
 
-export function PropertyFilters({ isOpen, onClose }: PropertyFiltersProps) {
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+export function PropertyFilters({
+  isOpen,
+  onClose,
+  activeTab,
+  setActiveTab,
+}: PropertyFiltersProps) {
   const [selectedPrice, setSelectedPrice] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState([15, 55]);
   const [customMinPrice, setCustomMinPrice] = useState("");
   const [customMaxPrice, setCustomMaxPrice] = useState("");
-  const [extraLocations, setExtraLocations] = useState<string[]>([""]);
-  const [suggestions, setSuggestions] = useState<{ [key: number]: any[] }>({});
-  const GEOAPIFY_KEY = "72903e1463b146169ffcf808147da823";
-
-  const locations = ["Labangon", "Mandaue", "Talisay", "Naga"];
   const priceOptions = ["Under 30k", "40k-60k", "More than 100k", "Custom"];
   const propertyTypes = [
     "Apartment",
@@ -32,14 +41,12 @@ export function PropertyFilters({ isOpen, onClose }: PropertyFiltersProps) {
   const amenities = ["Garage", "Pool", "Spa", "Gym", "Garden", "Lounge"];
 
   const handleClearAll = () => {
-    setSelectedLocations([]);
     setSelectedPrice("");
     setSelectedTypes([]);
     setSelectedAmenities([]);
     setPriceRange([15, 55]);
     setCustomMinPrice("");
     setCustomMaxPrice("");
-    setExtraLocations([""]);
   };
 
   const handleSliderChange = (
@@ -72,38 +79,11 @@ export function PropertyFilters({ isOpen, onClose }: PropertyFiltersProps) {
     setCustomMaxPrice(value);
   };
 
-  const fetchSuggestions = async (query: string, index: number) => {
-    if (!query) {
-      setSuggestions((prev) => ({ ...prev, [index]: [] }));
-      return;
-    }
-    try {
-      const res = await fetch(
-        `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(
-          query
-        )}&filter=countrycode:ph&limit=5&apiKey=${GEOAPIFY_KEY}`
-      );
-      const data = await res.json();
-      setSuggestions((prev) => ({ ...prev, [index]: data.features || [] }));
-    } catch (err) {
-      console.error("Error fetching Geoapify:", err);
-    }
-  };
-
-  const handleSelectPlace = (place: any, index: number) => {
-    const name = place.properties.formatted || place.properties.name;
-    if (!selectedLocations.includes(name)) {
-      setSelectedLocations((prev) => [...prev, name]);
-    }
-    setExtraLocations((prev) =>
-      prev.map((val, i) => (i === index ? name : val))
-    );
-    setSuggestions((prev) => ({ ...prev, [index]: [] }));
-  };
-
-  const addMoreLocation = () => {
-    setExtraLocations((prev) => [...prev, ""]);
-  };
+  const tabs = [
+    { name: "Buy", icon: ShoppingCart },
+    { name: "Rent", icon: Key },
+    { name: "Favorites", icon: Heart },
+  ];
 
   return (
     <>
@@ -146,76 +126,29 @@ export function PropertyFilters({ isOpen, onClose }: PropertyFiltersProps) {
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 pt-3 pb-6 space-y-4 max-h-[calc(105vh-140px)]">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-gradient-to-br from-sky-100 to-sky-50 rounded-xl shadow-sm">
-                <MapPin className="h-4 w-4 text-sky-600" />
-              </div>
-              <h3 className="font-bold text-gray-800 text-sm">Location</h3>
-            </div>
-            <div className="space-y-1 pl-1">
-              {locations.map((location) => (
-                <label
-                  key={location}
-                  className="flex items-center cursor-pointer group py-1"
+          {/* Buy/Rent/Favorites Tabs */}
+          <div className="grid grid-cols-1 gap-2.5">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.name}
+                  onClick={() => setActiveTab(tab.name)}
+                  className={`flex items-center gap-2.5 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                    activeTab === tab.name
+                      ? "bg-sky-600 text-white border-2 border-sky-600"
+                      : "bg-white text-gray-700 border-2 border-gray-200 hover:border-sky-400 hover:bg-sky-50"
+                  }`}
                 >
-                  <input
-                    type="checkbox"
-                    className="w-4.5 h-4.5 rounded border-2 border-gray-300 text-sky-600 focus:ring-2 focus:ring-sky-500 focus:ring-offset-0 cursor-pointer transition-all"
-                    checked={selectedLocations.includes(location)}
-                    onChange={() => {
-                      setSelectedLocations((prev) =>
-                        prev.includes(location)
-                          ? prev.filter((l) => l !== location)
-                          : [...prev, location]
-                      );
-                    }}
+                  <Icon
+                    className={`h-4.5 w-4.5 transition-colors duration-200 ${
+                      activeTab === tab.name ? "text-white" : "text-sky-600"
+                    }`}
                   />
-                  <span className="ml-3 text-sm text-gray-700 font-medium group-hover:text-gray-900 transition-colors">
-                    {location}
-                  </span>
-                </label>
-              ))}
-              {extraLocations.map((val, index) => (
-                <div key={index} className="relative mt-2">
-                  <div className="flex items-center border rounded-lg bg-white shadow-sm">
-                    <Search className="ml-2 text-gray-500 w-4 h-4" />
-                    <input
-                      type="text"
-                      value={val}
-                      onChange={(e) => {
-                        const newValue = e.target.value;
-                        setExtraLocations((prev) =>
-                          prev.map((v, i) => (i === index ? newValue : v))
-                        );
-                        fetchSuggestions(newValue, index);
-                      }}
-                      placeholder="Search location..."
-                      className="flex-1 px-3 py-2 text-sm outline-none bg-transparent"
-                    />
-                  </div>
-                  {suggestions[index]?.length > 0 && (
-                    <ul className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
-                      {suggestions[index].map((sugg) => (
-                        <li
-                          key={sugg.properties.place_id}
-                          onClick={() => handleSelectPlace(sugg, index)}
-                          className="px-3 py-2 text-sm hover:bg-sky-100 cursor-pointer"
-                        >
-                          {sugg.properties.formatted}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
-              <button
-                onClick={addMoreLocation}
-                className="mt-2 text-xs font-semibold text-sky-600 hover:text-sky-700"
-              >
-                + Add another location
-              </button>
-            </div>
+                  {tab.name}
+                </button>
+              );
+            })}
           </div>
 
           <div className="border-t border-gray-200" />

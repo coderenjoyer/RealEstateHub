@@ -40,6 +40,8 @@ export default function HomePage() {
       <PropertyFilters
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
       />
 
       {/* Main Content Area */}
@@ -51,8 +53,6 @@ export default function HomePage() {
             setIsSidebarOpen={setIsSidebarOpen}
             activeDropdown={activeDropdown}
             setActiveDropdown={setActiveDropdown}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
             selectedChatId={selectedChatId}
             onCloseDropdown={handleCloseDropdown}
           />

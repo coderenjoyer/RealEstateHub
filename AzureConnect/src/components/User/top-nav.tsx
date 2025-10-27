@@ -1,8 +1,17 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronDown, Menu, MessageCircle, Bell } from "lucide-react";
+import {
+  ChevronDown,
+  Menu,
+  MessageCircle,
+  Bell,
+  Search,
+  MapPin,
+  X,
+} from "lucide-react";
 import { MessengerDropdown } from "./messenger-dropdown";
 import { NotificationDropdown } from "./notification";
 import { UserProfileDropdown } from "./user-profile-dropdown";
@@ -15,8 +24,6 @@ interface TopNavProps {
   setActiveDropdown: (
     dropdown: "none" | "chats" | "notifications" | "profile"
   ) => void;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
   selectedChatId?: number;
   onCloseDropdown?: () => void;
 }
@@ -26,14 +33,18 @@ export function TopNav({
   setIsSidebarOpen,
   activeDropdown,
   setActiveDropdown,
-  activeTab,
-  setActiveTab,
   selectedChatId,
   onCloseDropdown,
 }: TopNavProps) {
   const navigate = useNavigate();
   const unreadChatsCount = 3;
   const unreadNotificationsCount = 2;
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const GEOAPIFY_KEY = "72903e1463b146169ffcf808147da823";
 
   const handleChatsClick = () => {
     if (activeDropdown === "chats") {
@@ -74,10 +85,67 @@ export function TopNav({
     navigate("/login");
   };
 
+  // Fetch location suggestions from Geoapify
+  const fetchSuggestions = async (query: string) => {
+    if (!query || query.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(
+          query
+        )}&filter=countrycode:ph&limit=5&apiKey=${GEOAPIFY_KEY}`
+      );
+      const data = await res.json();
+      setSuggestions(data.features || []);
+    } catch (err) {
+      console.error("Error fetching Geoapify:", err);
+    }
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    fetchSuggestions(query);
+    setShowSuggestions(true);
+  };
+
+  const handleSelectLocation = (place: any) => {
+    const name = place.properties.formatted || place.properties.name;
+    setSearchQuery(name);
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="flex items-center justify-between px-4 lg:px-8 py-3 lg:py-5 bg-gradient-to-br from-sky-300/95 via-blue-200/95 to-blue-300/95 backdrop-blur-md border-b border-white/20">
-      {/* Left Side - Hamburger + Navigation Tabs */}
-      <div className="flex items-center gap-2 lg:gap-3">
+      {/* Left Side - Hamburger + Location Search */}
+      <div className="flex items-center gap-2 lg:gap-3 flex-1">
         <Button
           size="icon"
           variant="ghost"
@@ -87,24 +155,59 @@ export function TopNav({
           <Menu className="h-5 w-5" />
         </Button>
 
+        {/* Location Search Bar */}
         <div
-          className={`flex items-center gap-1.5 bg-white/10 backdrop-blur-md rounded-full p-1 border border-white/50 shadow-inner transition-opacity duration-300 ${
+          ref={searchRef}
+          className={`relative flex-1 max-w-[200px] sm:max-w-sm md:max-w-md lg:max-w-2xl ${
             isSidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"
           }`}
         >
-          {["Buy", "Rent", "Favorites"].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 lg:px-8 py-2 lg:py-2.5 rounded-full font-medium text-xs lg:text-sm transition-all duration-200 ${
-                activeTab === tab
-                  ? "bg-sky-500 text-white shadow-lg shadow-sky-500/30"
-                  : "bg-transparent text-white/80 hover:bg-[#8ECCFD] hover:text-white"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-2.5 sm:pl-3 flex items-center pointer-events-none z-10">
+              <Search className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              placeholder="Search location..."
+              className="w-full pl-8 sm:pl-10 pr-8 sm:pr-10 py-1.5 sm:py-2 lg:py-2.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg sm:rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all text-xs sm:text-sm lg:text-base"
+              onFocus={() => setShowSuggestions(true)}
+            />
+            {searchQuery && (
+              <button
+                onClick={handleClearSearch}
+                className="absolute inset-y-0 right-0 pr-2.5 sm:pr-3 flex items-center hover:bg-white/10 rounded-r-lg sm:rounded-r-xl transition-colors z-10"
+              >
+                <X className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white hover:text-white" />
+              </button>
+            )}
+          </div>
+
+          {/* Suggestions Dropdown */}
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-2xl max-h-64 overflow-y-auto">
+              {suggestions.map((place) => (
+                <button
+                  key={place.properties.place_id}
+                  onClick={() => handleSelectLocation(place)}
+                  className="w-full px-4 py-3 text-left hover:bg-sky-100 transition-colors border-b border-gray-100 last:border-b-0"
+                >
+                  <div className="flex items-start gap-3">
+                    <MapPin className="h-5 w-5 text-sky-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {place.properties.name || place.properties.formatted}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {place.properties.formatted}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
