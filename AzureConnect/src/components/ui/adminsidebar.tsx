@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import { useSidebar } from "@/contexts/SidebarContext"
 
 const menuItems = [
-  { icon: User, label: "Admin Profile", to: "/admin/profile" },
+  { icon: User, label: "Admin Controls", to: "/admin/profile" },
   { icon: LayoutDashboard, label: "Dashboard", to: "/admin" },
   { icon: CheckSquare, label: "Listing Approvals", to: "/admin/listings" },
   { icon: Users, label: "User Management", to: "/admin/users" },
