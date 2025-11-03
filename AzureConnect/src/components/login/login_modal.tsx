@@ -23,7 +23,7 @@ const LoginModal: React.FC = () => {
   };
 
   const inputBase =
-    "w-full rounded-[10px] border border-[#a8c1d3] bg-[#b8cfdd]/60 placeholder:text-white/80 text-white/90 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-[#5d8ab0] focus:border-transparent transition-all duration-300 hover:bg-[#b8cfdd]/80 hover:border-[#5d8ab0]";
+    "w-full rounded-[10px] border-2 border-[#a8c1d3] bg-[#b8cfdd]/60 placeholder:text-white/80 text-white/90 px-4 py-3 text-base focus:outline-none focus:border-[#5d8ab0] transition-all duration-300 hover:bg-[#b8cfdd]/80 hover:border-[#5d8ab0]";
 
   const inputFont = {
     fontFamily:
@@ -34,63 +34,76 @@ const LoginModal: React.FC = () => {
   return (
     <div className="relative w-full max-w-md rounded-xl sm:rounded-2xl bg-[#cfe3ee] p-5 sm:p-6 md:p-8 shadow-2xl">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-        <div className="inline-flex items-center rounded-full bg-[#3f6f97] p-1.5 shadow gap-2">
+        <div className="inline-flex items-center rounded-full bg-[#3f6f97] p-1.5 shadow gap-2 relative overflow-hidden">
+          <div
+            className={`absolute inset-y-1.5 transition-all duration-300 ease-in-out rounded-full bg-white/30 ${
+              activeTab === "signup"
+                ? "left-1.5 right-1/2"
+                : "left-1/2 right-1.5"
+            }`}
+          />
           <button
             onClick={() => handleTabChange("signup")}
-            className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 transform hover:scale-105 flex-shrink-0 ${
+            className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-300 flex-shrink-0 overflow-hidden group ${
               activeTab === "signup"
-                ? "bg-white/40 text-white shadow-sm scale-105"
-                : "text-white/90 hover:text-white hover:bg-white/20"
+                ? "text-white"
+                : "text-white/90 hover:text-white"
             }`}
             style={{
               fontFamily:
                 "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
             }}
           >
-            Sign up
+            <span className="inline-block transition-transform duration-300 transform-gpu group-hover:scale-105">
+              Sign up
+            </span>
           </button>
           <button
             onClick={() => handleTabChange("signin")}
-            className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 transform hover:scale-105 flex-shrink-0 ${
+            className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-300 flex-shrink-0 overflow-hidden group ${
               activeTab === "signin"
-                ? "bg-white/40 text-white shadow-sm scale-105"
-                : "text-white/90 hover:text-white hover:bg-white/20"
+                ? "text-white"
+                : "text-white/90 hover:text-white"
             }`}
             style={{
               fontFamily:
                 "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
             }}
           >
-            Sign in
+            <span className="inline-block transition-transform duration-300 transform-gpu group-hover:scale-105">
+              Sign in
+            </span>
           </button>
         </div>
         <button
           aria-label="Back to Home"
-          className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/30 text-[#436a86] transition-all duration-300 hover:bg-white/50 hover:scale-105 hover:shadow-md backdrop-blur-sm flex-shrink-0"
+          className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/30 text-[#436a86] transition-all duration-300 hover:bg-white/50 hover:shadow-md backdrop-blur-sm flex-shrink-0 overflow-hidden group"
           onClick={() => navigate("/")}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            className="w-4 h-4 sm:w-4 sm:h-4"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-            />
-          </svg>
-          <span
-            className="text-sm font-medium hidden sm:inline"
-            style={{
-              fontFamily:
-                "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
-            }}
-          >
-            Back to Home
+          <span className="flex items-center gap-2 transition-transform duration-300 transform-gpu group-hover:scale-105">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="w-4 h-4 sm:w-4 sm:h-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+              />
+            </svg>
+            <span
+              className="text-sm font-medium hidden sm:inline"
+              style={{
+                fontFamily:
+                  "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
+              }}
+            >
+              Back to Home
+            </span>
           </span>
         </button>
       </div>
@@ -224,8 +237,10 @@ const LoginModal: React.FC = () => {
                 </button>
               </div>
 
-              <button className="mt-6 w-full rounded-xl bg-[#5d86aa] px-6 py-3 text-base text-white shadow transition-all duration-300 hover:bg-[#52799a] hover:scale-105 hover:shadow-lg transform active:scale-95 font-semibold">
-                Create an account
+              <button className="mt-6 w-full rounded-xl bg-[#5d86aa] px-6 py-3 text-base text-white shadow transition-all duration-300 hover:bg-[#52799a] hover:shadow-lg active:scale-95 font-semibold overflow-hidden group">
+                <span className="inline-block transition-transform duration-300 transform-gpu group-hover:scale-105">
+                  Create an account
+                </span>
               </button>
 
               <div className="relative flex items-center justify-center my-4">
@@ -244,7 +259,7 @@ const LoginModal: React.FC = () => {
 
               <button
                 type="button"
-                className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-white text-gray-700 shadow-md border border-gray-200 transition-all duration-300 hover:bg-gray-50 hover:shadow-lg hover:scale-[1.02] transform active:scale-95 font-medium"
+                className="w-full rounded-xl bg-white text-gray-700 shadow-md border border-gray-200 transition-all duration-300 hover:bg-gray-50 hover:shadow-lg active:scale-95 font-medium overflow-hidden group"
                 onClick={() => {
                   // Placeholder for Google login - no backend integration
                   console.log("Google login clicked");
@@ -254,30 +269,32 @@ const LoginModal: React.FC = () => {
                     "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
                 }}
               >
-                <svg
-                  className="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    fill="#4285F4"
-                  />
-                  <path
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    fill="#34A853"
-                  />
-                  <path
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                    fill="#FBBC05"
-                  />
-                  <path
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                    fill="#EA4335"
-                  />
-                </svg>
-                <span>Continue with Google</span>
+                <span className="w-full flex items-center justify-center gap-3 px-6 py-3 transition-transform duration-300 transform-gpu group-hover:scale-105">
+                  <svg
+                    className="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      fill="#4285F4"
+                    />
+                    <path
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      fill="#34A853"
+                    />
+                    <path
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                      fill="#FBBC05"
+                    />
+                    <path
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c(.87-2.6 3.3-4.53 6.16-4.53z)"
+                      fill="#EA4335"
+                    />
+                  </svg>
+                  <span>Continue with Google</span>
+                </span>
               </button>
             </div>
           ) : (
@@ -328,8 +345,10 @@ const LoginModal: React.FC = () => {
                   </svg>
                 </button>
               </div>
-              <button className="mt-2 w-full rounded-xl bg-[#5d86aa] px-6 py-3 text-base text-white shadow transition-all duration-300 hover:bg-[#52799a] hover:scale-105 hover:shadow-lg transform active:scale-95 font-semibold">
-                Log in account
+              <button className="mt-2 w-full rounded-xl bg-[#5d86aa] px-6 py-3 text-base text-white shadow transition-all duration-300 hover:bg-[#52799a] hover:shadow-lg active:scale-95 font-semibold overflow-hidden group">
+                <span className="inline-block transition-transform duration-300 transform-gpu group-hover:scale-105">
+                  Log in account
+                </span>
               </button>
               <button
                 type="button"
@@ -358,7 +377,7 @@ const LoginModal: React.FC = () => {
 
               <button
                 type="button"
-                className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-white text-gray-700 shadow-md border border-gray-200 transition-all duration-300 hover:bg-gray-50 hover:shadow-lg hover:scale-[1.02] transform active:scale-95 font-medium"
+                className="w-full rounded-xl bg-white text-gray-700 shadow-md border border-gray-200 transition-all duration-300 hover:bg-gray-50 hover:shadow-lg active:scale-95 font-medium overflow-hidden group"
                 onClick={() => {
                   // Placeholder for Google login - no backend integration
                   console.log("Google login clicked");
@@ -368,30 +387,32 @@ const LoginModal: React.FC = () => {
                     "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
                 }}
               >
-                <svg
-                  className="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    fill="#4285F4"
-                  />
-                  <path
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    fill="#34A853"
-                  />
-                  <path
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                    fill="#FBBC05"
-                  />
-                  <path
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                    fill="#EA4335"
-                  />
-                </svg>
-                <span>Continue with Google</span>
+                <span className="w-full flex items-center justify-center gap-3 px-6 py-3 transition-transform duration-300 transform-gpu group-hover:scale-105">
+                  <svg
+                    className="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      fill="#4285F4"
+                    />
+                    <path
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      fill="#34A853"
+                    />
+                    <path
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                      fill="#FBBC05"
+                    />
+                    <path
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                      fill="#EA4335"
+                    />
+                  </svg>
+                  <span>Continue with Google</span>
+                </span>
               </button>
             </div>
           )}
