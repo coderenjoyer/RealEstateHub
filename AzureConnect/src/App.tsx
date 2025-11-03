@@ -14,6 +14,7 @@ import UserManagementPage from "./components/admin/user-management/user-page";
 import AdminProfilePage from "./components/admin/profile/profile-page";
 import ReportsPage from "./components/admin/reports/reports-page";
 import { BookmarkProvider } from "./contexts/BookmarkContext";
+import AzureRealEstateLoader from "./components/ui/loadingscreen";
 const AgentListedPropertiesPage = lazy(
   () => import("./components/Agent/listedproperties/page")
 );
@@ -32,13 +33,7 @@ const FavoritesPage = lazy(() => import("./components/User/favorites"));
 function App() {
   return (
     <BookmarkProvider>
-      <Suspense
-        fallback={
-          <main className="min-h-screen p-8">
-            <h1 className="text-xl font-semibold">Loading...</h1>
-          </main>
-        }
-      >
+      <Suspense fallback={<AzureRealEstateLoader />}>
         <Routes>
         <Route
           path="/"

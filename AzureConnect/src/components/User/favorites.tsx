@@ -61,7 +61,7 @@ const sampleProperties = [
   }
 ]
 
-export function FavoritesPage() {
+export default function FavoritesPage() {
   const { bookmarkedProperties, toggleBookmark, isBookmarked } = useBookmark()
   
   // Show all properties, but highlight the bookmarked ones
