@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   ChevronDown,
   Menu,
@@ -16,6 +16,8 @@ import { MessengerDropdown } from "./messenger-dropdown";
 import { NotificationDropdown } from "./notification";
 import { UserProfileDropdown } from "./user-profile-dropdown";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../AuthContext";
+import supabase from "../../supabaseClient";
 
 interface TopNavProps {
   isSidebarOpen: boolean;
@@ -37,6 +39,33 @@ export function TopNav({
   onCloseDropdown,
 }: TopNavProps) {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
+  const { session } = useAuth();
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      const userId = session?.user?.id;
+      if (!userId) {
+        setProfileImageUrl(null);
+        return;
+      }
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("profile_image_url")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (!isMounted) return;
+      if (error) {
+        console.error("Failed to load profile image:", error);
+        setProfileImageUrl(null);
+        return;
+      }
+      setProfileImageUrl(data?.profile_image_url ?? null);
+    })();
+    return () => { isMounted = false };
+  }, [session?.user?.id]);
   const unreadChatsCount = 3;
   const unreadNotificationsCount = 2;
 
@@ -80,8 +109,8 @@ export function TopNav({
     setActiveDropdown("none");
   };
 
-  const handleLogout = () => {
-    console.log("Logging out...");
+  const handleLogout = async () => {
+    await signOut();
     navigate("/login");
   };
 
@@ -257,16 +286,9 @@ export function TopNav({
                 : ""
             }`}
           >
-            <div className="text-right hidden sm:block">
-              <p className="text-xs lg:text-sm font-semibold text-white leading-tight">
-                John Doe
-              </p>
-              <p className="text-xs text-sky-100">johndoe@gmail.com</p>
-            </div>
+            {/* Removed hardcoded name/email display */}
             <Avatar className="h-8 w-8 lg:h-10 lg:w-10">
-              <AvatarFallback className="bg-gradient-to-br from-sky-400 to-sky-600 text-white text-xs lg:text-sm font-semibold shadow-lg">
-                JD
-              </AvatarFallback>
+              <AvatarImage src={profileImageUrl || "/def-prof.jpg"} alt="User profile" />
             </Avatar>
             <ChevronDown
               className={`h-3 w-3 lg:h-4 lg:w-4 text-white/80 transition-transform duration-200 ${

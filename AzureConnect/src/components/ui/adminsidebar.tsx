@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { User, LayoutDashboard, CheckSquare, Users, FileText, ChevronLeft, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useAuth } from "../../AuthContext"
 import { useSidebar } from "@/contexts/SidebarContext"
 
 const menuItems = [
@@ -18,6 +19,8 @@ export function Sidebar() {
   const { isCollapsed, setIsCollapsed } = useSidebar()
   const [hoveredItem, setHoveredItem] = useState<number | null>(null)
   const { pathname } = useLocation()
+  const { signOut } = useAuth()
+  const navigate = useNavigate()
 
   const isActive = (itemTo: string) => {
     // Exact match for root paths, or starts with the path followed by a slash
@@ -103,10 +106,10 @@ export function Sidebar() {
         })}
       </nav>
 
-      <Link
-        to="/login"
+      <button
+        onClick={async () => { await signOut(); navigate("/login"); }}
         className={cn(
-          "flex items-center gap-2 px-6 py-4 text-gray-800",
+          "flex items-center gap-2 px-6 py-4 text-gray-800 w-full text-left",
           "hover:bg-[#8FA8BC] transition-colors",
           "focus:outline-none focus:ring-2 focus:ring-[#3E5E7A] focus:ring-inset",
           "border-t border-[#8FA8BC]"
@@ -121,7 +124,7 @@ export function Sidebar() {
         >
           Logout
         </span>
-      </Link>
+      </button>
     </aside>
   )
 }

@@ -1,10 +1,24 @@
 import { MapPin, Phone, Mail, Calendar, Heart, Home, Star, Edit3, Briefcase, Award, ArrowLeft, X, Upload, Camera, Image as ImageIcon, User, Image } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import supabase from "../../supabaseClient"
+import { useAuth } from "../../AuthContext"
 
 function UserProfilePage() {
   const navigate = useNavigate();
+  const { session } = useAuth();
+  const userId = session?.user?.id;
+  const STORAGE_BUCKET = import.meta.env.VITE_STORAGE_BUCKET || "user-media";
+
+  const userMeta = session?.user?.user_metadata as Record<string, any> | undefined;
+  const firstName = userMeta?.first_name?.toString()?.trim();
+  const lastName = userMeta?.last_name?.toString()?.trim();
+  const displayName = (firstName || lastName)
+    ? `${firstName ?? ''} ${lastName ?? ''}`.trim()
+    : (session?.user?.email?.split('@')[0] ?? 'User');
+  const userEmail = session?.user?.email ?? '';
+  const userPhone = userMeta?.mobile_number?.toString()?.trim() ?? '';
   
   // State management for edit functionality
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -13,26 +27,71 @@ function UserProfilePage() {
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
-  // Bio state
-  const [bio, setBio] = useState(`I'm a passionate real estate enthusiast with over 5 years of experience in property investment and development. 
-My journey in real estate began when I purchased my first condominium unit in Makati, and since then, 
-I've been fascinated by the dynamic Philippine property market.
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [bio, setBio] = useState<string | null>(null);
+  const [propertyType, setPropertyType] = useState<string | null>(null);
+  const [preferredLocation, setPreferredLocation] = useState<string | null>(null);
+  const [budgetRange, setBudgetRange] = useState<string | null>(null);
+  const [investmentGoal, setInvestmentGoal] = useState<string | null>(null);
 
-I specialize in residential properties, particularly condominiums and townhouses in Metro Manila. 
-I enjoy helping others navigate the complex world of property investment and have successfully 
-guided numerous friends and family members through their property purchases.
+  // Load user profile from database
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      if (!userId) return;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("profile_image_url, cover_image_url, bio, property_type, preferred_location, budget_range, investment_goal")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (!isMounted) return;
+      if (error) {
+        console.error("Failed to load profile:", error);
+        return;
+      }
+      if (data) {
+        if (data.profile_image_url) setProfileImage(data.profile_image_url);
+        if (data.cover_image_url) setCoverImage(data.cover_image_url);
+        if (typeof data.bio === "string") setBio(data.bio);
+        if (data.property_type) setPropertyType(data.property_type);
+        if (data.preferred_location) setPreferredLocation(data.preferred_location);
+        if (data.budget_range) setBudgetRange(data.budget_range);
+        if (data.investment_goal) setInvestmentGoal(data.investment_goal);
+      }
+    })();
+    return () => { isMounted = false };
+  }, [userId]);
 
-When I'm not exploring new properties, you can find me reading about market trends, 
-attending real estate seminars, or enjoying the vibrant city life of Manila.`);
+  const upsertProfile = async (partial: Record<string, unknown>) => {
+    if (!userId) return { error: new Error("No user session") };
+    const payload = { user_id: userId, ...partial };
+    const { error } = await supabase
+      .from("profiles")
+      .upsert(payload, { onConflict: "user_id" })
+      .select("id")
+      .single();
+    return { error };
+  };
 
-  // Preferences state
-  const [preferences, setPreferences] = useState({
-    propertyType: "Condominium, Townhouse",
-    preferredLocation: "Makati, BGC, Ortigas",
-    budgetRange: "₱3M - ₱8M",
-    investmentGoal: "Long-term rental income"
-  });
+  const uploadImageFromDataUrl = async (dataUrl: string, kind: "profile" | "cover") => {
+    if (!userId) return { publicUrl: null as string | null, error: new Error("No user session") };
+    try {
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      const contentType = blob.type || "image/png";
+      const ext = contentType.split("/")[1] || "png";
+      const path = `${userId}/${kind}-${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .upload(path, blob, { upsert: true, contentType });
+      if (uploadError) return { publicUrl: null, error: uploadError };
+      const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+      return { publicUrl: data.publicUrl, error: null };
+    } catch (e: any) {
+      return { publicUrl: null, error: e };
+    }
+  };
 
   const handleEditClick = (mode: 'profile' | 'cover' | 'bio' | 'preferences') => {
     setEditMode(mode);
@@ -63,28 +122,75 @@ attending real estate seminars, or enjoying the vibrant city life of Manila.`);
   };
 
   const handleSaveImage = () => {
-    if (previewImage && editMode) {
-      if (editMode === 'profile') {
-        setProfileImage(previewImage);
-      } else {
-        setCoverImage(previewImage);
+    (async () => {
+      setErrorMessage(null);
+      if (!previewImage || !editMode) {
+        setIsEditModalOpen(false);
+        setPreviewImage(null);
+        setEditMode(null);
+        return;
       }
-    }
-    setIsEditModalOpen(false);
-    setPreviewImage(null);
-    setEditMode(null);
+      setIsSaving(true);
+      if (editMode !== 'profile' && editMode !== 'cover') {
+        setIsSaving(false);
+        return;
+      }
+      const { publicUrl, error } = await uploadImageFromDataUrl(previewImage, editMode);
+      if (error || !publicUrl) {
+        console.error("Image upload failed:", error);
+        setIsSaving(false);
+        setErrorMessage(`Failed to upload image: ${error?.message ?? 'Unknown error'}`);
+        return;
+      }
+      if (editMode === 'profile') {
+        setProfileImage(publicUrl);
+        await upsertProfile({ profile_image_url: publicUrl });
+      } else {
+        setCoverImage(publicUrl);
+        await upsertProfile({ cover_image_url: publicUrl });
+      }
+      setIsSaving(false);
+      setIsEditModalOpen(false);
+      setPreviewImage(null);
+      setEditMode(null);
+    })();
   };
 
   const handleSaveBio = () => {
-    // In a real app, you would save the bio to your backend here
-    setIsEditModalOpen(false);
-    setEditMode(null);
+    (async () => {
+      setErrorMessage(null);
+      setIsSaving(true);
+      const { error } = await upsertProfile({ bio });
+      setIsSaving(false);
+      if (error) {
+        console.error("Failed to save bio:", error);
+        setErrorMessage(`Failed to save bio: ${error.message ?? 'Unknown error'}`);
+        return;
+      }
+      setIsEditModalOpen(false);
+      setEditMode(null);
+    })();
   };
 
   const handleSavePreferences = () => {
-    // In a real app, you would save the preferences to your backend here
-    setIsEditModalOpen(false);
-    setEditMode(null);
+    (async () => {
+      setErrorMessage(null);
+      setIsSaving(true);
+      const { error } = await upsertProfile({
+        property_type: propertyType ?? null,
+        preferred_location: preferredLocation ?? null,
+        budget_range: budgetRange ?? null,
+        investment_goal: investmentGoal ?? null,
+      });
+      setIsSaving(false);
+      if (error) {
+        console.error("Failed to save preferences:", error);
+        setErrorMessage(`Failed to save preferences: ${error.message ?? 'Unknown error'}`);
+        return;
+      }
+      setIsEditModalOpen(false);
+      setEditMode(null);
+    })();
   };
 
   const handleCancelEdit = () => {
@@ -133,6 +239,9 @@ attending real estate seminars, or enjoying the vibrant city life of Manila.`);
       {/* Profile Section */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 sm:-mt-20">
         <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 lg:p-8">
+          {errorMessage && (
+            <div className="mb-4 text-sm text-red-600">{errorMessage}</div>
+          )}
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 lg:gap-8 items-start">
             {/* Profile Image */}
             <div className="relative flex-shrink-0 mx-auto sm:mx-0">
@@ -179,7 +288,7 @@ attending real estate seminars, or enjoying the vibrant city life of Manila.`);
             {/* Profile Info */}
             <div className="flex-1 w-full text-center sm:text-left">
               <div className="mb-4">
-                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">John </h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">{displayName}</h1>
                 <p className="text-base sm:text-lg text-slate-600 font-medium">Property Enthusiast</p>
               </div>
 
@@ -225,11 +334,11 @@ attending real estate seminars, or enjoying the vibrant city life of Manila.`);
               <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4">
                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-center sm:text-left">
                   <Phone className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm font-medium text-slate-700">+63 917 123 4567</span>
+                  <span className="text-xs sm:text-sm font-medium text-slate-700">{userPhone || 'Not provided'}</span>
                 </div>
                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-center sm:text-left">
                   <Mail className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm font-medium text-slate-700">sarah.johnson@email.com</span>
+                  <span className="text-xs sm:text-sm font-medium text-slate-700">{userEmail || 'Not provided'}</span>
                 </div>
                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-center sm:text-left">
                   <Calendar className="w-4 h-4 text-blue-500 flex-shrink-0" />
@@ -244,11 +353,11 @@ attending real estate seminars, or enjoying the vibrant city life of Manila.`);
       {/* Additional Profile Sections */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-          {/* Bio Section */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 lg:p-8">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-900">About Me</h2>
+            {/* Bio Section */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 lg:p-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
+                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900">About Me</h2>
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -256,18 +365,18 @@ attending real estate seminars, or enjoying the vibrant city life of Manila.`);
                   onClick={() => handleEditClick('bio')}
                 >
                   <Edit3 className="w-4 h-4" />
-                  Edit Bio
+                  {isSaving && editMode === 'bio' ? 'Saving...' : 'Edit Bio'}
                 </Button>
               </div>
-              <div className="prose prose-slate max-w-none">
+                <div className="prose prose-slate max-w-none text-left">
                 <p className="text-slate-700 leading-relaxed whitespace-pre-line">{bio}</p>
               </div>
             </div>
 
             {/* Preferences Section */}
-            <div className="bg-white rounded-3xl shadow-xl p-8 mt-8">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-                <h2 className="text-2xl font-bold text-slate-900">Property Preferences</h2>
+              <div className="bg-white rounded-3xl shadow-xl p-8 mt-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+                  <h2 className="text-2xl font-bold text-slate-900">Property Preferences</h2>
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -275,23 +384,23 @@ attending real estate seminars, or enjoying the vibrant city life of Manila.`);
                   onClick={() => handleEditClick('preferences')}
                 >
                   <Edit3 className="w-4 h-4" />
-                  Edit Preferences
+                  {isSaving && editMode === 'preferences' ? 'Saving...' : 'Edit Preferences'}
                 </Button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
                     <Home className="w-5 h-5 text-blue-600" />
                     <div>
                       <p className="font-semibold text-blue-900">Property Type</p>
-                      <p className="text-sm text-blue-700">{preferences.propertyType}</p>
+                      <p className="text-sm text-blue-700">{propertyType || 'Not set'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-200">
                     <MapPin className="w-5 h-5 text-green-600" />
                     <div>
                       <p className="font-semibold text-green-900">Preferred Location</p>
-                      <p className="text-sm text-green-700">{preferences.preferredLocation}</p>
+                      <p className="text-sm text-green-700">{preferredLocation || 'Not set'}</p>
                     </div>
                   </div>
                 </div>
@@ -300,14 +409,14 @@ attending real estate seminars, or enjoying the vibrant city life of Manila.`);
                     <Briefcase className="w-5 h-5 text-purple-600" />
                     <div>
                       <p className="font-semibold text-purple-900">Budget Range</p>
-                      <p className="text-sm text-purple-700">{preferences.budgetRange}</p>
+                      <p className="text-sm text-purple-700">{budgetRange || 'Not set'}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-xl border border-orange-200">
                     <Award className="w-5 h-5 text-orange-600" />
                     <div>
                       <p className="font-semibold text-orange-900">Investment Goal</p>
-                      <p className="text-sm text-orange-700">{preferences.investmentGoal}</p>
+                      <p className="text-sm text-orange-700">{investmentGoal || 'Not set'}</p>
                     </div>
                   </div>
                 </div>
@@ -315,60 +424,8 @@ attending real estate seminars, or enjoying the vibrant city life of Manila.`);
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-8">
-            {/* Activity Summary */}
-            <div className="bg-white rounded-3xl shadow-xl p-6">
-              <h3 className="text-xl font-bold text-slate-900 mb-4">Recent Activity</h3>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-slate-900">Viewed luxury condo in BGC</p>
-                    <p className="text-xs text-slate-500">2 hours ago</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-slate-900">Saved townhouse in Makati</p>
-                    <p className="text-xs text-slate-500">1 day ago</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-slate-900">Rated condo 5 stars</p>
-                    <p className="text-xs text-slate-500">3 days ago</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Stats */}
-            <div className="bg-white rounded-3xl shadow-xl p-6">
-              <h3 className="text-xl font-bold text-slate-900 mb-4">Quick Stats</h3>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-600">Profile Views</span>
-                  <span className="font-semibold text-slate-900">1,247</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-600">Connections</span>
-                  <span className="font-semibold text-slate-900">89</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-600">Recommendations</span>
-                  <span className="font-semibold text-slate-900">23</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-600">Last Active</span>
-                  <span className="font-semibold text-slate-900">2 hours ago</span>
-                </div>
-              </div>
-            </div>
-
-          </div>
+          {/* Sidebar (removed sections) */}
+          <div className="space-y-8"></div>
         </div>
       </div>
 
@@ -467,7 +524,7 @@ attending real estate seminars, or enjoying the vibrant city life of Manila.`);
                       </label>
                       <textarea
                         id="bio"
-                        value={bio}
+                        value={bio ?? ''}
                         onChange={(e) => setBio(e.target.value)}
                         rows={8}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
@@ -491,8 +548,8 @@ attending real estate seminars, or enjoying the vibrant city life of Manila.`);
                         <input
                           type="text"
                           id="propertyType"
-                          value={preferences.propertyType}
-                          onChange={(e) => setPreferences({...preferences, propertyType: e.target.value})}
+                          value={propertyType ?? ''}
+                          onChange={(e) => setPropertyType(e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           placeholder="e.g., Condominium, Townhouse"
                         />
@@ -504,8 +561,8 @@ attending real estate seminars, or enjoying the vibrant city life of Manila.`);
                         <input
                           type="text"
                           id="preferredLocation"
-                          value={preferences.preferredLocation}
-                          onChange={(e) => setPreferences({...preferences, preferredLocation: e.target.value})}
+                          value={preferredLocation ?? ''}
+                          onChange={(e) => setPreferredLocation(e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           placeholder="e.g., Makati, BGC, Ortigas"
                         />
@@ -517,8 +574,8 @@ attending real estate seminars, or enjoying the vibrant city life of Manila.`);
                         <input
                           type="text"
                           id="budgetRange"
-                          value={preferences.budgetRange}
-                          onChange={(e) => setPreferences({...preferences, budgetRange: e.target.value})}
+                          value={budgetRange ?? ''}
+                          onChange={(e) => setBudgetRange(e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           placeholder="e.g., ₱3M - ₱8M"
                         />
@@ -530,8 +587,8 @@ attending real estate seminars, or enjoying the vibrant city life of Manila.`);
                         <input
                           type="text"
                           id="investmentGoal"
-                          value={preferences.investmentGoal}
-                          onChange={(e) => setPreferences({...preferences, investmentGoal: e.target.value})}
+                          value={investmentGoal ?? ''}
+                          onChange={(e) => setInvestmentGoal(e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           placeholder="e.g., Long-term rental income"
                         />
@@ -558,10 +615,10 @@ attending real estate seminars, or enjoying the vibrant city life of Manila.`);
                       editMode === 'preferences' ? handleSavePreferences :
                       handleSaveImage
                     }
-                    disabled={(editMode === 'profile' || editMode === 'cover') && !previewImage}
+                    disabled={((editMode === 'profile' || editMode === 'cover') && !previewImage) || isSaving}
                     className="flex-1 bg-blue-500 hover:bg-blue-600"
                   >
-                    Save Changes
+                    {isSaving ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Settings, LogOut } from 'lucide-react';
+import { useAuth } from '../../AuthContext';
 
 interface UserProfileDropdownProps {
   onClose: () => void;
@@ -10,6 +11,17 @@ interface UserProfileDropdownProps {
 export function UserProfileDropdown({ onClose, onNavigateToProfile, onLogout }: UserProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { session } = useAuth();
+
+  const displayName = (() => {
+    const meta = session?.user?.user_metadata as Record<string, any> | undefined;
+    const first = meta?.first_name?.toString()?.trim();
+    const last = meta?.last_name?.toString()?.trim();
+    if (first || last) return `${first ?? ''} ${last ?? ''}`.trim();
+    const email = session?.user?.email ?? '';
+    return email.split('@')[0] || 'User';
+  })();
+  const email = session?.user?.email ?? '';
 
   // Close when clicking outside
   useEffect(() => {
@@ -57,7 +69,14 @@ export function UserProfileDropdown({ onClose, onNavigateToProfile, onLogout }: 
       ref={dropdownRef}
       className="absolute top-full right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden z-50 animate-in fade-in-0 zoom-in-95 duration-150"
     >
-      
+      {/* User Info */}
+      <div className="px-4 pt-4 pb-2">
+        <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
+        {email && (
+          <p className="text-xs text-gray-500 truncate">{email}</p>
+        )}
+      </div>
+      <div className="my-1 border-t border-gray-100"></div>
 
       {/* Menu Items */}
       <div className="py-2">

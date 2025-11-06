@@ -22,6 +22,7 @@ export default function ListPropertyPage() {
     zipPostal: "",
     country: "Philippines",
     description: "",
+    aboutProperty: "",
     features: [] as string[],
     fullName: "",
     email: "",
@@ -31,6 +32,7 @@ export default function ListPropertyPage() {
     furnished: "",
     petPolicy: "",
     utilities: [] as string[],
+    nearby: [] as { name: string; description: string; distanceKm: string }[],
   })
 
   const [showPropertyDropdown, setShowPropertyDropdown] = useState(false)
@@ -38,6 +40,9 @@ export default function ListPropertyPage() {
   const [showPetDropdown, setShowPetDropdown] = useState(false)
   const [currentFeature, setCurrentFeature] = useState("")
   const [uploadedImages, setUploadedImages] = useState<string[]>([])
+  const [nearbyName, setNearbyName] = useState("")
+  const [nearbyDescription, setNearbyDescription] = useState("")
+  const [nearbyDistanceKm, setNearbyDistanceKm] = useState("")
 
   const propertyTypes = ["House", "Apartment", "Condo", "Townhouse", "Land", "Commercial", "Multi-Family", "Villa", "Studio"]
   const furnishedOptions = ["Furnished", "Semi-Furnished", "Unfurnished"]
@@ -90,6 +95,19 @@ export default function ListPropertyPage() {
 
   const removeImage = (index: number) => {
     setUploadedImages(uploadedImages.filter((_, i) => i !== index))
+  }
+
+  const addNearby = () => {
+    if (!nearbyName || !nearbyDistanceKm) return
+    const newItem = { name: nearbyName, description: nearbyDescription, distanceKm: nearbyDistanceKm }
+    setFormData({ ...formData, nearby: [...formData.nearby, newItem] })
+    setNearbyName("")
+    setNearbyDescription("")
+    setNearbyDistanceKm("")
+  }
+
+  const removeNearby = (index: number) => {
+    setFormData({ ...formData, nearby: formData.nearby.filter((_, i) => i !== index) })
   }
 
   return (
@@ -419,6 +437,101 @@ export default function ListPropertyPage() {
                     className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                   />
                 </div>
+              </div>
+
+              <hr className="border-slate-200" />
+
+              {/* About This Property Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <FileText className="w-5 h-5 text-blue-500" />
+                  <h2 className="text-xl font-bold text-slate-900">About This Property</h2>
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold text-slate-900 mb-2 block">About this property</label>
+                  <textarea
+                    placeholder="Share unique highlights, history, renovations, or special rules..."
+                    value={formData.aboutProperty}
+                    onChange={(e) => setFormData({ ...formData, aboutProperty: e.target.value })}
+                    rows={5}
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                </div>
+              </div>
+
+              <hr className="border-slate-200" />
+
+              {/* Nearby Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <MapPin className="w-5 h-5 text-blue-500" />
+                  <h2 className="text-xl font-bold text-slate-900">Nearby</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-sm font-semibold text-slate-900 mb-2 block">Place</label>
+                    <input
+                      placeholder="School, mall, park..."
+                      value={nearbyName}
+                      onChange={(e) => setNearbyName(e.target.value)}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-slate-900 mb-2 block">Description</label>
+                    <input
+                      placeholder="Brief details about this place"
+                      value={nearbyDescription}
+                      onChange={(e) => setNearbyDescription(e.target.value)}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-slate-900 mb-2 block">Distance (km) *</label>
+                    <input
+                      type="number"
+                      placeholder="1.2"
+                      value={nearbyDistanceKm}
+                      onChange={(e) => setNearbyDistanceKm(e.target.value)}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={addNearby}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" /> Add Nearby
+                  </button>
+                </div>
+
+                {formData.nearby.length > 0 && (
+                  <div className="border border-slate-200 rounded-lg p-4">
+                    <p className="text-sm font-semibold text-slate-900 mb-2">Added Nearby Places:</p>
+                    <div className="space-y-2">
+                      {formData.nearby.map((n, index) => (
+                        <div key={`${n.name}-${index}`} className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
+                          <div className="text-sm text-slate-800">
+                            <span className="font-semibold">{n.name}</span>
+                            {n.description && <span className="text-slate-600"> — {n.description}</span>}
+                            <span className="ml-2 text-blue-600">{n.distanceKm} km</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeNearby(index)}
+                            className="text-slate-500 hover:text-red-600"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <hr className="border-slate-200" />

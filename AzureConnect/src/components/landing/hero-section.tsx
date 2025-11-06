@@ -1,6 +1,8 @@
 import { Button } from "../ui/button"
+import { useNavigate } from "react-router-dom"
 
 export function HeroSection() {
+  const navigate = useNavigate()
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center hero-gradient scroll-mt-24">
       <div className="absolute inset-0 bg-black/20"></div>
@@ -19,6 +21,7 @@ export function HeroSection() {
           of premium real estate.
         </p>
 
+{/*}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12">
           <div className="text-center">
             <div className="text-4xl font-bold">50</div>
@@ -32,9 +35,13 @@ export function HeroSection() {
             <div className="text-4xl font-bold">1M</div>
             <div className="text-sm opacity-80">Sq Ft Available</div>
           </div>
-        </div>
+        </div> */}
 
-        <Button size="lg" className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-3">
+        <Button
+          size="lg"
+          className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-3"
+          onClick={() => navigate("/login")}
+        >
           Explore Properties
         </Button>
       </div>

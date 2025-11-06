@@ -8,6 +8,7 @@ import { Footer } from "./components/landing/footer";
 import LoginParentContainer from "./components/login/login_parent_container";
 import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
+import ErrorPage from "./components/ui/errorpage";
 import AdminPage from "./components/admin/admin-page";
 import ListingApprovalsPage from "./components/admin/listings/admin-listing";
 import UserManagementPage from "./components/admin/user-management/user-page";
@@ -20,7 +21,7 @@ const AgentListedPropertiesPage = lazy(
 );
 const AgentProfilePage = lazy(() => import("./components/Agent/profile/page"));
 const AgentListPropertyPage = lazy(
-  () => import("./components/Agent/createlist/page")
+  () => import("./components/Agent/createlist/createlistpage")
 );
 const AgentReportsPage = lazy(() => import("./components/Agent/reports/page"));
 const AgentCommunicationPage = lazy(
@@ -72,11 +73,7 @@ function App() {
         />
         <Route
           path="*"
-          element={
-            <main className="min-h-screen p-8">
-              <h1 className="text-xl font-semibold">Page not found</h1>
-            </main>
-          }
+          element={<ErrorPage />}
         />
         </Routes>
       </Suspense>

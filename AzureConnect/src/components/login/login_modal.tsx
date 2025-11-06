@@ -1,14 +1,34 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../AuthContext";
 
 type TabKey = "signup" | "signin";
 
 const LoginModal: React.FC = () => {
   const navigate = useNavigate();
+  const { signIn, signupNewUser } = useAuth();
+  const adminEmails = [
+    "azureconnect67@gmail.com",
+    // add more admin emails here as needed
+  ];
   const [activeTab, setActiveTab] = useState<TabKey>("signin");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // signin form state
+  const [signinEmail, setSigninEmail] = useState("");
+  const [signinPassword, setSigninPassword] = useState("");
+
+  // signup form state
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [mobileNumber, setMobileNumber] = useState("");
+  const [signupEmail, setSignupEmail] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleTabChange = (tab: TabKey) => {
     if (tab !== activeTab) {
@@ -30,6 +50,54 @@ const LoginModal: React.FC = () => {
       "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
     fontSize: "16px",
   } as const;
+
+  const handleSignup = async () => {
+    setErrorMessage(null);
+    if (!firstName || !lastName || !mobileNumber || !signupEmail || !signupPassword) {
+      setErrorMessage("Please fill in all fields.");
+      return;
+    }
+    if (signupPassword !== confirmPassword) {
+      setErrorMessage("Passwords do not match.");
+      return;
+    }
+    setIsSubmitting(true);
+    const res = await signupNewUser({
+      firstName,
+      lastName,
+      mobileNumber,
+      email: signupEmail,
+      password: signupPassword,
+    });
+    setIsSubmitting(false);
+    if (!res.success) {
+      setErrorMessage(res.error || "Signup failed");
+      return;
+    }
+    // Optionally navigate or switch to signin
+    setActiveTab("signin");
+  };
+
+  const handleSignin = async () => {
+    setErrorMessage(null);
+    if (!signinEmail || !signinPassword) {
+      setErrorMessage("Email and password are required.");
+      return;
+    }
+    setIsSubmitting(true);
+    const res = await signIn({ email: signinEmail, password: signinPassword });
+    setIsSubmitting(false);
+    if (!res.success) {
+      setErrorMessage(res.error || "Sign in failed");
+      return;
+    }
+    const normalized = signinEmail.trim().toLowerCase();
+    if (adminEmails.includes(normalized)) {
+      navigate("/admin");
+    } else {
+      navigate("/user");
+    }
+  };
 
   return (
     <div className="relative w-full max-w-md rounded-2xl bg-[#cfe3ee] p-6 shadow-2xl">
@@ -90,6 +158,7 @@ const LoginModal: React.FC = () => {
             Back to Home
           </span>
         </button>
+        {/* Sign out control removed from login per requirements */}
       </div>
 
       <div className="relative overflow-hidden">
@@ -105,11 +174,15 @@ const LoginModal: React.FC = () => {
               style={inputFont}
               className={inputBase}
               placeholder="First name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
             />
             <input
               style={inputFont}
               className={inputBase}
               placeholder="Last name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
             />
           </div>
 
@@ -132,6 +205,8 @@ const LoginModal: React.FC = () => {
               className={`${inputBase} pl-10`}
               placeholder="Enter your email"
               type="email"
+              value={signupEmail}
+              onChange={(e) => setSignupEmail(e.target.value)}
             />
           </div>
 
@@ -139,6 +214,8 @@ const LoginModal: React.FC = () => {
             style={inputFont}
             className={inputBase}
             placeholder="Mobile Number"
+            value={mobileNumber}
+            onChange={(e) => setMobileNumber(e.target.value)}
           />
 
           <div className="relative">
@@ -147,6 +224,8 @@ const LoginModal: React.FC = () => {
               className={`${inputBase} pr-12`}
               placeholder="Password"
               type={showPassword ? "text" : "password"}
+              value={signupPassword}
+              onChange={(e) => setSignupPassword(e.target.value)}
             />
             <button
               type="button"
@@ -183,6 +262,8 @@ const LoginModal: React.FC = () => {
               className={`${inputBase} pr-12`}
               placeholder="Confirm Password"
               type={showConfirmPassword ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
             <button
               type="button"
@@ -215,8 +296,17 @@ const LoginModal: React.FC = () => {
             </button>
           </div>
 
-          <button className="mt-6 w-full rounded-xl bg-[#5d86aa] px-6 py-3 text-white shadow transition-all duration-300 hover:bg-[#52799a] hover:scale-105 hover:shadow-lg transform active:scale-95">
-            Create an account
+          {errorMessage && (
+            <div className="text-red-700 text-sm">{errorMessage}</div>
+          )}
+          <button
+            disabled={isSubmitting}
+            onClick={handleSignup}
+            className={`mt-6 w-full rounded-xl px-6 py-3 text-white shadow transition-all duration-300 transform active:scale-95 ${
+              isSubmitting ? 'bg-[#7aa1bd] cursor-not-allowed' : 'bg-[#5d86aa] hover:bg-[#52799a] hover:scale-105 hover:shadow-lg'
+            }`}
+          >
+            {isSubmitting ? 'Creating account...' : 'Create an account'}
           </button>
         </div>
       ) : (
@@ -242,6 +332,8 @@ const LoginModal: React.FC = () => {
               className={`${inputBase} pl-10`}
               placeholder="Enter your email"
               type="email"
+              value={signinEmail}
+              onChange={(e) => setSigninEmail(e.target.value)}
             />
           </div>
           <div className="relative">
@@ -250,6 +342,8 @@ const LoginModal: React.FC = () => {
               className={`${inputBase} pr-12`}
               placeholder="Password"
               type={showPassword ? "text" : "password"}
+              value={signinPassword}
+              onChange={(e) => setSigninPassword(e.target.value)}
             />
             <button
               type="button"
@@ -266,8 +360,17 @@ const LoginModal: React.FC = () => {
               </svg>
             </button>
           </div>
-          <button className="mt-2 w-full rounded-xl bg-[#5d86aa] px-6 py-3 text-white shadow transition-all duration-300 hover:bg-[#52799a] hover:scale-105 hover:shadow-lg transform active:scale-95">
-            Log in account
+          {errorMessage && (
+            <div className="text-red-700 text-sm">{errorMessage}</div>
+          )}
+          <button
+            disabled={isSubmitting}
+            onClick={handleSignin}
+            className={`mt-2 w-full rounded-xl px-6 py-3 text-white shadow transition-all duration-300 transform active:scale-95 ${
+              isSubmitting ? 'bg-[#7aa1bd] cursor-not-allowed' : 'bg-[#5d86aa] hover:bg-[#52799a] hover:scale-105 hover:shadow-lg'
+            }`}
+          >
+            {isSubmitting ? 'Signing in...' : 'Log in account'}
           </button>
           <button
             type="button"
