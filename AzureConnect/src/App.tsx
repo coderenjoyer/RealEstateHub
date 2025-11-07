@@ -52,6 +52,7 @@ function App() {
           
         />
         <Route path="/login" element={<LoginParentContainer />} />
+        <Route path="/login/reset" element={<LoginParentContainer />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/admin/profile" element={<AdminProfilePage />} />
         <Route path="/admin/listings" element={<ListingApprovalsPage />} />

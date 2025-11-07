@@ -18,20 +18,17 @@ export function AccountCard({ account, showStatus }: AccountCardProps) {
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-gray-200 flex-shrink-0" />
-          <div>
-            <h3 className="font-medium text-gray-900">{account.name}</h3>
-            {showStatus && account.status && (
-              <span
-                className={`inline-block px-2 py-0.5 text-xs font-medium rounded mt-1 ${
-                  account.status === "Pending" ? "bg-yellow-100 text-yellow-700" : "bg-orange-100 text-orange-700"
-                }`}
-              >
-                {account.status}
-              </span>
-            )}
-          </div>
+        <div>
+          <h3 className="font-medium text-gray-900">{account.name}</h3>
+          {showStatus && account.status && (
+            <span
+              className={`inline-block px-2 py-0.5 text-xs font-medium rounded mt-1 ${
+                account.status === "Pending" ? "bg-yellow-100 text-yellow-700" : "bg-orange-100 text-orange-700"
+              }`}
+            >
+              {account.status}
+            </span>
+          )}
         </div>
         <button className="text-gray-400 hover:text-gray-600">
           <MoreVertical className="w-5 h-5" />

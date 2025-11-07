@@ -1,12 +1,13 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
 
-type TabKey = "signup" | "signin";
+type TabKey = "signup" | "signin" | "reset";
 
 const LoginModal: React.FC = () => {
   const navigate = useNavigate();
-  const { signIn, signupNewUser } = useAuth();
+  const location = useLocation();
+  const { signIn, signupNewUser, resetPasswordForEmail, updateUserPassword, session } = useAuth();
   const adminEmails = [
     "azureconnect67@gmail.com",
     // add more admin emails here as needed
@@ -29,6 +30,55 @@ const LoginModal: React.FC = () => {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  // reset password form state
+  const [resetEmail, setResetEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+  const [resetStep, setResetStep] = useState<"email" | "password">("email");
+  const [resetSuccessMessage, setResetSuccessMessage] = useState<string | null>(null);
+
+  // Check if we're on the reset route or have a password recovery session
+  useEffect(() => {
+    if (location.pathname === "/login/reset") {
+      setActiveTab("reset");
+      // Check URL hash for password recovery tokens (from email link)
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const type = hashParams.get("type");
+      // If user has a session or recovery token in URL, show password update step
+      if (session || type === "recovery") {
+        setResetStep("password");
+      }
+    } else if (location.pathname === "/login") {
+      // Check URL hash for password recovery tokens
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const type = hashParams.get("type");
+      if (type === "recovery") {
+        // Redirect to reset route if recovery token is on /login
+        navigate("/login/reset", { replace: true });
+        setActiveTab("reset");
+        setResetStep("password");
+      }
+    }
+  }, [location.pathname, session, navigate]);
+
+  // Auto-route based on user role when session is available
+  useEffect(() => {
+    if (session?.user && location.pathname === "/login") {
+      const userRole = session.user.user_metadata?.role;
+      const userEmail = session.user.email?.toLowerCase();
+      
+      if (userEmail && adminEmails.includes(userEmail)) {
+        navigate("/admin");
+      } else if (userRole === "agent") {
+        navigate("/agent/profile");
+      } else if (userRole === "user" || !userRole) {
+        navigate("/user");
+      }
+    }
+  }, [session, location.pathname, navigate]);
 
   const handleTabChange = (tab: TabKey) => {
     if (tab !== activeTab) {
@@ -62,6 +112,7 @@ const LoginModal: React.FC = () => {
       return;
     }
     setIsSubmitting(true);
+    // Users signing up are automatically labeled with role: "user" in AuthContext
     const res = await signupNewUser({
       firstName,
       lastName,
@@ -91,12 +142,79 @@ const LoginModal: React.FC = () => {
       setErrorMessage(res.error || "Sign in failed");
       return;
     }
+    
+    // Get user role from response data or session
+    const signInData = res.data as any;
+    const userRole = signInData?.user?.user_metadata?.role || 
+                     signInData?.session?.user?.user_metadata?.role ||
+                     session?.user?.user_metadata?.role;
+    
     const normalized = signinEmail.trim().toLowerCase();
+    
+    // Route based on role
     if (adminEmails.includes(normalized)) {
       navigate("/admin");
+    } else if (userRole === "agent") {
+      navigate("/agent/profile");
     } else {
       navigate("/user");
     }
+  };
+
+  const handleRequestReset = async () => {
+    setErrorMessage(null);
+    setResetSuccessMessage(null);
+    if (!resetEmail) {
+      setErrorMessage("Please enter your email address.");
+      return;
+    }
+    setIsSubmitting(true);
+    const res = await resetPasswordForEmail({ email: resetEmail });
+    setIsSubmitting(false);
+    if (!res.success) {
+      setErrorMessage(res.error || "Failed to send reset email");
+      return;
+    }
+    setResetSuccessMessage("Password reset email sent! Please check your inbox.");
+    // Optionally switch to password update step or stay on email step
+    setTimeout(() => {
+      setResetStep("password");
+      setResetSuccessMessage(null);
+    }, 2000);
+  };
+
+  const handleUpdatePassword = async () => {
+    setErrorMessage(null);
+    setResetSuccessMessage(null);
+    if (!newPassword || !confirmNewPassword) {
+      setErrorMessage("Please fill in all password fields.");
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setErrorMessage("Passwords do not match.");
+      return;
+    }
+    if (newPassword.length < 6) {
+      setErrorMessage("Password must be at least 6 characters long.");
+      return;
+    }
+    setIsSubmitting(true);
+    const res = await updateUserPassword({ password: newPassword });
+    setIsSubmitting(false);
+    if (!res.success) {
+      setErrorMessage(res.error || "Failed to update password");
+      return;
+    }
+    setResetSuccessMessage("Password updated successfully! Redirecting to login...");
+    setTimeout(() => {
+      navigate("/login");
+      setActiveTab("signin");
+      setResetStep("email");
+      setResetEmail("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+      setResetSuccessMessage(null);
+    }, 2000);
   };
 
   return (
@@ -134,6 +252,27 @@ const LoginModal: React.FC = () => {
             Sign in
           </button>
         </div>
+        {activeTab === "reset" && (
+          <button
+            onClick={() => {
+              navigate("/login");
+              setActiveTab("signin");
+              setResetStep("email");
+              setResetEmail("");
+              setNewPassword("");
+              setConfirmNewPassword("");
+              setErrorMessage(null);
+              setResetSuccessMessage(null);
+            }}
+            className="text-sm text-white/90 hover:text-white transition-colors"
+            style={{
+              fontFamily:
+                "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
+            }}
+          >
+            Back to Sign in
+          </button>
+        )}
         <button
           aria-label="Back to Home"
           className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/30 text-[#436a86] transition-all duration-300 hover:bg-white/50 hover:scale-105 hover:shadow-md backdrop-blur-sm"
@@ -309,7 +448,7 @@ const LoginModal: React.FC = () => {
             {isSubmitting ? 'Creating account...' : 'Create an account'}
           </button>
         </div>
-      ) : (
+      ) : activeTab === "signin" ? (
         <div className="space-y-4">
           <h2 className="text-[#17364b] text-base font-semibold animate-fadeInUp">
             Welcome back
@@ -374,6 +513,12 @@ const LoginModal: React.FC = () => {
           </button>
           <button
             type="button"
+            onClick={() => {
+              navigate("/login/reset");
+              setResetStep("email");
+              setErrorMessage(null);
+              setResetSuccessMessage(null);
+            }}
             className="mx-auto block text-sm font-medium text-[#ffffff] underline-offset-4 hover:underline transition-all duration-300 hover:text-white/80 transform hover:scale-105"
             style={{
               fontFamily:
@@ -384,7 +529,199 @@ const LoginModal: React.FC = () => {
             Forgot password
           </button>
         </div>
-      )}
+      ) : activeTab === "reset" ? (
+        <div className="space-y-4">
+          <h2 className="text-[#17364b] text-base font-semibold animate-fadeInUp">
+            {resetStep === "email" ? "Reset your password" : "Set new password"}
+          </h2>
+
+          {resetStep === "email" ? (
+            <>
+              <p className="text-sm text-[#23455b]/80">
+                Enter your email address and we'll send you a link to reset your password.
+              </p>
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/90">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="1.8"
+                    className="size-5"
+                  >
+                    <path d="M1.5 6.75A2.25 2.25 0 0 1 3.75 4.5h16.5A2.25 2.25 0 0 1 22.5 6.75v10.5A2.25 2.25 0 0 1 20.25 19.5H3.75A2.25 2.25 0 0 1 1.5 17.25V6.75Zm18.75 0-7.883 5.26a2.25 2.25 0 0 1-2.734 0L1.75 6.75m0 10.5 6.935-4.63m12.565 4.63-6.935-4.63" />
+                  </svg>
+                </span>
+                <input
+                  style={inputFont}
+                  className={`${inputBase} pl-10`}
+                  placeholder="Enter your email"
+                  type="email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleRequestReset();
+                    }
+                  }}
+                />
+              </div>
+              {errorMessage && (
+                <div className="text-red-700 text-sm">{errorMessage}</div>
+              )}
+              {resetSuccessMessage && (
+                <div className="text-green-700 text-sm">{resetSuccessMessage}</div>
+              )}
+              <button
+                disabled={isSubmitting}
+                onClick={handleRequestReset}
+                className={`mt-2 w-full rounded-xl px-6 py-3 text-white shadow transition-all duration-300 transform active:scale-95 ${
+                  isSubmitting
+                    ? "bg-[#7aa1bd] cursor-not-allowed"
+                    : "bg-[#5d86aa] hover:bg-[#52799a] hover:scale-105 hover:shadow-lg"
+                }`}
+              >
+                {isSubmitting ? "Sending..." : "Send reset link"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setResetStep("password")}
+                className="mx-auto block text-sm font-medium text-[#ffffff] underline-offset-4 hover:underline transition-all duration-300 hover:text-white/80 transform hover:scale-105"
+                style={{
+                  fontFamily:
+                    "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
+                  fontSize: 14,
+                }}
+              >
+                Already have a reset token? Update password
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-[#23455b]/80">
+                Enter your new password below.
+              </p>
+              <div className="relative">
+                <input
+                  style={inputFont}
+                  className={`${inputBase} pr-12`}
+                  placeholder="New Password"
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90"
+                  aria-label={showNewPassword ? "Hide password" : "Show password"}
+                >
+                  {showNewPassword ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="size-5"
+                    >
+                      <path d="M3.53 2.47a.75.75 0 1 0-1.06 1.06l2.2 2.2C2.49 7.05 1.14 8.8.5 10.05a2.25 2.25 0 0 0 0 1.9C2.52 16.35 6.61 19.5 12 19.5c2.1 0 3.99-.44 5.63-1.22l2.84 2.84a.75.75 0 1 0 1.06-1.06L3.53 2.47ZM12 17.999c-4.56 0-8.13-2.77-9.9-6.047a.75.75 0 0 1 0-.704c.876-1.63 2.244-3.142 3.999-4.262l2.163 2.163A5.25 5.25 0 0 0 12 16.5c.92 0 1.787-.234 2.54-.646l1.122 1.122A10.2 10.2 0 0 1 12 18Z" />
+                      <path d="M14.551 15.257 8.744 9.45A3.75 3.75 0 0 0 12 15.75c.93 0 1.788-.333 2.551-.893Z" />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="size-5"
+                    >
+                      <path d="M12 5.25C6.61 5.25 2.52 8.4.5 12.05a2.25 2.25 0 0 0 0 1.9C2.52 17.85 6.61 21 12 21s9.48-3.15 11.5-7.05a2.25 2.25 0 0 0 0-1.9C21.48 8.4 17.39 5.25 12 5.25Zm0 12.75a5.25 5.25 0 1 1 0-10.5 5.25 5.25 0 0 1 0 10.5Z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              <div className="relative">
+                <input
+                  style={inputFont}
+                  className={`${inputBase} pr-12`}
+                  placeholder="Confirm New Password"
+                  type={showConfirmNewPassword ? "text" : "password"}
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleUpdatePassword();
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmNewPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90"
+                  aria-label={
+                    showConfirmNewPassword ? "Hide password" : "Show password"
+                  }
+                >
+                  {showConfirmNewPassword ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="size-5"
+                    >
+                      <path d="M3.53 2.47a.75.75 0 1 0-1.06 1.06l2.2 2.2C2.49 7.05 1.14 8.8.5 10.05a2.25 2.25 0 0 0 0 1.9C2.52 16.35 6.61 19.5 12 19.5c2.1 0 3.99-.44 5.63-1.22l2.84 2.84a.75.75 0 1 0 1.06-1.06L3.53 2.47ZM12 17.999c-4.56 0-8.13-2.77-9.9-6.047a.75.75 0 0 1 0-.704c.876-1.63 2.244-3.142 3.999-4.262l2.163 2.163A5.25 5.25 0 0 0 12 16.5c.92 0 1.787-.234 2.54-.646l1.122 1.122A10.2 10.2 0 0 1 12 18Z" />
+                      <path d="M14.551 15.257 8.744 9.45A3.75 3.75 0 0 0 12 15.75c.93 0 1.788-.333 2.551-.893Z" />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="size-5"
+                    >
+                      <path d="M12 5.25C6.61 5.25 2.52 8.4.5 12.05a2.25 2.25 0 0 0 0 1.9C2.52 17.85 6.61 21 12 21s9.48-3.15 11.5-7.05a2.25 2.25 0 0 0 0-1.9C21.48 8.4 17.39 5.25 12 5.25Zm0 12.75a5.25 5.25 0 1 1 0-10.5 5.25 5.25 0 0 1 0 10.5Z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              {errorMessage && (
+                <div className="text-red-700 text-sm">{errorMessage}</div>
+              )}
+              {resetSuccessMessage && (
+                <div className="text-green-700 text-sm">{resetSuccessMessage}</div>
+              )}
+              <button
+                disabled={isSubmitting}
+                onClick={handleUpdatePassword}
+                className={`mt-2 w-full rounded-xl px-6 py-3 text-white shadow transition-all duration-300 transform active:scale-95 ${
+                  isSubmitting
+                    ? "bg-[#7aa1bd] cursor-not-allowed"
+                    : "bg-[#5d86aa] hover:bg-[#52799a] hover:scale-105 hover:shadow-lg"
+                }`}
+              >
+                {isSubmitting ? "Updating..." : "Update password"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setResetStep("email");
+                  setNewPassword("");
+                  setConfirmNewPassword("");
+                  setErrorMessage(null);
+                  setResetSuccessMessage(null);
+                }}
+                className="mx-auto block text-sm font-medium text-[#ffffff] underline-offset-4 hover:underline transition-all duration-300 hover:text-white/80 transform hover:scale-105"
+                style={{
+                  fontFamily:
+                    "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
+                  fontSize: 14,
+                }}
+              >
+                Back to email request
+              </button>
+            </>
+          )}
+        </div>
+      ) : null}
         </div>
       </div>
 

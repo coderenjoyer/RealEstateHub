@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { User, BarChart3, FileCheck, List, MessageSquare, ChevronLeft, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useSidebar } from "@/contexts/SidebarContext"
+import { useAuth } from "@/AuthContext"
 
 const menuItems = [
   { icon: User, label: "Profile", to: "/agent/profile" },
@@ -18,6 +19,24 @@ export function Sidebar() {
   const { isCollapsed, setIsCollapsed } = useSidebar()
   const [hoveredItem, setHoveredItem] = useState<number | null>(null)
   const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const { signOut } = useAuth()
+
+  const handleLogout = async () => {
+    try {
+      const result = await signOut()
+      if (result.success) {
+        navigate("/login")
+      } else {
+        console.error("Logout failed:", result.error)
+        // Still navigate to login even if signOut had an error
+        navigate("/login")
+      }
+    } catch (error) {
+      console.error("Error during logout:", error)
+      navigate("/login")
+    }
+  }
 
   const isActive = (itemTo: string) => {
     // Exact match for root paths, or starts with the path followed by a slash
@@ -93,13 +112,14 @@ export function Sidebar() {
         })}
       </nav>
 
-      <Link
-        to="/login"
-        className="flex items-center gap-2 px-6 py-4 text-gray-800 hover:bg-[#8DB4CC] transition-colors"
+      <button
+        onClick={handleLogout}
+        className="flex items-center gap-2 px-6 py-4 text-gray-800 hover:bg-[#8DB4CC] transition-colors w-full text-left"
+        aria-label="Logout"
       >
         <LogOut className="w-5 h-5" />
         {!isCollapsed && <span className="text-sm font-medium">Logout</span>}
-      </Link>
+      </button>
     </aside>
   )
 }
