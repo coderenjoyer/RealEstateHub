@@ -1,10 +1,17 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import { ImagePlus, Check, ChevronDown, X, Plus, Home, DollarSign, MapPin, FileText, User, Trash2 } from "lucide-react"
 import { AgentLayout } from "@/components/layouts/AgentLayout"
+import supabase from "@/supabaseClient"
+import { useAuth } from "@/AuthContext"
 
 export default function ListPropertyPage() {
+  const { session } = useAuth()
+  const userId = session?.user?.id
+  const userRole = session?.user?.user_metadata?.role
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  
   const [formData, setFormData] = useState({
     propertyTitle: "",
     propertyType: "",
@@ -39,10 +46,15 @@ export default function ListPropertyPage() {
   const [showFurnishedDropdown, setShowFurnishedDropdown] = useState(false)
   const [showPetDropdown, setShowPetDropdown] = useState(false)
   const [currentFeature, setCurrentFeature] = useState("")
-  const [uploadedImages, setUploadedImages] = useState<string[]>([])
+  const [uploadedImages, setUploadedImages] = useState<File[]>([])
+  const [uploadedImagePreviews, setUploadedImagePreviews] = useState<string[]>([])
   const [nearbyName, setNearbyName] = useState("")
   const [nearbyDescription, setNearbyDescription] = useState("")
   const [nearbyDistanceKm, setNearbyDistanceKm] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [submitSuccess, setSubmitSuccess] = useState(false)
+  const [isAgent, setIsAgent] = useState<boolean | null>(null)
 
   const propertyTypes = ["House", "Apartment", "Condo", "Townhouse", "Land", "Commercial", "Multi-Family", "Villa", "Studio"]
   const furnishedOptions = ["Furnished", "Semi-Furnished", "Unfurnished"]
@@ -56,13 +68,198 @@ export default function ListPropertyPage() {
 
   const utilityOptions = ["Water", "Electricity", "Gas", "Internet", "Cable TV", "Trash Collection"]
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    // Check if user has agent role
+    if (userRole) {
+      setIsAgent(userRole === 'agent')
+    }
+  }, [userRole])
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log("Form submitted:", formData)
+    
+    if (!userId) {
+      setSubmitError("You must be logged in to list a property")
+      return
+    }
+    
+    // Check if user has agent role
+    if (userRole !== 'agent') {
+      setSubmitError("Only users with agent role can list properties")
+      return
+    }
+    
+    setIsSubmitting(true)
+    setSubmitError(null)
+    setSubmitSuccess(false)
+    
+    try {
+      // Upload images first
+      const mediaData = await uploadPropertyImages()
+      
+      // Prepare property data for database insertion
+      const propertyData = {
+        user_id: userId,
+        property_title: formData.propertyTitle,
+        property_type: formData.propertyType,
+        listing_type: formData.listingType,
+        property_status: formData.propertyStatus,
+        price: parseFloat(formData.price.replace(/[^0-9.-]+/g, "")) || 0,
+        bedrooms: parseInt(formData.bedrooms) || 0,
+        bathrooms: parseInt(formData.bathrooms) || 0,
+        square_feet: parseInt(formData.squareFeet) || null,
+        lot_size: parseFloat(formData.lotSize) || null,
+        year_built: parseInt(formData.yearBuilt) || null,
+        parking_spaces: parseInt(formData.parkingSpaces) || null,
+        available_from: formData.availableFrom || null,
+        furnished: formData.furnished || null,
+        pet_policy: formData.petPolicy || null,
+        street_address: formData.streetAddress,
+        city: formData.city,
+        state: formData.state || null,
+        zip_postal: formData.zipPostal,
+        country: formData.country,
+        description: formData.description,
+        about_property: formData.aboutProperty || null,
+        full_name: formData.fullName,
+        email: formData.email,
+        phone_number: formData.phoneNumber,
+        features: formData.features,
+        utilities: formData.utilities,
+        nearby_places: formData.nearby,
+        media: mediaData,
+        is_public: true,
+        is_deleted: false
+      }
+      
+      // Insert property into database
+      const { data, error } = await supabase
+        .from('properties')
+        .insert(propertyData)
+        .select()
+      
+      if (error) throw error
+      
+      setSubmitSuccess(true)
+      // Reset form
+      setFormData({
+        propertyTitle: "",
+        propertyType: "",
+        listingType: "sale",
+        price: "",
+        bedrooms: "",
+        bathrooms: "",
+        squareFeet: "",
+        lotSize: "",
+        yearBuilt: "",
+        parkingSpaces: "",
+        streetAddress: "",
+        city: "",
+        state: "",
+        zipPostal: "",
+        country: "Philippines",
+        description: "",
+        aboutProperty: "",
+        features: [],
+        fullName: "",
+        email: "",
+        phoneNumber: "",
+        availableFrom: "",
+        propertyStatus: "available",
+        furnished: "",
+        petPolicy: "",
+        utilities: [],
+        nearby: [],
+      })
+      setUploadedImagePreviews([])
+      setUploadedImages([])
+    } catch (error: any) {
+      console.error("Error submitting property:", error)
+      setSubmitError(error.message || "Failed to submit property. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const uploadPropertyImages = async () => {
+    if (!userId || uploadedImages.length === 0) return []
+    
+    const mediaData = []
+    
+    for (let i = 0; i < uploadedImages.length; i++) {
+      const file = uploadedImages[i]
+      const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+      const fileName = `property-${Date.now()}-${i}.${fileExtension}`
+      const filePath = `${userId}/${fileName}`
+      
+      try {
+        // Upload file to Supabase Storage (using property-media bucket)
+        const { error: uploadError } = await supabase.storage
+          .from('property-media')
+          .upload(filePath, file, {
+            upsert: true,
+            contentType: file.type
+          })
+        
+        if (uploadError) throw uploadError
+        
+        // Get public URL
+        const { data: imageData } = supabase.storage
+          .from('property-media')
+          .getPublicUrl(filePath)
+        
+        mediaData.push({
+          file_name: fileName,
+          bucket_path: filePath,
+          mime_type: file.type,
+          size: file.size,
+          order: i,
+          public_url: imageData.publicUrl
+        })
+      } catch (error) {
+        console.error(`Error uploading image ${i}:`, error)
+        throw error
+      }
+    }
+    
+    return mediaData
   }
 
   const handleCancel = () => {
-    console.log("Form cancelled")
+    // Reset form
+    setFormData({
+      propertyTitle: "",
+      propertyType: "",
+      listingType: "sale",
+      price: "",
+      bedrooms: "",
+      bathrooms: "",
+      squareFeet: "",
+      lotSize: "",
+      yearBuilt: "",
+      parkingSpaces: "",
+      streetAddress: "",
+      city: "",
+      state: "",
+      zipPostal: "",
+      country: "Philippines",
+      description: "",
+      aboutProperty: "",
+      features: [],
+      fullName: "",
+      email: "",
+      phoneNumber: "",
+      availableFrom: "",
+      propertyStatus: "available",
+      furnished: "",
+      petPolicy: "",
+      utilities: [],
+      nearby: [],
+    })
+    setUploadedImagePreviews([])
+    setUploadedImages([])
+    setSubmitError(null)
+    setSubmitSuccess(false)
   }
 
   const addFeature = (feature: string) => {
@@ -84,16 +281,26 @@ export default function ListPropertyPage() {
     }
   }
 
-
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (files) {
-      const newImages = Array.from(files).map(file => URL.createObjectURL(file))
-      setUploadedImages([...uploadedImages, ...newImages])
+      const fileList = Array.from(files)
+      setUploadedImages(fileList)
+      
+      // Create previews
+      const previews = fileList.map(file => URL.createObjectURL(file))
+      setUploadedImagePreviews(previews)
+    }
+  }
+
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
     }
   }
 
   const removeImage = (index: number) => {
+    setUploadedImagePreviews(uploadedImagePreviews.filter((_, i) => i !== index))
     setUploadedImages(uploadedImages.filter((_, i) => i !== index))
   }
 
@@ -110,6 +317,56 @@ export default function ListPropertyPage() {
     setFormData({ ...formData, nearby: formData.nearby.filter((_, i) => i !== index) })
   }
 
+  // Show loading state while checking role
+  if (isAgent === null) {
+    return (
+      <AgentLayout>
+        <div className="p-8">
+          <div className="max-w-7xl min-w-[375px] mx-auto">
+            <div className="bg-white rounded-3xl shadow-lg sm:p-8 p-4">
+              <div className="flex justify-center items-center h-64">
+                <div className="text-center">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                  <p className="text-slate-600">Checking permissions...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </AgentLayout>
+    )
+  }
+
+  // Show error if user is not an agent
+  if (isAgent === false) {
+    return (
+      <AgentLayout>
+        <div className="p-8">
+          <div className="max-w-7xl min-w-[375px] mx-auto">
+            <div className="bg-white rounded-3xl shadow-lg sm:p-8 p-4">
+              <div className="text-center py-12">
+                <div className="mx-auto bg-red-100 text-red-600 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                  <X className="w-8 h-8" />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+                <p className="text-slate-600 mb-6">
+                  Only users with the agent role can list properties. 
+                  Please contact an administrator if you believe this is an error.
+                </p>
+                <button
+                  onClick={() => window.history.back()}
+                  className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
+                >
+                  Go Back
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </AgentLayout>
+    )
+  }
+
   return (
     <AgentLayout>
       <div className="p-8">
@@ -118,6 +375,18 @@ export default function ListPropertyPage() {
             <h1 className="text-3xl font-bold text-slate-900">List New Property</h1>
             <p className="text-slate-600 mt-2">Fill in the details below to list your property</p>
           </div>
+
+          {submitSuccess && (
+            <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-lg">
+              Property listed successfully!
+            </div>
+          )}
+          
+          {submitError && (
+            <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">
+              {submitError}
+            </div>
+          )}
 
           <div className="bg-white rounded-3xl shadow-lg sm:p-8 p-4">
             <form onSubmit={handleSubmit} className="space-y-8">
@@ -137,6 +406,7 @@ export default function ListPropertyPage() {
                       value={formData.propertyTitle}
                       onChange={(e) => setFormData({ ...formData, propertyTitle: e.target.value })}
                       className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
                     />
                   </div>
 
@@ -235,6 +505,7 @@ export default function ListPropertyPage() {
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                       className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
                     />
                   </div>
 
@@ -246,6 +517,7 @@ export default function ListPropertyPage() {
                       value={formData.bedrooms}
                       onChange={(e) => setFormData({ ...formData, bedrooms: e.target.value })}
                       className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
                     />
                   </div>
 
@@ -257,6 +529,7 @@ export default function ListPropertyPage() {
                       value={formData.bathrooms}
                       onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })}
                       className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
                     />
                   </div>
                 </div>
@@ -371,6 +644,7 @@ export default function ListPropertyPage() {
                       value={formData.streetAddress}
                       onChange={(e) => setFormData({ ...formData, streetAddress: e.target.value })}
                       className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
                     />
                   </div>
                 </div>
@@ -383,6 +657,7 @@ export default function ListPropertyPage() {
                       value={formData.city}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                       className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
                     />
                   </div>
 
@@ -403,6 +678,7 @@ export default function ListPropertyPage() {
                       value={formData.zipPostal}
                       onChange={(e) => setFormData({ ...formData, zipPostal: e.target.value })}
                       className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
                     />
                   </div>
 
@@ -435,6 +711,7 @@ export default function ListPropertyPage() {
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={6}
                     className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    required
                   />
                 </div>
               </div>
@@ -665,24 +942,26 @@ export default function ListPropertyPage() {
                   <input
                     type="file"
                     id="imageUpload"
+                    ref={fileInputRef}
                     multiple
                     accept="image/*"
                     onChange={handleImageUpload}
                     className="hidden"
                   />
-                  <label
-                    htmlFor="imageUpload"
-                    className="border-2 border-dashed border-slate-300 rounded-lg bg-slate-50 p-12 flex flex-col items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors cursor-pointer"
+                  <button
+                    type="button"
+                    onClick={triggerFileInput}
+                    className="border-2 border-dashed border-slate-300 rounded-lg bg-slate-50 p-12 flex flex-col items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors cursor-pointer w-full"
                   >
                     <ImagePlus className="w-10 h-10 text-slate-400 mb-2" />
                     <p className="text-sm text-slate-600 font-medium">Click to upload images</p>
                     <p className="text-xs text-slate-500 mt-1">PNG, JPG, JPEG up to 10MB each</p>
-                  </label>
+                  </button>
                 </div>
 
-                {uploadedImages.length > 0 && (
+                {uploadedImagePreviews.length > 0 && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {uploadedImages.map((image, index) => (
+                    {uploadedImagePreviews.map((image, index) => (
                       <div key={index} className="relative group">
                         <img
                           src={image}
@@ -719,6 +998,7 @@ export default function ListPropertyPage() {
                       value={formData.fullName}
                       onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                       className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
                     />
                   </div>
 
@@ -730,6 +1010,7 @@ export default function ListPropertyPage() {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
                     />
                   </div>
                 </div>
@@ -741,6 +1022,7 @@ export default function ListPropertyPage() {
                     value={formData.phoneNumber}
                     onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                     className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
                   />
                 </div>
               </div>
@@ -755,14 +1037,16 @@ export default function ListPropertyPage() {
                     type="button"
                     onClick={handleCancel}
                     className="px-6 py-2 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded-lg font-medium transition-colors"
+                    disabled={isSubmitting}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
+                    className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+                    disabled={isSubmitting}
                   >
-                    Submit Property
+                    {isSubmitting ? "Submitting..." : "Submit Property"}
                   </button>
                 </div>
               </div>
