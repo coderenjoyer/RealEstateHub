@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
 import supabase from "../../supabaseClient";
+import { Eye, EyeOff } from "lucide-react";
 
 type TabKey = "signup" | "signin" | "reset";
 
@@ -98,7 +99,7 @@ const LoginModal: React.FC = () => {
   };
 
   const inputBase =
-    "w-full rounded-[10px] border-2 border-[#a8c1d3] bg-[#b8cfdd]/60 placeholder:text-white/80 text-white/90 px-4 py-3 text-base focus:outline-none focus:border-[#5d8ab0] transition-all duration-300 hover:bg-[#b8cfdd]/80 hover:border-[#5d8ab0]";
+    "w-full rounded-[10px] border-2 border-[#a8c1d3] bg-[#b8cfdd]/60 placeholder:text-white/80 text-white/90 px-4 py-3 text-base focus:outline-none focus:border-[#4A8FB8] transition-all duration-300 hover:bg-[#a8c1d3]/70 hover:border-[#4A8FB8]";
 
   const inputFont = {
     fontFamily:
@@ -245,99 +246,130 @@ const LoginModal: React.FC = () => {
   return (
     <div className="relative w-full max-w-md rounded-xl sm:rounded-2xl bg-[#cfe3ee] p-5 sm:p-6 md:p-8 shadow-2xl">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-        <div className="inline-flex items-center rounded-full bg-[#3f6f97] p-1.5 shadow gap-2 relative overflow-hidden">
-          <div
-            className={`absolute inset-y-1.5 transition-all duration-300 ease-in-out rounded-full bg-white/30 ${
-              activeTab === "signup"
-                ? "left-1.5 right-1/2"
-                : "left-1/2 right-1.5"
-            }`}
-          />
-          <button
-            onClick={() => handleTabChange("signup")}
-            className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-300 flex-shrink-0 overflow-hidden group ${
-              activeTab === "signup"
-                ? "text-white"
-                : "text-white/90 hover:text-white"
-            }`}
-            style={{
-              fontFamily:
-                "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
-            }}
-          >
-            <span className="inline-block transition-transform duration-300 transform-gpu group-hover:scale-105">
-              Sign up
-            </span>
-          </button>
-          <button
-            onClick={() => handleTabChange("signin")}
-            className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-300 flex-shrink-0 overflow-hidden group ${
-              activeTab === "signin"
-                ? "text-white"
-                : "text-white/90 hover:text-white"
-            }`}
-            style={{
-              fontFamily:
-                "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
-            }}
-          >
-            <span className="inline-block transition-transform duration-300 transform-gpu group-hover:scale-105">
-              Sign in
-            </span>
-          </button>
-        </div>
-        {activeTab === "reset" && (
-          <button
-            onClick={() => {
-              navigate("/login");
-              setActiveTab("signin");
-              setResetStep("email");
-              setResetEmail("");
-              setNewPassword("");
-              setConfirmNewPassword("");
-              setErrorMessage(null);
-              setResetSuccessMessage(null);
-            }}
-            className="text-sm text-white/90 hover:text-white transition-colors"
-            style={{
-              fontFamily:
-                "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
-            }}
-          >
-            Back to Sign in
-          </button>
-        )}
-        <button
-          aria-label="Back to Home"
-          className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/30 text-[#436a86] transition-all duration-300 hover:bg-white/50 hover:shadow-md backdrop-blur-sm flex-shrink-0 overflow-hidden group"
-          onClick={() => navigate("/")}
-        >
-          <span className="flex items-center gap-2 transition-transform duration-300 transform-gpu group-hover:scale-105">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              className="w-4 h-4 sm:w-4 sm:h-4"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-              />
-            </svg>
-            <span
-              className="text-sm font-medium hidden sm:inline"
+        {activeTab !== "reset" && (
+          <div className="inline-flex items-center rounded-full bg-[#3f6f97] p-1.5 shadow gap-2 relative overflow-hidden">
+            <div
+              className={`absolute inset-y-1.5 transition-all duration-300 ease-in-out rounded-full bg-white/30 ${
+                activeTab === "signup"
+                  ? "left-1.5 right-1/2"
+                  : "left-1/2 right-1.5"
+              }`}
+            />
+            <button
+              onClick={() => handleTabChange("signup")}
+              className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-300 flex-shrink-0 overflow-hidden group ${
+                activeTab === "signup"
+                  ? "text-white"
+                  : "text-white/90 hover:text-white"
+              }`}
               style={{
                 fontFamily:
                   "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
               }}
             >
-              Back to Home
+              <span className="inline-block transition-transform duration-300 transform-gpu group-hover:scale-105">
+                Sign up
+              </span>
+            </button>
+            <button
+              onClick={() => handleTabChange("signin")}
+              className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-300 flex-shrink-0 overflow-hidden group ${
+                activeTab === "signin"
+                  ? "text-white"
+                  : "text-white/90 hover:text-white"
+              }`}
+              style={{
+                fontFamily:
+                  "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
+              }}
+            >
+              <span className="inline-block transition-transform duration-300 transform-gpu group-hover:scale-105">
+                Sign in
+              </span>
+            </button>
+          </div>
+        )}
+        {activeTab === "reset" && (
+          <button
+            aria-label="Back to Sign in"
+            className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/30 text-[#436a86] transition-all duration-300 hover:bg-white/50 hover:shadow-md backdrop-blur-sm flex-shrink-0 overflow-hidden group"
+            onClick={() => {
+              setIsAnimating(true);
+              setTimeout(() => {
+                navigate("/login");
+                setActiveTab("signin");
+                setResetStep("email");
+                setResetEmail("");
+                setNewPassword("");
+                setConfirmNewPassword("");
+                setErrorMessage(null);
+                setResetSuccessMessage(null);
+                setTimeout(() => {
+                  setIsAnimating(false);
+                }, 50);
+              }, 200);
+            }}
+          >
+            <span className="flex items-center gap-2 transition-transform duration-300 transform-gpu group-hover:scale-105">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="w-4 h-4 sm:w-4 sm:h-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+                />
+              </svg>
+              <span
+                className="text-sm font-medium hidden sm:inline"
+                style={{
+                  fontFamily:
+                    "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
+                }}
+              >
+                Back to Sign in
+              </span>
             </span>
-          </span>
-        </button>
+          </button>
+        )}
+        {activeTab !== "reset" && (
+          <button
+            aria-label="Back to Home"
+            className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/30 text-[#436a86] transition-all duration-300 hover:bg-white/50 hover:shadow-md backdrop-blur-sm flex-shrink-0 overflow-hidden group"
+            onClick={() => navigate("/")}
+          >
+            <span className="flex items-center gap-2 transition-transform duration-300 transform-gpu group-hover:scale-105">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="w-4 h-4 sm:w-4 sm:h-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+                />
+              </svg>
+              <span
+                className="text-sm font-medium hidden sm:inline"
+                style={{
+                  fontFamily:
+                    "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
+                }}
+              >
+                Back to Home
+              </span>
+            </span>
+          </button>
+        )}
         {/* Sign out control removed from login per requirements */}
       </div>
 
@@ -416,28 +448,13 @@ const LoginModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90 hover:text-white transition-colors p-1"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="size-5"
-                    >
-                      <path d="M3.53 2.47a.75.75 0 1 0-1.06 1.06l2.2 2.2C2.49 7.05 1.14 8.8.5 10.05a2.25 2.25 0 0 0 0 1.9C2.52 16.35 6.61 19.5 12 19.5c2.1 0 3.99-.44 5.63-1.22l2.84 2.84a.75.75 0 1 0 1.06-1.06L3.53 2.47ZM12 17.999c-4.56 0-8.13-2.77-9.9-6.047a.75.75 0 0 1 0-.704c.876-1.63 2.244-3.142 3.999-4.262l2.163 2.163A5.25 5.25 0 0 0 12 16.5c.92 0 1.787-.234 2.54-.646l1.122 1.122A10.2 10.2 0 0 1 12 18Z" />
-                      <path d="M14.551 15.257 8.744 9.45A3.75 3.75 0 0 0 12 15.75c.93 0 1.788-.333 2.551-.893Z" />
-                    </svg>
+                    <EyeOff className="w-5 h-5" />
                   ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="size-5"
-                    >
-                      <path d="M12 5.25C6.61 5.25 2.52 8.4.5 12.05a2.25 2.25 0 0 0 0 1.9C2.52 17.85 6.61 21 12 21s9.48-3.15 11.5-7.05a2.25 2.25 0 0 0 0-1.9C21.48 8.4 17.39 5.25 12 5.25Zm0 12.75a5.25 5.25 0 1 1 0-10.5 5.25 5.25 0 0 1 0 10.5Z" />
-                    </svg>
+                    <Eye className="w-5 h-5" />
                   )}
                 </button>
               </div>
@@ -454,30 +471,15 @@ const LoginModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90 hover:text-white transition-colors p-1"
                   aria-label={
                     showConfirmPassword ? "Hide password" : "Show password"
                   }
                 >
                   {showConfirmPassword ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="size-5"
-                    >
-                      <path d="M3.53 2.47a.75.75 0 1 0-1.06 1.06l2.2 2.2C2.49 7.05 1.14 8.8.5 10.05a2.25 2.25 0 0 0 0 1.9C2.52 16.35 6.61 19.5 12 19.5c2.1 0 3.99-.44 5.63-1.22l2.84 2.84a.75.75 0 1 0 1.06-1.06L3.53 2.47ZM12 17.999c-4.56 0-8.13-2.77-9.9-6.047a.75.75 0 0 1 0-.704c.876-1.63 2.244-3.142 3.999-4.262l2.163 2.163A5.25 5.25 0 0 0 12 16.5c.92 0 1.787-.234 2.54-.646l1.122 1.122A10.2 10.2 0 0 1 12 18Z" />
-                      <path d="M14.551 15.257 8.744 9.45A3.75 3.75 0 0 0 12 15.75c.93 0 1.788-.333 2.551-.893Z" />
-                    </svg>
+                    <EyeOff className="w-5 h-5" />
                   ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="size-5"
-                    >
-                      <path d="M12 5.25C6.61 5.25 2.52 8.4.5 12.05a2.25 2.25 0 0 0 0 1.9C2.52 17.85 6.61 21 12 21s9.48-3.15 11.5-7.05a2.25 2.25 0 0 0 0-1.9C21.48 8.4 17.39 5.25 12 5.25Zm0 12.75a5.25 5.25 0 1 1 0-10.5 5.25 5.25 0 0 1 0 10.5Z" />
-                    </svg>
+                    <Eye className="w-5 h-5" />
                   )}
                 </button>
               </div>
@@ -592,17 +594,14 @@ const LoginModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90 hover:text-white transition-colors p-1"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="size-5"
-                  >
-                    <path d="M12 5.25C6.61 5.25 2.52 8.4.5 12.05a2.25 2.25 0 0 0 0 1.9C2.52 17.85 6.61 21 12 21s9.48-3.15 11.5-7.05a2.25 2.25 0 0 0 0-1.9C21.48 8.4 17.39 5.25 12 5.25Zm0 12.75a5.25 5.25 0 1 1 0-10.5 5.25 5.25 0 0 1 0 10.5Z" />
-                  </svg>
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
               {errorMessage && (
@@ -622,18 +621,25 @@ const LoginModal: React.FC = () => {
               <button
                 type="button"
                 onClick={() => {
-                  navigate("/login/reset");
-                  setResetStep("email");
-                  setErrorMessage(null);
-                  setResetSuccessMessage(null);
+                  setIsAnimating(true);
+                  setTimeout(() => {
+                    setActiveTab("reset");
+                    navigate("/login/reset");
+                    setResetStep("email");
+                    setErrorMessage(null);
+                    setResetSuccessMessage(null);
+                    setTimeout(() => {
+                      setIsAnimating(false);
+                    }, 50);
+                  }, 200);
                 }}
-                className="mx-auto block text-sm font-medium text-[#ffffff] underline-offset-4 hover:underline transition-all duration-300 hover:text-white/80 transform hover:scale-105"
+                className="mx-auto block text-sm font-medium text-[#4A8FB8] underline-offset-4 hover:underline transition-all duration-300 hover:text-[#5d8ab0] transform hover:scale-105"
                 style={{
                   fontFamily:
                     "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
                 }}
               >
-                Forgot password
+                Forgot password?
               </button>
 
               <div className="relative flex items-center justify-center my-4">
@@ -782,30 +788,15 @@ const LoginModal: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowNewPassword((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90 hover:text-white transition-colors p-1"
                       aria-label={
                         showNewPassword ? "Hide password" : "Show password"
                       }
                     >
                       {showNewPassword ? (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          className="size-5"
-                        >
-                          <path d="M3.53 2.47a.75.75 0 1 0-1.06 1.06l2.2 2.2C2.49 7.05 1.14 8.8.5 10.05a2.25 2.25 0 0 0 0 1.9C2.52 16.35 6.61 19.5 12 19.5c2.1 0 3.99-.44 5.63-1.22l2.84 2.84a.75.75 0 1 0 1.06-1.06L3.53 2.47ZM12 17.999c-4.56 0-8.13-2.77-9.9-6.047a.75.75 0 0 1 0-.704c.876-1.63 2.244-3.142 3.999-4.262l2.163 2.163A5.25 5.25 0 0 0 12 16.5c.92 0 1.787-.234 2.54-.646l1.122 1.122A10.2 10.2 0 0 1 12 18Z" />
-                          <path d="M14.551 15.257 8.744 9.45A3.75 3.75 0 0 0 12 15.75c.93 0 1.788-.333 2.551-.893Z" />
-                        </svg>
+                        <EyeOff className="w-5 h-5" />
                       ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          className="size-5"
-                        >
-                          <path d="M12 5.25C6.61 5.25 2.52 8.4.5 12.05a2.25 2.25 0 0 0 0 1.9C2.52 17.85 6.61 21 12 21s9.48-3.15 11.5-7.05a2.25 2.25 0 0 0 0-1.9C21.48 8.4 17.39 5.25 12 5.25Zm0 12.75a5.25 5.25 0 1 1 0-10.5 5.25 5.25 0 0 1 0 10.5Z" />
-                        </svg>
+                        <Eye className="w-5 h-5" />
                       )}
                     </button>
                   </div>
@@ -826,7 +817,7 @@ const LoginModal: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowConfirmNewPassword((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90 hover:text-white transition-colors p-1"
                       aria-label={
                         showConfirmNewPassword
                           ? "Hide password"
@@ -834,24 +825,9 @@ const LoginModal: React.FC = () => {
                       }
                     >
                       {showConfirmNewPassword ? (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          className="size-5"
-                        >
-                          <path d="M3.53 2.47a.75.75 0 1 0-1.06 1.06l2.2 2.2C2.49 7.05 1.14 8.8.5 10.05a2.25 2.25 0 0 0 0 1.9C2.52 16.35 6.61 19.5 12 19.5c2.1 0 3.99-.44 5.63-1.22l2.84 2.84a.75.75 0 1 0 1.06-1.06L3.53 2.47ZM12 17.999c-4.56 0-8.13-2.77-9.9-6.047a.75.75 0 0 1 0-.704c.876-1.63 2.244-3.142 3.999-4.262l2.163 2.163A5.25 5.25 0 0 0 12 16.5c.92 0 1.787-.234 2.54-.646l1.122 1.122A10.2 10.2 0 0 1 12 18Z" />
-                          <path d="M14.551 15.257 8.744 9.45A3.75 3.75 0 0 0 12 15.75c.93 0 1.788-.333 2.551-.893Z" />
-                        </svg>
+                        <EyeOff className="w-5 h-5" />
                       ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          className="size-5"
-                        >
-                          <path d="M12 5.25C6.61 5.25 2.52 8.4.5 12.05a2.25 2.25 0 0 0 0 1.9C2.52 17.85 6.61 21 12 21s9.48-3.15 11.5-7.05a2.25 2.25 0 0 0 0-1.9C21.48 8.4 17.39 5.25 12 5.25Zm0 12.75a5.25 5.25 0 1 1 0-10.5 5.25 5.25 0 0 1 0 10.5Z" />
-                        </svg>
+                        <Eye className="w-5 h-5" />
                       )}
                     </button>
                   </div>
