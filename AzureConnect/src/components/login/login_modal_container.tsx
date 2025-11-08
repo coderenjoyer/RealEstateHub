@@ -10,8 +10,8 @@ const LoginModalContainer: React.FC = () => {
 
   return (
     <div
-      className={`rounded-xl sm:rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden relative transition-all duration-1000 ease-out ${
-        isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
+      className={`rounded-3xl shadow-2xl overflow-hidden relative transition-all duration-1000 ease-out ${
+        isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
       }`}
       style={{
         background:
@@ -20,7 +20,7 @@ const LoginModalContainer: React.FC = () => {
     >
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
         <div
-          className="hidden md:block absolute w-64 h-64 lg:w-96 lg:h-96 rounded-full border-4 border-white/30 animate-pulse"
+          className="absolute w-96 h-96 rounded-full border-4 border-white/30 animate-pulse"
           style={{
             top: "-10%",
             right: "-5%",
@@ -28,7 +28,7 @@ const LoginModalContainer: React.FC = () => {
           }}
         />
         <div
-          className="hidden sm:block absolute w-48 h-48 md:w-64 md:h-64 rounded-full bg-white/10"
+          className="absolute w-64 h-64 rounded-full bg-white/10"
           style={{
             bottom: "-8%",
             left: "-8%",
@@ -36,7 +36,7 @@ const LoginModalContainer: React.FC = () => {
           }}
         />
         <div
-          className="hidden sm:block absolute w-24 h-24 md:w-32 md:h-32 rounded-full border-2 border-white/20"
+          className="absolute w-32 h-32 rounded-full border-2 border-white/20"
           style={{
             top: "30%",
             left: "15%",
@@ -44,7 +44,7 @@ const LoginModalContainer: React.FC = () => {
           }}
         />
         <div
-          className="hidden md:block absolute w-16 h-16 lg:w-20 lg:h-20 rounded-full bg-white/15"
+          className="absolute w-20 h-20 rounded-full bg-white/15"
           style={{
             top: "60%",
             right: "20%",
@@ -129,13 +129,11 @@ const LoginModalContainer: React.FC = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-0 min-h-[500px] sm:min-h-[600px] md:min-h-[700px] relative z-10">
-        <div className="p-6 sm:p-8 md:p-10 lg:p-14 xl:p-24 flex flex-col justify-center relative">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-0 min-h-[700px] relative z-10">
+        <div className="p-10 sm:p-14 lg:p-24 flex flex-col justify-center relative">
           <div
-            className={`hidden sm:block absolute w-16 h-16 md:w-24 md:h-24 rounded-lg bg-white/10 backdrop-blur-sm transition-all duration-1000 delay-300 ${
-              isVisible
-                ? "opacity-100 scale-100 rotate-15"
-                : "opacity-0 scale-75 rotate-0"
+            className={`absolute w-24 h-24 rounded-lg bg-white/10 backdrop-blur-sm transition-all duration-1000 delay-300 ${
+              isVisible ? 'opacity-100 scale-100 rotate-15' : 'opacity-0 scale-75 rotate-0'
             }`}
             style={{
               top: "15%",
@@ -144,10 +142,8 @@ const LoginModalContainer: React.FC = () => {
           />
 
           <h1
-            className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-tight tracking-wide mb-6 sm:mb-8 md:mb-12 lg:mb-16 xl:mb-20 text-white relative transition-all duration-1000 delay-500 ${
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
+            className={`text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-wide mb-20 text-white relative transition-all duration-1000 delay-500 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
             style={{
               fontFamily: "Montserrat, sans-serif",
@@ -158,10 +154,8 @@ const LoginModalContainer: React.FC = () => {
           </h1>
 
           <p
-            className={`text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white leading-relaxed font-light relative transition-all duration-1000 delay-700 ${
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
+            className={`text-lg sm:text-xl lg:text-2xl text-white leading-relaxed font-light relative transition-all duration-1000 delay-700 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
             style={{
               fontFamily: "Ubuntu, sans-serif",
@@ -180,7 +174,7 @@ const LoginModalContainer: React.FC = () => {
               plenty of places
             </span>{" "}
             to choose,
-            <br className="hidden sm:block" />
+            <br />
             but only one will feel like{" "}
             <span
               className="font-bold text-white animate-bounce"
@@ -198,25 +192,21 @@ const LoginModalContainer: React.FC = () => {
           </p>
         </div>
 
-        <div className="p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 flex items-center justify-center relative">
-          <div
-            className={`hidden sm:block absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 border-t-2 border-r-2 border-white/30 rounded-tr-xl transition-all duration-1000 delay-900 ${
-              isVisible ? "opacity-100 scale-100" : "opacity-0 scale-75"
+        <div className="p-8 sm:p-10 lg:p-12 flex items-center justify-center relative">
+          <div 
+            className={`absolute top-8 right-8 w-16 h-16 border-t-2 border-r-2 border-white/30 rounded-tr-xl transition-all duration-1000 delay-900 ${
+              isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
             }`}
           />
-          <div
-            className={`hidden sm:block absolute bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-8 md:left-8 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 border-b-2 border-l-2 border-white/30 rounded-bl-xl transition-all duration-1000 delay-1100 ${
-              isVisible ? "opacity-100 scale-100" : "opacity-0 scale-75"
+          <div 
+            className={`absolute bottom-8 left-8 w-16 h-16 border-b-2 border-l-2 border-white/30 rounded-bl-xl transition-all duration-1000 delay-1100 ${
+              isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
             }`}
           />
 
-          <div
-            className={`w-full max-w-md flex items-center justify-center transition-all duration-1000 delay-1000 ${
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
-            }`}
-          >
+          <div className={`w-full max-w-md flex items-center justify-center transition-all duration-1000 delay-1000 ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}>
             <LoginModal />
           </div>
         </div>
