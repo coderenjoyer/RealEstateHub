@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import LoginModalContainer from "./login_modal_container";
 
 const LoginParentContainer: React.FC = () => {
-  const [particles, setParticles] = useState<Array<{id: number, x: number, y: number, size: number, speed: number}>>([]);
+  const [particles, setParticles] = useState<
+    Array<{ id: number; x: number; y: number; size: number; speed: number }>
+  >([]);
 
   useEffect(() => {
     // Generate random particles
@@ -17,11 +19,13 @@ const LoginParentContainer: React.FC = () => {
 
     // Animate particles
     const interval = setInterval(() => {
-      setParticles(prev => prev.map(particle => ({
-        ...particle,
-        y: (particle.y + particle.speed) % 100,
-        x: particle.x + Math.sin(Date.now() * 0.001 + particle.id) * 0.1,
-      })));
+      setParticles((prev) =>
+        prev.map((particle) => ({
+          ...particle,
+          y: (particle.y + particle.speed) % 100,
+          x: particle.x + Math.sin(Date.now() * 0.001 + particle.id) * 0.1,
+        }))
+      );
     }, 50);
 
     return () => clearInterval(interval);
@@ -29,7 +33,7 @@ const LoginParentContainer: React.FC = () => {
 
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden"
+      className="min-h-screen w-full flex items-center justify-center p-3 sm:p-4 md:p-6 lg:p-8 relative overflow-hidden"
       style={{
         background:
           "linear-gradient(135deg, #7BBDE8 0%, #4A8FB8 25%, #0A4174 50%, #001D39 75%, #000814 100%)",
@@ -37,7 +41,7 @@ const LoginParentContainer: React.FC = () => {
       }}
     >
       {/* Animated particles */}
-      {particles.map(particle => (
+      {particles.map((particle) => (
         <div
           key={particle.id}
           className="absolute rounded-full bg-white/20 animate-pulse"
@@ -51,12 +55,13 @@ const LoginParentContainer: React.FC = () => {
           }}
         />
       ))}
-      
+
       {/* Dynamic gradient overlay */}
-      <div 
+      <div
         className="absolute inset-0 opacity-30"
         style={{
-          background: "radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05) 0%, transparent 50%)",
+          background:
+            "radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05) 0%, transparent 50%)",
           animation: "gradientShift 8s ease-in-out infinite",
         }}
       />
@@ -118,7 +123,7 @@ const LoginParentContainer: React.FC = () => {
           }
         }
       `}</style>
-      <div className="w-full max-w-[90rem]">
+      <div className="w-full max-w-[90rem] mx-auto px-2 sm:px-4">
         <LoginModalContainer />
       </div>
     </div>
