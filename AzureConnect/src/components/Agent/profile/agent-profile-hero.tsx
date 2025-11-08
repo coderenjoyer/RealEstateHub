@@ -73,13 +73,16 @@ export function AgentProfileHero() {
     if (!userId) return
     
     try {
+      // Add timestamp to prevent caching
+      const timestamp = new Date().getTime()
+      
       // Get profile image URL
       const { data: profileImageData } = supabase.storage.from('user-media').getPublicUrl(`${userId}/profile.jpg`)
       if (profileImageData?.publicUrl) {
         // Check if the image actually exists by trying to fetch it
         const response = await fetch(profileImageData.publicUrl, { method: 'HEAD' })
         if (response.ok) {
-          setProfileImage(profileImageData.publicUrl)
+          setProfileImage(`${profileImageData.publicUrl}?t=${timestamp}`)
         } else {
           setProfileImage("/header.jpeg") // fallback image
         }
@@ -93,7 +96,7 @@ export function AgentProfileHero() {
         // Check if the image actually exists by trying to fetch it
         const response = await fetch(coverImageData.publicUrl, { method: 'HEAD' })
         if (response.ok) {
-          setCoverImage(coverImageData.publicUrl)
+          setCoverImage(`${coverImageData.publicUrl}?t=${timestamp}`)
         }
       }
     } catch (error) {
@@ -181,15 +184,17 @@ export function AgentProfileHero() {
       
       console.log('Upload successful:', data)
       
-      // Get the public URL of the uploaded image
+      // Get the public URL of the uploaded image with cache-busting timestamp
+      const timestamp = new Date().getTime()
       const { data: imageData } = supabase.storage.from('user-media').getPublicUrl(filePath)
-      console.log('Public URL:', imageData.publicUrl)
+      const imageUrlWithTimestamp = `${imageData.publicUrl}?t=${timestamp}`
+      console.log('Public URL:', imageUrlWithTimestamp)
       
       // Update the state with the new image
       if (editMode === 'profile') {
-        setProfileImage(imageData.publicUrl)
+        setProfileImage(imageUrlWithTimestamp)
       } else {
-        setCoverImage(imageData.publicUrl)
+        setCoverImage(imageUrlWithTimestamp)
       }
       
       // Close modal and reset

@@ -6,7 +6,7 @@ interface Account {
   email: string
   phone: string
   properties: number
-  status?: "Pending" | "Closing"
+  status?: "Active" | "Inactive"
 }
 
 interface AccountCardProps {
@@ -23,7 +23,7 @@ export function AccountCard({ account, showStatus }: AccountCardProps) {
           {showStatus && account.status && (
             <span
               className={`inline-block px-2 py-0.5 text-xs font-medium rounded mt-1 ${
-                account.status === "Pending" ? "bg-yellow-100 text-yellow-700" : "bg-orange-100 text-orange-700"
+                account.status === "Active" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
               }`}
             >
               {account.status}

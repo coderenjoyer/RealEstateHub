@@ -2,6 +2,9 @@
 -- This function queries directly from authentication, no profiles table needed
 -- Run this SQL in your Supabase SQL Editor
 
+-- Drop existing function if it exists
+DROP FUNCTION IF EXISTS get_all_users(TEXT);
+
 CREATE OR REPLACE FUNCTION get_all_users(user_role TEXT DEFAULT NULL)
 RETURNS TABLE (
   id UUID,
@@ -31,7 +34,7 @@ BEGIN
   RETURN QUERY
   SELECT 
     au.id,
-    au.email,
+    au.email::TEXT,
     (au.raw_user_meta_data->>'first_name')::TEXT as first_name,
     (au.raw_user_meta_data->>'last_name')::TEXT as last_name,
     (au.raw_user_meta_data->>'mobile_number')::TEXT as mobile_number,
@@ -42,18 +45,17 @@ BEGIN
         COALESCE(
           (SELECT COUNT(*) 
            FROM public.properties p 
-           WHERE CASE 
-             WHEN user_role = 'agent' THEN p.agent_id = au.id
-             WHEN user_role = 'user' THEN p.user_id = au.id
-             ELSE (p.agent_id = au.id OR p.user_id = au.id)
-           END
+           WHERE p.user_id = au.id
+             AND (user_role IS NULL OR 
+                  (user_role = 'agent' AND (au.raw_user_meta_data->>'role')::TEXT = 'agent') OR
+                  (user_role = 'user' AND (au.raw_user_meta_data->>'role')::TEXT = 'user'))
           ), 0
         )
       ELSE 0
     END as properties_count,
     CASE 
-      WHEN user_role = 'agent' THEN 'Pending'::TEXT
-      ELSE NULL::TEXT
+      WHEN au.email_confirmed_at IS NOT NULL THEN 'Active'::TEXT
+      ELSE 'Inactive'::TEXT
     END as status,
     au.created_at
   FROM auth.users au

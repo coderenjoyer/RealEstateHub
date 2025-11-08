@@ -15,7 +15,7 @@ interface Account {
   email: string
   phone: string
   properties: number
-  status?: "Pending" | "Closing"
+  status?: "Active" | "Inactive"
 }
 
 export default function UserManagementPage() {
@@ -69,7 +69,7 @@ export default function UserManagementPage() {
           email: user.email || "",
           phone: user.mobile_number || user.phone || "Not provided",
           properties: user.properties_count || 0,
-          status: user.status || (activeTab === "agent" ? "Pending" : undefined),
+          status: user.status || "Inactive",
         }))
         
         setAccounts(formattedAccounts)
@@ -328,7 +328,7 @@ export default function UserManagementPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredAccounts.map((account) => (
-                    <AccountCard key={account.id} account={account} showStatus={activeTab === "agent"} />
+                    <AccountCard key={account.id} account={account} showStatus={true} />
                   ))}
                 </div>
               )}
