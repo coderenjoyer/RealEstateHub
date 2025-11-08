@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
+import supabase from "../../supabaseClient";
 
 type TabKey = "signup" | "signin" | "reset";
 
@@ -8,10 +9,6 @@ const LoginModal: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { signIn, signupNewUser, resetPasswordForEmail, updateUserPassword, session } = useAuth();
-  const adminEmails = [
-    "azureconnect67@gmail.com",
-    // add more admin emails here as needed
-  ];
   const [activeTab, setActiveTab] = useState<TabKey>("signin");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -68,9 +65,8 @@ const LoginModal: React.FC = () => {
   useEffect(() => {
     if (session?.user && location.pathname === "/login") {
       const userRole = session.user.user_metadata?.role;
-      const userEmail = session.user.email?.toLowerCase();
       
-      if (userEmail && adminEmails.includes(userEmail)) {
+      if (userRole === "admin") {
         navigate("/admin");
       } else if (userRole === "agent") {
         navigate("/agent/profile");
@@ -149,10 +145,8 @@ const LoginModal: React.FC = () => {
                      signInData?.session?.user?.user_metadata?.role ||
                      session?.user?.user_metadata?.role;
     
-    const normalized = signinEmail.trim().toLowerCase();
-    
-    // Route based on role
-    if (adminEmails.includes(normalized)) {
+    // Route based on role from database
+    if (userRole === "admin") {
       navigate("/admin");
     } else if (userRole === "agent") {
       navigate("/agent/profile");

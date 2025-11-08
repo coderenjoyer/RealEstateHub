@@ -67,7 +67,7 @@ export default function ListPropertyPage() {
   ]
 
   const utilityOptions = ["Water", "Electricity", "Gas", "Internet", "Cable TV", "Trash Collection"]
-
+  
   useEffect(() => {
     // Check if user has agent role
     if (userRole) {
@@ -94,12 +94,25 @@ export default function ListPropertyPage() {
     setSubmitSuccess(false)
     
     try {
+      // Refresh session to ensure JWT is up to date
+      const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError || !currentSession) {
+        throw new Error("Session expired. Please log in again.")
+      }
+
+      // Verify role from fresh session
+      const currentRole = currentSession.user?.user_metadata?.role
+      if (currentRole !== 'agent') {
+        throw new Error("Only users with agent role can list properties")
+      }
+      
       // Upload images first
       const mediaData = await uploadPropertyImages()
       
       // Prepare property data for database insertion
       const propertyData = {
-        user_id: userId,
+        user_id: currentSession.user.id,
         property_title: formData.propertyTitle,
         property_type: formData.propertyType,
         listing_type: formData.listingType,
@@ -136,11 +149,17 @@ export default function ListPropertyPage() {
       const { data, error } = await supabase
         .from('properties')
         .insert(propertyData)
-        .select()
       
-      if (error) throw error
+      if (error) {
+        console.error('Supabase insert error:', error)
+        throw error
+      }
       
       setSubmitSuccess(true)
+      
+      // Scroll to top of page
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      
       // Reset form
       setFormData({
         propertyTitle: "",
@@ -189,28 +208,30 @@ export default function ListPropertyPage() {
     for (let i = 0; i < uploadedImages.length; i++) {
       const file = uploadedImages[i]
       const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'jpg'
-      const fileName = `property-${Date.now()}-${i}.${fileExtension}`
-      const filePath = `${userId}/${fileName}`
+      const fileName = `${userId}/property-${Date.now()}-${i}.${fileExtension}`
       
       try {
         // Upload file to Supabase Storage (using property-media bucket)
         const { error: uploadError } = await supabase.storage
           .from('property-media')
-          .upload(filePath, file, {
-            upsert: true,
-            contentType: file.type
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: true
           })
         
-        if (uploadError) throw uploadError
+        if (uploadError) {
+          console.error('Upload error:', uploadError)
+          throw uploadError
+        }
         
         // Get public URL
         const { data: imageData } = supabase.storage
           .from('property-media')
-          .getPublicUrl(filePath)
+          .getPublicUrl(fileName)
         
         mediaData.push({
-          file_name: fileName,
-          bucket_path: filePath,
+          file_name: file.name,
+          bucket_path: fileName,
           mime_type: file.type,
           size: file.size,
           order: i,
@@ -285,10 +306,18 @@ export default function ListPropertyPage() {
     const files = e.target.files
     if (files) {
       const fileList = Array.from(files)
-      setUploadedImages(fileList)
+      
+      // Limit to max 3 images
+      const limitedFiles = fileList.slice(0, 3)
+      
+      if (fileList.length > 3) {
+        alert('Maximum 3 images allowed. Only the first 3 images will be uploaded.')
+      }
+      
+      setUploadedImages(limitedFiles)
       
       // Create previews
-      const previews = fileList.map(file => URL.createObjectURL(file))
+      const previews = limitedFiles.map(file => URL.createObjectURL(file))
       setUploadedImagePreviews(previews)
     }
   }
@@ -936,7 +965,7 @@ export default function ListPropertyPage() {
               {/* Property Images Section */}
               <div className="space-y-4">
                 <h2 className="text-xl font-bold text-slate-900">Property Images</h2>
-                <p className="text-sm text-slate-600">Upload high-quality images of your property (max 10 images)</p>
+                <p className="text-sm text-slate-600">Upload high-quality images of your property (max 3 images)</p>
                 
                 <div>
                   <input

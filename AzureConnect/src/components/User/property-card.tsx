@@ -13,6 +13,7 @@ interface PropertyCardProps {
     sqft: number;
     rating: string;
     images?: string[];
+    propertyType?: string;
   };
   onClick?: () => void;
   onBookmark?: (propertyId: number, isBookmarked: boolean) => void;
@@ -62,10 +63,10 @@ export function PropertyCard({
         {/* Overlay Gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
 
-        {/* Villa Badge */}
+        {/* Property Type Badge */}
         <div className="absolute top-4 left-4">
           <span className="px-4 py-1.5 bg-white/95 backdrop-blur-sm rounded-full text-xs font-medium text-gray-700 shadow-sm">
-            Villa
+            {property.propertyType || 'Property'}
           </span>
         </div>
 

@@ -6,13 +6,18 @@ import { useAuth } from "../../../AuthContext"
 export function AgentProfileHero() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isLocationEditMode, setIsLocationEditMode] = useState(false)
   const [editMode, setEditMode] = useState<'profile' | 'cover' | null>(null)
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [coverImage, setCoverImage] = useState<string | null>(null)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const [agentData, setAgentData] = useState<any>(null)
+  const [location, setLocation] = useState("Binondo, Manila, 1006 Metro Manila")
+  const [tempLocation, setTempLocation] = useState("")
+  const [memberSince, setMemberSince] = useState("Jan 2017")
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
+  const [savingLocation, setSavingLocation] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { session } = useAuth()
   const userId = session?.user?.id
@@ -39,6 +44,20 @@ export function AgentProfileHero() {
         role: userData.user?.user_metadata?.role || 'agent',
         phone: userData.user?.user_metadata?.mobile_number || '+63 912 345 6789'
       })
+      
+      // Load location from user metadata
+      const savedLocation = userData.user?.user_metadata?.location
+      if (savedLocation) {
+        setLocation(savedLocation)
+      }
+      
+      // Format member since date from user creation
+      if (userData.user?.created_at) {
+        const createdDate = new Date(userData.user.created_at)
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        const formattedDate = `${monthNames[createdDate.getMonth()]} ${createdDate.getFullYear()}`
+        setMemberSince(formattedDate)
+      }
       
       // Try to get existing profile images from storage
       await loadImagesFromStorage()
@@ -193,6 +212,43 @@ export function AgentProfileHero() {
     setEditMode(null)
   }
 
+  const handleLocationEdit = () => {
+    setTempLocation(location)
+    setIsLocationEditMode(true)
+  }
+
+  const handleLocationSave = async () => {
+    try {
+      setSavingLocation(true)
+      
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          location: tempLocation
+        }
+      })
+      
+      if (error) {
+        console.error('Error saving location:', error)
+        alert('Failed to save location. Please try again.')
+        return
+      }
+      
+      setLocation(tempLocation)
+      setIsLocationEditMode(false)
+      alert('Location updated successfully!')
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Failed to save location. Please try again.')
+    } finally {
+      setSavingLocation(false)
+    }
+  }
+
+  const handleLocationCancel = () => {
+    setIsLocationEditMode(false)
+    setTempLocation("")
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -271,39 +327,50 @@ export function AgentProfileHero() {
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h1 className="text-3xl font-bold text-slate-900 mb-2">{agentData?.name || "Agent Name"}</h1>
-                  <p className="text-lg text-slate-600 font-medium">Senior Real Estate Agent</p>
+                  <p className="text-lg text-slate-600 font-medium">Real Estate Agent</p>
                 </div>
               </div>
 
               {/* Location */}
               <div className="flex items-center gap-2 text-slate-600 mb-6">
-                <MapPin className="w-5 h-5 text-blue-500" />
-                <span className="text-sm font-medium">Binondo, Manila, 1006 Metro Manila</span>
-              </div>
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-                  <div className="flex items-center gap-2 mb-1">
-                    <TrendingUp className="w-4 h-4 text-blue-600" />
-                    <p className="text-xs font-semibold text-blue-900 uppercase tracking-wide">Properties Sold</p>
+                <MapPin className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                {isLocationEditMode ? (
+                  <div className="flex items-center gap-2 flex-1">
+                    <input
+                      type="text"
+                      value={tempLocation}
+                      onChange={(e) => setTempLocation(e.target.value)}
+                      className="flex-1 px-3 py-1.5 text-sm border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter location"
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleLocationSave}
+                      disabled={savingLocation || !tempLocation.trim()}
+                      className="px-3 py-1.5 bg-blue-500 text-white text-xs font-medium rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {savingLocation ? 'Saving...' : 'Save'}
+                    </button>
+                    <button
+                      onClick={handleLocationCancel}
+                      disabled={savingLocation}
+                      className="px-3 py-1.5 bg-gray-200 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
                   </div>
-                  <p className="text-3xl font-bold text-blue-700">127</p>
-                </div>
-                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Award className="w-4 h-4 text-green-600" />
-                    <p className="text-xs font-semibold text-green-900 uppercase tracking-wide">Years Experience</p>
+                ) : (
+                  <div className="flex items-center gap-2 flex-1 group">
+                    <span className="text-sm font-medium">{location}</span>
+                    <button
+                      onClick={handleLocationEdit}
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-blue-50 rounded transition-all"
+                      title="Edit location"
+                    >
+                      <Pencil className="w-4 h-4 text-blue-500" />
+                    </button>
                   </div>
-                  <p className="text-3xl font-bold text-green-700">8</p>
-                </div>
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Star className="w-4 h-4 text-purple-600" />
-                    <p className="text-xs font-semibold text-purple-900 uppercase tracking-wide">Rating</p>
-                  </div>
-                  <p className="text-3xl font-bold text-purple-700">4.9</p>
-                </div>
+                )}
               </div>
 
               {/* Contact Info */}
@@ -318,7 +385,7 @@ export function AgentProfileHero() {
                 </div>
                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-center sm:text-left">
                   <Calendar className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm font-medium text-slate-700">Member since Jan 2017</span>
+                  <span className="text-xs sm:text-sm font-medium text-slate-700">Member since {memberSince}</span>
                 </div>
               </div>
             </div>

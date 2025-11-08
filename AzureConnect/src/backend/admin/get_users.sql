@@ -10,6 +10,7 @@ RETURNS TABLE (
   last_name TEXT,
   mobile_number TEXT,
   phone TEXT,
+  role TEXT,
   properties_count BIGINT,
   status TEXT,
   created_at TIMESTAMPTZ
@@ -35,6 +36,7 @@ BEGIN
     (au.raw_user_meta_data->>'last_name')::TEXT as last_name,
     (au.raw_user_meta_data->>'mobile_number')::TEXT as mobile_number,
     (au.raw_user_meta_data->>'mobile_number')::TEXT as phone,
+    (au.raw_user_meta_data->>'role')::TEXT as role,
     CASE 
       WHEN properties_table_exists THEN
         COALESCE(
