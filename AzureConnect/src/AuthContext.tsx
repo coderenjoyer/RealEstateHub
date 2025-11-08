@@ -31,6 +31,7 @@ interface AuthContextValue {
 	signIn: (
 		params: SignInParams
 	) => Promise<{ success: boolean; data?: unknown; error?: string }>;
+	signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
 	signOut: () => Promise<{ success: boolean; error?: string }>;
 	resetPasswordForEmail: (
 		params: ResetPasswordParams
@@ -106,6 +107,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 		return { success: true, data };
 	};
 
+	const signInWithGoogle: AuthContextValue["signInWithGoogle"] = async () => {
+		const redirectUrl = `${window.location.origin}/login`;
+		const { error } = await supabase.auth.signInWithOAuth({
+			provider: 'google',
+			options: {
+				redirectTo: redirectUrl,
+			},
+		});
+		if (error) {
+			console.error(error);
+			return { success: false, error: error.message };
+		}
+		return { success: true };
+	};
+
 	const signOut: AuthContextValue["signOut"] = async () => {
 		const { error } = await supabase.auth.signOut();
 		if (error) {
@@ -156,6 +172,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 				session,
 				signupNewUser,
 				signIn,
+				signInWithGoogle,
 				signOut,
 				resetPasswordForEmail,
 				updateUserPassword,
