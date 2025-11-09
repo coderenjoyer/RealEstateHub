@@ -12,7 +12,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", to: "/admin" },
   { icon: CheckSquare, label: "Listing Approvals", to: "/admin/listings" },
   { icon: Users, label: "User Management", to: "/admin/users" },
-  { icon: FileText, label: "System Reports", to: "/admin/reports" },
+  { icon: FileText, label: "System Controls", to: "/admin/reports" },
 ]
 
 export function Sidebar() {
