@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
-import supabase from "../../supabaseClient";
 import { Eye, EyeOff } from "lucide-react";
 
 type TabKey = "signup" | "signin" | "reset";

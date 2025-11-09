@@ -20,6 +20,15 @@ function UserProfilePage() {
   const userEmail = session?.user?.email ?? '';
   const userPhone = userMeta?.mobile_number?.toString()?.trim() ?? '';
   
+  // Format user join date
+  const userCreatedAt = session?.user?.created_at;
+  const formatJoinDate = (dateString: string | undefined) => {
+    if (!dateString) return 'Recently';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  };
+  const memberSince = formatJoinDate(userCreatedAt);
+  
   // State management for edit functionality
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editMode, setEditMode] = useState<'profile' | 'cover' | 'bio' | 'preferences' | null>(null);
@@ -298,38 +307,6 @@ function UserProfilePage() {
                 <span className="text-sm font-medium">Makati City, Metro Manila</span>
               </div>
 
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-blue-200">
-                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                    <Heart className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
-                    <p className="text-xs font-semibold text-blue-900 uppercase tracking-wide">Saved</p>
-                  </div>
-                  <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-700">24</p>
-                </div>
-                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-green-200">
-                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                    <Home className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
-                    <p className="text-xs font-semibold text-green-900 uppercase tracking-wide">Viewed</p>
-                  </div>
-                  <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-700">156</p>
-                </div>
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-purple-200">
-                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                    <Star className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600" />
-                    <p className="text-xs font-semibold text-purple-900 uppercase tracking-wide">Reviews</p>
-                  </div>
-                  <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-purple-700">18</p>
-                </div>
-                <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-yellow-200">
-                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                    <Award className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-600" />
-                    <p className="text-xs font-semibold text-yellow-900 uppercase tracking-wide">Rating</p>
-                  </div>
-                  <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-yellow-700">4.2</p>
-                </div>
-              </div>
-
               {/* Contact Info */}
               <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4">
                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-center sm:text-left">
@@ -342,7 +319,7 @@ function UserProfilePage() {
                 </div>
                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-center sm:text-left">
                   <Calendar className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm font-medium text-slate-700">Member since Mar 2023</span>
+                  <span className="text-xs sm:text-sm font-medium text-slate-700">Member since {memberSince}</span>
                 </div>
               </div>
             </div>
@@ -352,80 +329,75 @@ function UserProfilePage() {
 
       {/* Additional Profile Sections */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-            {/* Bio Section */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 lg:p-8">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
-                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900">About Me</h2>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex items-center gap-2 self-start sm:self-auto"
-                  onClick={() => handleEditClick('bio')}
-                >
-                  <Edit3 className="w-4 h-4" />
-                  {isSaving && editMode === 'bio' ? 'Saving...' : 'Edit Bio'}
-                </Button>
-              </div>
-                <div className="prose prose-slate max-w-none text-left">
-                <p className="text-slate-700 leading-relaxed whitespace-pre-line">{bio}</p>
-              </div>
+        <div className="space-y-6 sm:space-y-8">
+          {/* Bio Section */}
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 lg:p-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">About Me</h2>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-2 self-start sm:self-auto"
+                onClick={() => handleEditClick('bio')}
+              >
+                <Edit3 className="w-4 h-4" />
+                {isSaving && editMode === 'bio' ? 'Saving...' : 'Edit Bio'}
+              </Button>
             </div>
+            <div className="prose prose-slate max-w-none text-left">
+              <p className="text-slate-700 leading-relaxed whitespace-pre-line">{bio}</p>
+            </div>
+          </div>
 
-            {/* Preferences Section */}
-              <div className="bg-white rounded-3xl shadow-xl p-8 mt-8">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-                  <h2 className="text-2xl font-bold text-slate-900">Property Preferences</h2>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex items-center gap-2 self-start sm:self-auto"
-                  onClick={() => handleEditClick('preferences')}
-                >
-                  <Edit3 className="w-4 h-4" />
-                  {isSaving && editMode === 'preferences' ? 'Saving...' : 'Edit Preferences'}
-                </Button>
-              </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
-                    <Home className="w-5 h-5 text-blue-600" />
-                    <div>
-                      <p className="font-semibold text-blue-900">Property Type</p>
-                      <p className="text-sm text-blue-700">{propertyType || 'Not set'}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-200">
-                    <MapPin className="w-5 h-5 text-green-600" />
-                    <div>
-                      <p className="font-semibold text-green-900">Preferred Location</p>
-                      <p className="text-sm text-green-700">{preferredLocation || 'Not set'}</p>
-                    </div>
+          {/* Preferences Section */}
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-6 lg:p-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Property Preferences</h2>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-2 self-start sm:self-auto"
+                onClick={() => handleEditClick('preferences')}
+              >
+                <Edit3 className="w-4 h-4" />
+                {isSaving && editMode === 'preferences' ? 'Saving...' : 'Edit Preferences'}
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 text-left">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                  <Home className="w-5 h-5 text-blue-600" />
+                  <div>
+                    <p className="font-semibold text-blue-900">Property Type</p>
+                    <p className="text-sm text-blue-700">{propertyType || 'Not set'}</p>
                   </div>
                 </div>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-xl border border-purple-200">
-                    <Briefcase className="w-5 h-5 text-purple-600" />
-                    <div>
-                      <p className="font-semibold text-purple-900">Budget Range</p>
-                      <p className="text-sm text-purple-700">{budgetRange || 'Not set'}</p>
-                    </div>
+                <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-200">
+                  <MapPin className="w-5 h-5 text-green-600" />
+                  <div>
+                    <p className="font-semibold text-green-900">Preferred Location</p>
+                    <p className="text-sm text-green-700">{preferredLocation || 'Not set'}</p>
                   </div>
-                  <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-xl border border-orange-200">
-                    <Award className="w-5 h-5 text-orange-600" />
-                    <div>
-                      <p className="font-semibold text-orange-900">Investment Goal</p>
-                      <p className="text-sm text-orange-700">{investmentGoal || 'Not set'}</p>
-                    </div>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-xl border border-purple-200">
+                  <Briefcase className="w-5 h-5 text-purple-600" />
+                  <div>
+                    <p className="font-semibold text-purple-900">Budget Range</p>
+                    <p className="text-sm text-purple-700">{budgetRange || 'Not set'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-xl border border-orange-200">
+                  <Award className="w-5 h-5 text-orange-600" />
+                  <div>
+                    <p className="font-semibold text-orange-900">Investment Goal</p>
+                    <p className="text-sm text-orange-700">{investmentGoal || 'Not set'}</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Sidebar (removed sections) */}
-          <div className="space-y-8"></div>
         </div>
       </div>
 

@@ -89,6 +89,19 @@ export default function ListPropertyPage() {
       return
     }
     
+    // Validate image upload (2-4 images required)
+    if (uploadedImages.length < 2) {
+      setSubmitError("Please upload at least 2 images of the property")
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+    
+    if (uploadedImages.length > 4) {
+      setSubmitError("Maximum 4 images allowed")
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+    
     setIsSubmitting(true)
     setSubmitError(null)
     setSubmitSuccess(false)
@@ -307,11 +320,17 @@ export default function ListPropertyPage() {
     if (files) {
       const fileList = Array.from(files)
       
-      // Limit to max 3 images
-      const limitedFiles = fileList.slice(0, 3)
+      // Limit to max 4 images
+      const limitedFiles = fileList.slice(0, 4)
       
-      if (fileList.length > 3) {
-        alert('Maximum 3 images allowed. Only the first 3 images will be uploaded.')
+      if (fileList.length > 4) {
+        alert('Maximum 4 images allowed. Only the first 4 images will be uploaded.')
+      }
+      
+      // Require at least 2 images
+      if (limitedFiles.length < 2) {
+        alert('Please upload at least 2 images of the property.')
+        return
       }
       
       setUploadedImages(limitedFiles)
@@ -965,7 +984,7 @@ export default function ListPropertyPage() {
               {/* Property Images Section */}
               <div className="space-y-4">
                 <h2 className="text-xl font-bold text-slate-900">Property Images</h2>
-                <p className="text-sm text-slate-600">Upload high-quality images of your property (max 3 images)</p>
+                <p className="text-sm text-slate-600">Upload high-quality images of your property (2-4 images required) *</p>
                 
                 <div>
                   <input
