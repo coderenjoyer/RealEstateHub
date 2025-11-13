@@ -41,12 +41,13 @@ export function PropertyGrid({ activeTab, onContactAgent }: PropertyGridProps) {
     try {
       setLoading(true)
 
-      // Fetch all available properties from agents
+      // Fetch all available properties from listed_properties table
       const { data, error } = await supabase
-        .from('properties')
+        .from('listed_properties')
         .select('*')
         .eq('is_deleted', false)
         .eq('property_status', 'available')
+        .eq('is_public', true)
         .order('created_at', { ascending: false })
 
       if (error) {

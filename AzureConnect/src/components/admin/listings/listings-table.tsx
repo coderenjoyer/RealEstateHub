@@ -19,11 +19,12 @@ interface Listing {
   user_id: string
   full_name: string
   email: string
-  created_at: string
-  property_status: "pending" | "available" | "rejected" | "sold" | "rented"
+  submitted_at: string
+  approval_status: "pending" | "approved" | "rejected"
   media?: Array<{ public_url: string }>
   description?: string
   phone_number?: string
+  rejection_reason?: string
 }
 
 export function PendingListingsTable() {
@@ -46,10 +47,9 @@ export function PendingListingsTable() {
     try {
       setLoading(true)
       const { data, error } = await supabase
-        .from('properties')
+        .from('listing_approvals')
         .select('*')
-        .eq('is_deleted', false)
-        .order('created_at', { ascending: false })
+        .order('submitted_at', { ascending: false })
       
       if (error) throw error
       setListings(data || [])
@@ -69,9 +69,9 @@ export function PendingListingsTable() {
     
     const matchesFilter = 
       filter === "All" ||
-      (filter === "Pending" && listing.property_status === "pending") ||
-      (filter === "Approved" && listing.property_status === "available") ||
-      (filter === "Rejected" && listing.property_status === "rejected")
+      (filter === "Pending" && listing.approval_status === "pending") ||
+      (filter === "Approved" && listing.approval_status === "approved") ||
+      (filter === "Rejected" && listing.approval_status === "rejected")
     
     return matchesSearch && matchesFilter
   })
@@ -82,51 +82,76 @@ export function PendingListingsTable() {
 
   const handleApprove = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('properties')
-        .update({ property_status: 'available' })
-        .eq('id', id)
+      console.log('Attempting to approve listing:', id)
       
-      if (error) throw error
+      // Call the approve_listing function
+      const { data, error } = await supabase
+        .rpc('approve_listing', { approval_record_id: parseInt(id) })
       
-      // Update local state
-      setListings(prev => prev.map(l => l.id === id ? { ...l, property_status: 'available' as const } : l))
+      console.log('Approval response:', { data, error })
+      
+      if (error) {
+        console.error('Database error:', error)
+        throw error
+      }
+      
+      console.log('Successfully approved, refetching listings...')
+      // Refetch listings to get updated data from database
+      await fetchListings()
       setSelectedListing(null)
-    } catch (error) {
+      
+      // Show success message
+      alert('Listing approved and moved to listed properties!')
+    } catch (error: any) {
       console.error('Error approving listing:', error)
-      alert('Failed to approve listing')
+      alert(`Failed to approve listing: ${error.message || 'Unknown error'}`)
     }
   }
 
   const handleReject = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('properties')
-        .update({ property_status: 'rejected' })
-        .eq('id', id)
+      console.log('Attempting to reject listing:', id)
       
-      if (error) throw error
+      const reason = prompt('Enter rejection reason (optional):') || null
       
-      // Update local state
-      setListings(prev => prev.map(l => l.id === id ? { ...l, property_status: 'rejected' as const } : l))
+      // Call the reject_listing function
+      const { data, error } = await supabase
+        .rpc('reject_listing', { 
+          approval_record_id: parseInt(id),
+          reason: reason 
+        })
+      
+      console.log('Rejection response:', { data, error })
+      
+      if (error) {
+        console.error('Database error:', error)
+        throw error
+      }
+      
+      console.log('Successfully rejected, refetching listings...')
+      // Refetch listings to get updated data from database
+      await fetchListings()
       setSelectedListing(null)
-    } catch (error) {
+      
+      // Show success message
+      alert('Listing rejected successfully!')
+    } catch (error: any) {
       console.error('Error rejecting listing:', error)
-      alert('Failed to reject listing')
+      alert(`Failed to reject listing: ${error.message || 'Unknown error'}`)
     }
   }
   
   const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('properties')
-        .update({ is_deleted: true })
+        .from('listing_approvals')
+        .delete()
         .eq('id', id)
       
       if (error) throw error
       
-      // Remove from local state
-      setListings(prev => prev.filter(l => l.id !== id))
+      // Refetch listings to get updated data from database
+      await fetchListings()
       setDeleteConfirmId(null)
       setSelectedListing(null)
     } catch (error) {
@@ -135,7 +160,7 @@ export function PendingListingsTable() {
     }
   }
 
-  const pendingCount = listings.filter(l => l.property_status === "pending").length
+  const pendingCount = listings.filter(l => l.approval_status === "pending").length
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-sky-50 p-6">
@@ -261,17 +286,17 @@ export function PendingListingsTable() {
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-1 text-sm text-gray-600">
                         <Calendar className="w-4 h-4" />
-                        {new Date(listing.created_at).toLocaleDateString()}
+                        {new Date(listing.submitted_at).toLocaleDateString()}
                       </div>
                     </td>
                     <td className="py-4 px-6">
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                        listing.property_status === "pending" ? "bg-yellow-100 text-yellow-800" :
-                        listing.property_status === "available" ? "bg-green-100 text-green-800" :
+                        listing.approval_status === "pending" ? "bg-yellow-100 text-yellow-800" :
+                        listing.approval_status === "approved" ? "bg-green-100 text-green-800" :
                         "bg-red-100 text-red-800"
                       }`}>
-                        {listing.property_status === "pending" ? "Pending" :
-                         listing.property_status === "available" ? "Approved" : "Rejected"}
+                        {listing.approval_status === "pending" ? "Pending" :
+                         listing.approval_status === "approved" ? "Approved" : "Rejected"}
                       </span>
                     </td>
                     <td className="py-4 px-6">
@@ -283,7 +308,7 @@ export function PendingListingsTable() {
                         >
                           <Eye className="w-4 h-4" />
                         </button>
-                        {listing.property_status === "pending" && (
+                        {listing.approval_status === "pending" && (
                           <>
                             <button
                               onClick={() => handleApprove(listing.id)}
@@ -301,7 +326,7 @@ export function PendingListingsTable() {
                             </button>
                           </>
                         )}
-                        {listing.property_status === "rejected" && (
+                        {listing.approval_status === "rejected" && (
                           <button
                             onClick={() => setDeleteConfirmId(listing.id)}
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -445,11 +470,14 @@ export function PendingListingsTable() {
                     {selectedListing.phone_number && (
                       <p className="text-gray-900"><span className="font-semibold">Phone:</span> {selectedListing.phone_number}</p>
                     )}
-                    <p className="text-gray-900"><span className="font-semibold">Submitted:</span> {new Date(selectedListing.created_at).toLocaleDateString()}</p>
+                    <p className="text-gray-900"><span className="font-semibold">Submitted:</span> {new Date(selectedListing.submitted_at).toLocaleDateString()}</p>
+                    {selectedListing.rejection_reason && (
+                      <p className="text-red-600 mt-2"><span className="font-semibold">Rejection Reason:</span> {selectedListing.rejection_reason}</p>
+                    )}
                   </div>
                 </div>
 
-                {selectedListing.property_status === "pending" && (
+                {selectedListing.approval_status === "pending" && (
                   <div className="flex gap-3 pt-4">
                     <button
                       onClick={() => handleApprove(selectedListing.id)}

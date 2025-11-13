@@ -123,13 +123,12 @@ export default function ListPropertyPage() {
       // Upload images first
       const mediaData = await uploadPropertyImages()
       
-      // Prepare property data for database insertion
+      // Prepare property data for database insertion into listing_approvals
       const propertyData = {
         user_id: currentSession.user.id,
         property_title: formData.propertyTitle,
         property_type: formData.propertyType,
         listing_type: formData.listingType,
-        property_status: formData.propertyStatus,
         price: parseFloat(formData.price.replace(/[^0-9.-]+/g, "")) || 0,
         bedrooms: parseInt(formData.bedrooms) || 0,
         bathrooms: parseInt(formData.bathrooms) || 0,
@@ -154,13 +153,12 @@ export default function ListPropertyPage() {
         utilities: formData.utilities,
         nearby_places: formData.nearby,
         media: mediaData,
-        is_public: true,
-        is_deleted: false
+        approval_status: 'pending'
       }
       
-      // Insert property into database
+      // Insert property into listing_approvals table
       const { data, error } = await supabase
-        .from('properties')
+        .from('listing_approvals')
         .insert(propertyData)
       
       if (error) {
