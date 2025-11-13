@@ -35,7 +35,7 @@ export default function ListPropertyPage() {
     email: "",
     phoneNumber: "",
     availableFrom: "",
-    propertyStatus: "available",
+    propertyStatus: "pending",
     furnished: "",
     petPolicy: "",
     utilities: [] as string[],
@@ -173,6 +173,11 @@ export default function ListPropertyPage() {
       // Scroll to top of page
       window.scrollTo({ top: 0, behavior: 'smooth' })
       
+      // Auto-hide success message after 5 seconds
+      setTimeout(() => {
+        setSubmitSuccess(false)
+      }, 5000)
+      
       // Reset form
       setFormData({
         propertyTitle: "",
@@ -197,7 +202,7 @@ export default function ListPropertyPage() {
         email: "",
         phoneNumber: "",
         availableFrom: "",
-        propertyStatus: "available",
+        propertyStatus: "pending",
         furnished: "",
         petPolicy: "",
         utilities: [],
@@ -425,8 +430,14 @@ export default function ListPropertyPage() {
           </div>
 
           {submitSuccess && (
-            <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-lg">
-              Property listed successfully!
+            <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-lg border border-green-200">
+              <div className="flex items-start gap-3">
+                <Check className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold">Property submitted successfully!</p>
+                  <p className="text-sm mt-1">Your property listing has been submitted for admin approval. You will be notified once it's reviewed.</p>
+                </div>
+              </div>
             </div>
           )}
           
@@ -520,16 +531,10 @@ export default function ListPropertyPage() {
 
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">Property Status</label>
-                    <select
-                      value={formData.propertyStatus}
-                      onChange={(e) => setFormData({ ...formData, propertyStatus: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="available">Available</option>
-                      <option value="pending">Pending</option>
-                      <option value="sold">Sold</option>
-                      <option value="rented">Rented</option>
-                    </select>
+                    <div className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-600">
+                      Pending Admin Approval
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">All new listings require admin approval before being published</p>
                   </div>
                 </div>
               </div>

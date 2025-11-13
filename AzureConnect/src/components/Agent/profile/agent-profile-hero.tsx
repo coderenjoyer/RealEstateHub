@@ -1,4 +1,4 @@
-import { MapPin, Star, Phone, Mail, Calendar, Award, TrendingUp, User, Image, X, Upload, Camera, Pencil } from "lucide-react"
+import { MapPin, Phone, Mail, Calendar, User, Image, X, Upload, Camera, Pencil } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import supabase from "../../../supabaseClient"
 import { useAuth } from "../../../AuthContext"
