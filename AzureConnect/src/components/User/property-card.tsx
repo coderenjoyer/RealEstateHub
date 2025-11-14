@@ -16,7 +16,7 @@ interface PropertyCardProps {
     propertyType?: string;
   };
   onClick?: () => void;
-  onBookmark?: (propertyId: number, isBookmarked: boolean) => void;
+  onBookmark?: (propertyId: number) => void;
   isBookmarked?: boolean;
 }
 
@@ -44,7 +44,7 @@ export function PropertyCard({
 
   const handleBookmarkClick = (event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent card click when clicking on bookmark
-    onBookmark?.(property.id, !isBookmarked);
+    onBookmark?.(property.id);
   };
 
   return (

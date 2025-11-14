@@ -37,9 +37,9 @@ export function StatsCards() {
         return
       }
 
-      // Fetch agent's total properties
+      // Fetch agent's total properties from listed_properties
       const { count: propertiesCount, error: propertiesError } = await supabase
-        .from('properties')
+        .from('listed_properties')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', session.user.id)
         .eq('is_deleted', false)

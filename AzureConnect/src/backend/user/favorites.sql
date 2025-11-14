@@ -1,10 +1,13 @@
 -- Create favorites table for user bookmarked properties
 -- Run this SQL in your Supabase SQL Editor
 
+-- Drop existing table and policies if they exist
+DROP TABLE IF EXISTS favorites CASCADE;
+
 CREATE TABLE IF NOT EXISTS favorites (
     id BIGSERIAL PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    property_id BIGINT NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    property_id BIGINT NOT NULL REFERENCES listed_properties(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     
     -- Ensure a user can only bookmark a property once

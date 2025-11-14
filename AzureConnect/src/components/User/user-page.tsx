@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { PropertyFilters } from "@/components/User/property-filters";
+import { PropertyFilters, FilterState } from "@/components/User/property-filters";
 import { PropertyGrid } from "@/components/User/property-grid";
 import { TopNav } from "@/components/User/top-nav";
 
@@ -13,6 +13,17 @@ export default function HomePage() {
   const [selectedChatId, setSelectedChatId] = useState<number | undefined>(
     undefined
   );
+  const [filters, setFilters] = useState<FilterState>({
+    selectedTypes: [],
+    selectedAmenities: [],
+    priceRange: [0, 999999999], // Wide range to show all properties initially
+    listingType: null, // Don't filter by type initially
+  });
+
+  const handleFilterChange = (newFilters: FilterState) => {
+    console.log('Filter changed:', newFilters); // Debug log
+    setFilters(newFilters);
+  };
 
   const handleContactAgent = (agentId: number, agentName: string) => {
     // Map agent names to chat IDs for demonstration
@@ -42,6 +53,7 @@ export default function HomePage() {
         onClose={() => setIsSidebarOpen(false)}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        onFilterChange={handleFilterChange}
       />
 
       {/* Main Content Area */}
@@ -62,6 +74,7 @@ export default function HomePage() {
         <div className="flex-1 px-4 lg:px-8 pb-8 overflow-hidden">
           <PropertyGrid
             activeTab={activeTab}
+            filters={filters}
             onContactAgent={handleContactAgent}
           />
         </div>

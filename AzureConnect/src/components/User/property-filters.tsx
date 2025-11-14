@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   DollarSign,
   Home,
@@ -13,12 +13,21 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { Slider } from "@mui/material";
+import supabase from "@/supabaseClient";
+
+export interface FilterState {
+  selectedTypes: string[];
+  selectedAmenities: string[];
+  priceRange: number[];
+  listingType: 'rent' | 'sale' | null;
+}
 
 interface PropertyFiltersProps {
   isOpen: boolean;
   onClose: () => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  onFilterChange: (filters: FilterState) => void;
 }
 
 export function PropertyFilters({
@@ -26,6 +35,7 @@ export function PropertyFilters({
   onClose,
   activeTab,
   setActiveTab,
+  onFilterChange,
 }: PropertyFiltersProps) {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
@@ -33,22 +43,83 @@ export function PropertyFilters({
   const [maxPriceInput, setMaxPriceInput] = useState("");
   const [priceRange, setPriceRange] = useState<number[]>([15000, 55000]);
   const [showSlider, setShowSlider] = useState(false);
-  const propertyTypes = [
-    "Apartment",
-    "Condominium",
-    "Single Family Home",
-    "Bungalow",
-    "Villa",
-  ];
-  const amenities = ["Garage", "Pool", "Spa", "Gym", "Garden", "Lounge"];
+  const [propertyTypes, setPropertyTypes] = useState<string[]>([]);
+  const [amenities, setAmenities] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch unique property types and amenities from database
+  useEffect(() => {
+    fetchFilterOptions();
+  }, []);
+
+  // Update filters whenever any filter state changes
+  useEffect(() => {
+    const listingType = activeTab === 'Buy' ? 'sale' : activeTab === 'Rent' ? 'rent' : null;
+    onFilterChange({
+      selectedTypes,
+      selectedAmenities,
+      priceRange,
+      listingType,
+    });
+  }, [selectedTypes, selectedAmenities, priceRange, activeTab]);
+
+  const fetchFilterOptions = async () => {
+    try {
+      setLoading(true);
+
+      // Fetch all properties to extract unique types and features
+      const { data, error } = await supabase
+        .from('listed_properties')
+        .select('property_type, features')
+        .eq('is_deleted', false)
+        .eq('is_public', true);
+
+      if (error) {
+        console.error('Error fetching filter options:', error);
+        return;
+      }
+
+      // Extract unique property types
+      const types = new Set<string>();
+      const allFeatures = new Set<string>();
+
+      data?.forEach((property) => {
+        if (property.property_type) {
+          types.add(property.property_type);
+        }
+        // Extract features from JSONB array
+        if (property.features && Array.isArray(property.features)) {
+          property.features.forEach((feature: string) => {
+            allFeatures.add(feature);
+          });
+        }
+      });
+
+      setPropertyTypes(Array.from(types).sort());
+      setAmenities(Array.from(allFeatures).sort());
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleClearAll = () => {
     setSelectedTypes([]);
     setSelectedAmenities([]);
     setMinPriceInput("");
     setMaxPriceInput("");
-    setPriceRange([15000, 55000]);
+    setPriceRange([0, 999999999]);
     setShowSlider(false);
+    
+    // Notify parent of filter reset
+    const listingType = activeTab === 'Buy' ? 'sale' : activeTab === 'Rent' ? 'rent' : null;
+    onFilterChange({
+      selectedTypes: [],
+      selectedAmenities: [],
+      priceRange: [0, 999999999],
+      listingType,
+    });
   };
 
   const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -252,28 +323,34 @@ export function PropertyFilters({
               <h3 className="font-bold text-gray-800 text-sm">Type of place</h3>
             </div>
             <div className="space-y-1 pl-1">
-              {propertyTypes.map((type) => (
-                <label
-                  key={type}
-                  className="flex items-center cursor-pointer group py-1"
-                >
-                  <input
-                    type="checkbox"
-                    className="w-4.5 h-4.5 rounded border-2 border-gray-300 text-sky-600 focus:ring-2 focus:ring-sky-500 focus:ring-offset-0 cursor-pointer transition-all"
-                    checked={selectedTypes.includes(type)}
-                    onChange={() => {
-                      setSelectedTypes((prev) =>
-                        prev.includes(type)
-                          ? prev.filter((t) => t !== type)
-                          : [...prev, type]
-                      );
-                    }}
-                  />
-                  <span className="ml-3 text-sm text-gray-700 font-medium group-hover:text-gray-900 transition-colors">
-                    {type}
-                  </span>
-                </label>
-              ))}
+              {loading ? (
+                <div className="text-xs text-gray-500 py-2">Loading types...</div>
+              ) : propertyTypes.length === 0 ? (
+                <div className="text-xs text-gray-500 py-2">No property types available</div>
+              ) : (
+                propertyTypes.map((type) => (
+                  <label
+                    key={type}
+                    className="flex items-center cursor-pointer group py-1"
+                  >
+                    <input
+                      type="checkbox"
+                      className="w-4.5 h-4.5 rounded border-2 border-gray-300 text-sky-600 focus:ring-2 focus:ring-sky-500 focus:ring-offset-0 cursor-pointer transition-all"
+                      checked={selectedTypes.includes(type)}
+                      onChange={() => {
+                        setSelectedTypes((prev) =>
+                          prev.includes(type)
+                            ? prev.filter((t) => t !== type)
+                            : [...prev, type]
+                        );
+                      }}
+                    />
+                    <span className="ml-3 text-sm text-gray-700 font-medium group-hover:text-gray-900 transition-colors">
+                      {type}
+                    </span>
+                  </label>
+                ))
+              )}
             </div>
           </div>
 
@@ -287,25 +364,31 @@ export function PropertyFilters({
               <h3 className="font-bold text-gray-800 text-sm">Amenities</h3>
             </div>
             <div className="flex flex-wrap gap-2">
-              {amenities.map((amenity, idx) => (
-                <button
-                  key={`${amenity}-${idx}`}
-                  onClick={() => {
-                    setSelectedAmenities((prev) =>
-                      prev.includes(amenity)
-                        ? prev.filter((a) => a !== amenity)
-                        : [...prev, amenity]
-                    );
-                  }}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-full border-2 transition-all duration-200 ${
-                    selectedAmenities.includes(amenity)
-                      ? "bg-sky-500 border-sky-500 text-white shadow-md"
-                      : "bg-white border-gray-200 text-gray-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700"
-                  }`}
-                >
-                  {amenity}
-                </button>
-              ))}
+              {loading ? (
+                <div className="text-xs text-gray-500 py-2">Loading amenities...</div>
+              ) : amenities.length === 0 ? (
+                <div className="text-xs text-gray-500 py-2">No amenities available</div>
+              ) : (
+                amenities.map((amenity, idx) => (
+                  <button
+                    key={`${amenity}-${idx}`}
+                    onClick={() => {
+                      setSelectedAmenities((prev) =>
+                        prev.includes(amenity)
+                          ? prev.filter((a) => a !== amenity)
+                          : [...prev, amenity]
+                      );
+                    }}
+                    className={`px-3 py-1.5 text-sm font-medium rounded-full border-2 transition-all duration-200 ${
+                      selectedAmenities.includes(amenity)
+                        ? "bg-sky-500 border-sky-500 text-white shadow-md"
+                        : "bg-white border-gray-200 text-gray-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700"
+                    }`}
+                  >
+                    {amenity}
+                  </button>
+                ))
+              )}
             </div>
           </div>
         </div>

@@ -6,6 +6,7 @@ import { PropertyDetailsPanel } from "@/components/User/propertry-details";
 import { useBookmark } from "@/contexts/BookmarkContext";
 import { Heart, Home } from "lucide-react";
 import supabase from "@/supabaseClient";
+import { FilterState } from "@/components/User/property-filters";
 
 interface Property {
   id: number
@@ -18,16 +19,18 @@ interface Property {
   square_feet: number | null
   property_type: string
   listing_type: string
+  features?: string[]
   media?: any
   user_id: string
 }
 
 interface PropertyGridProps {
   activeTab: string;
+  filters?: FilterState;
   onContactAgent?: (agentId: number, agentName: string) => void;
 }
 
-export function PropertyGrid({ activeTab, onContactAgent }: PropertyGridProps) {
+export function PropertyGrid({ activeTab, filters, onContactAgent }: PropertyGridProps) {
   const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null)
@@ -35,27 +38,65 @@ export function PropertyGrid({ activeTab, onContactAgent }: PropertyGridProps) {
 
   useEffect(() => {
     fetchProperties()
-  }, [])
+  }, [filters])
 
   const fetchProperties = async () => {
     try {
       setLoading(true)
 
-      // Fetch all available properties from listed_properties table
-      const { data, error } = await supabase
+      console.log('Fetching properties with filters:', filters) // Debug log
+
+      // Build query
+      let query = supabase
         .from('listed_properties')
         .select('*')
         .eq('is_deleted', false)
         .eq('property_status', 'available')
         .eq('is_public', true)
-        .order('created_at', { ascending: false })
+
+      // Apply listing type filter (Buy/Rent) - only if not in Favorites tab
+      if (filters?.listingType && activeTab !== 'Favorites') {
+        query = query.eq('listing_type', filters.listingType)
+      }
+
+      // Apply property type filter - only if types are selected
+      if (filters?.selectedTypes && filters.selectedTypes.length > 0) {
+        query = query.in('property_type', filters.selectedTypes)
+      }
+
+      // Apply price range filter - only if different from default
+      if (filters?.priceRange && 
+          (filters.priceRange[0] !== 15000 || filters.priceRange[1] !== 55000)) {
+        query = query
+          .gte('price', filters.priceRange[0])
+          .lte('price', filters.priceRange[1])
+      }
+
+      query = query.order('created_at', { ascending: false })
+
+      const { data, error } = await query
 
       if (error) {
         console.error('Error fetching properties:', error)
         return
       }
 
-      setProperties(data || [])
+      console.log('Fetched properties:', data?.length || 0) // Debug log
+
+      // Apply amenities filter (client-side since it's JSONB array)
+      let filteredData = data || []
+      if (filters?.selectedAmenities && filters.selectedAmenities.length > 0) {
+        filteredData = filteredData.filter((property) => {
+          if (!property.features || !Array.isArray(property.features)) return false
+          // Check if property has ALL selected amenities
+          return filters.selectedAmenities.every((amenity) =>
+            property.features.includes(amenity)
+          )
+        })
+      }
+
+      console.log('After amenities filter:', filteredData.length) // Debug log
+      setProperties(filteredData)
     } catch (error) {
       console.error('Error:', error)
     } finally {
