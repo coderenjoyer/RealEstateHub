@@ -21,17 +21,6 @@ export function WhyChooseSection() {
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
 
-  // Auto-slide functionality
-  useEffect(() => {
-    if (isHovered) return // Pause when hovered
-    
-    const interval = setInterval(() => {
-      nextImage()
-    }, 4000) // Change image every 4 seconds
-
-    return () => clearInterval(interval)
-  }, [isHovered])
-
   const nextImage = () => {
     if (isTransitioning) return
     
@@ -45,6 +34,17 @@ export function WhyChooseSection() {
       }, 100)
     }, 300)
   }
+
+  // Auto-slide functionality
+  useEffect(() => {
+    if (isHovered) return // Pause when hovered
+    
+    const interval = setInterval(() => {
+      nextImage()
+    }, 4000) // Change image every 4 seconds
+
+    return () => clearInterval(interval)
+  }, [isHovered, isTransitioning])
 
   return (
     <section id="about" className="py-20 bg-accent/30 scroll-mt-24">
