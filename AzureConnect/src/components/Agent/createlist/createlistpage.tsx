@@ -70,13 +70,26 @@ export default function ListPropertyPage() {
   
   useEffect(() => {
     // Check if user has agent role
+    console.log('=== Role Verification Debug ===')
+    console.log('User ID:', userId)
+    console.log('User Role:', userRole)
+    console.log('Full User Metadata:', session?.user?.user_metadata)
+    console.log('Is Agent?:', userRole === 'agent')
+    console.log('===============================')
+    
     if (userRole) {
       setIsAgent(userRole === 'agent')
     }
-  }, [userRole])
+  }, [userRole, session])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    
+    console.log('=== Submit Handler Debug ===')
+    console.log('User ID:', userId)
+    console.log('User Role:', userRole)
+    console.log('Is Agent Check:', userRole === 'agent')
+    console.log('===========================')
     
     if (!userId) {
       setSubmitError("You must be logged in to list a property")
@@ -85,6 +98,7 @@ export default function ListPropertyPage() {
     
     // Check if user has agent role
     if (userRole !== 'agent') {
+      console.error('Role check failed. Current role:', userRole)
       setSubmitError("Only users with agent role can list properties")
       return
     }
