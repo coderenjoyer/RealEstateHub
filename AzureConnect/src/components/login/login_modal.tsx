@@ -579,6 +579,11 @@ const LoginModal: React.FC = () => {
                   type="email"
                   value={signinEmail}
                   onChange={(e) => setSigninEmail(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && signinEmail && signinPassword) {
+                      handleSignin();
+                    }
+                  }}
                 />
               </div>
               <div className="relative">
@@ -589,6 +594,11 @@ const LoginModal: React.FC = () => {
                   type={showPassword ? "text" : "password"}
                   value={signinPassword}
                   onChange={(e) => setSigninPassword(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && signinEmail && signinPassword) {
+                      handleSignin();
+                    }
+                  }}
                 />
                 <button
                   type="button"

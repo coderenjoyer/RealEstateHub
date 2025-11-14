@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, ChevronRight, X, Home, MapPin, Bed, Bath } from "lucide-react"
+import { Search, ChevronRight, X, Home, MapPin, Bed, Bath, Trash2 } from "lucide-react"
 import supabase from "@/supabaseClient"
 import { useAuth } from "@/AuthContext"
 
@@ -33,6 +33,7 @@ export function PropertiesTable() {
   const [selectedProperty, setSelectedProperty] = useState<any>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [deactivateConfirmId, setDeactivateConfirmId] = useState<number | null>(null)
   const { session } = useAuth()
 
   useEffect(() => {
@@ -48,8 +49,9 @@ export function PropertiesTable() {
         return
       }
 
+      // Fetch from listed_properties (approved listings)
       const { data, error } = await supabase
-        .from('properties')
+        .from('listed_properties')
         .select('*')
         .eq('user_id', session.user.id)
         .eq('is_deleted', false)
@@ -90,6 +92,34 @@ export function PropertiesTable() {
     setIsModalOpen(false)
     setSelectedProperty(null)
     setSelectedImageIndex(0)
+  }
+
+  const handleDeactivateListing = async (propertyId: number) => {
+    try {
+      const { error } = await supabase
+        .from('listed_properties')
+        .update({ is_deleted: true })
+        .eq('id', propertyId)
+        .eq('user_id', session?.user?.id) // Ensure agent can only deactivate their own listings
+
+      if (error) {
+        console.error('Error deactivating listing:', error)
+        alert('Failed to deactivate listing')
+        return
+      }
+
+      // Refresh the properties list
+      await fetchProperties()
+      setDeactivateConfirmId(null)
+      
+      // Close modal if the deactivated property was open
+      if (selectedProperty?.id === propertyId) {
+        closeModal()
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Failed to deactivate listing')
+    }
   }
 
   return (
@@ -147,18 +177,21 @@ export function PropertiesTable() {
               <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">
                 Description
               </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center">
+                <td colSpan={7} className="px-6 py-12 text-center">
                   <p className="text-slate-500">Loading properties...</p>
                 </td>
               </tr>
             ) : filteredProperties.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center">
+                <td colSpan={7} className="px-6 py-12 text-center">
                   <p className="text-slate-500">No properties found</p>
                 </td>
               </tr>
@@ -198,6 +231,16 @@ export function PropertiesTable() {
                     >
                       Review
                       <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </td>
+                  <td className="px-6 py-4 text-sm">
+                    <button 
+                      onClick={() => setDeactivateConfirmId(property.id)}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 font-medium hover:bg-red-100 transition-colors"
+                      title="Deactivate Listing"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Deactivate
                     </button>
                   </td>
                 </tr>
@@ -368,6 +411,37 @@ export function PropertiesTable() {
         </div>
         )
       })()}
+
+      {/* Deactivate Confirmation Modal */}
+      {deactivateConfirmId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setDeactivateConfirmId(null)}>
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6">
+              <div className="flex items-center gap-3 text-red-600 mb-4">
+                <Trash2 className="w-6 h-6" />
+                <h3 className="text-xl font-bold text-gray-900">Deactivate Listing</h3>
+              </div>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to deactivate this listing? It will be removed from public view and your listings table. You can contact an admin to reactivate it later.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeactivateConfirmId(null)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleDeactivateListing(deactivateConfirmId)}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Deactivate
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
