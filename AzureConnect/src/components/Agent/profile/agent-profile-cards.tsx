@@ -86,9 +86,9 @@ export function AgentProfileCards() {
         return
       }
 
-      // Fetch active listings count
+      // Fetch active listings count from listed_properties (approved properties)
       const { count, error } = await supabase
-        .from('properties')
+        .from('listed_properties')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', session.user.id)
         .eq('is_deleted', false)
@@ -114,9 +114,9 @@ export function AgentProfileCards() {
         return
       }
 
-      // Fetch recent properties (last 3)
+      // Fetch recent properties from listed_properties (approved properties) - last 3
       const { data, error } = await supabase
-        .from('properties')
+        .from('listed_properties')
         .select('id, property_title, street_address, city, price, property_status, created_at, media')
         .eq('user_id', session.user.id)
         .eq('is_deleted', false)
@@ -143,9 +143,9 @@ export function AgentProfileCards() {
         return
       }
 
-      // Fetch 4 most recent listed properties
+      // Fetch 4 most recent properties from listed_properties (approved properties)
       const { data, error } = await supabase
-        .from('properties')
+        .from('listed_properties')
         .select('id, property_title, street_address, city, price, property_type, listing_type, media')
         .eq('user_id', session.user.id)
         .eq('is_deleted', false)
