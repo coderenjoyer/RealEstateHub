@@ -1,4 +1,4 @@
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -6,8 +6,9 @@ import type { Conversation } from "@/components/Agent/communication/types";
 
 interface MessagesSidebarProps {
   conversations: Conversation[];
-  selectedConversation: Conversation;
+  selectedConversation?: Conversation;
   onSelectConversation: (conversation: Conversation) => void;
+  onDeleteConversation?: (conversationId: string) => void;
   isMobileView: boolean;
   showChatView: boolean;
   searchQuery: string;
@@ -18,6 +19,7 @@ export function MessagesSidebar({
   conversations,
   selectedConversation,
   onSelectConversation,
+  onDeleteConversation,
   isMobileView,
   showChatView,
   searchQuery,
@@ -71,37 +73,60 @@ export function MessagesSidebar({
 
       {/* Conversations List */}
       <div className="flex-1 overflow-y-auto">
-        {filteredConversations.map((conversation) => (
-          <button
-            key={conversation.id}
-            onClick={() => onSelectConversation(conversation)}
-            className={`w-full p-4 flex items-center gap-3 hover:bg-sky-100/50 transition-colors border-b border-sky-100/50 ${
-              selectedConversation.id === conversation.id
-                ? "bg-gradient-to-r from-sky-100 to-blue-100 border-l-4 border-l-sky-500"
-                : ""
-            }`}
-          >
-          <div className="flex-1 text-left min-w-0">
-            <div className="flex items-center justify-between mb-1">
-              <p className="font-semibold text-gray-800 truncate">
-                {conversation.name}
-              </p>
-              <span className="text-xs text-sky-600 font-medium">
-                {conversation.time}
-              </span>
+        {filteredConversations.length > 0 ? (
+          filteredConversations.map((conversation) => (
+            <div key={conversation.id} className="relative group">
+              <button
+                onClick={() => onSelectConversation(conversation)}
+                className={`w-full p-4 flex items-center gap-3 hover:bg-sky-100/50 transition-colors border-b border-sky-100/50 ${
+                  selectedConversation && selectedConversation.id === conversation.id
+                    ? "bg-gradient-to-r from-sky-100 to-blue-100 border-l-4 border-l-sky-500"
+                    : ""
+                }`}
+              >
+                <div className="flex-1 text-left min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="font-semibold text-gray-800 truncate">
+                      {conversation.name}
+                    </p>
+                    <span className="text-xs text-sky-600 font-medium">
+                      {conversation.time}
+                    </span>
+                  </div>
+                  <p
+                    className={`text-sm truncate ${
+                      conversation.unread
+                        ? "text-gray-800 font-medium"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    {conversation.lastMessage}
+                  </p>
+                </div>
+              </button>
+
+              {/* Delete Button - shows on hover */}
+              {onDeleteConversation && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (confirm(`Are you sure you want to delete the conversation with ${conversation.name}? This action cannot be undone.`)) {
+                      onDeleteConversation(conversation.id);
+                    }
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 hover:bg-rose-100 rounded-full transition-all bg-white shadow-md border border-rose-200 opacity-0 group-hover:opacity-100"
+                  title="Delete conversation"
+                >
+                  <Trash2 className="h-4 w-4 text-rose-500" />
+                </button>
+              )}
             </div>
-            <p
-              className={`text-sm truncate ${
-                conversation.unread
-                  ? "text-gray-800 font-medium"
-                  : "text-gray-500"
-              }`}
-            >
-              {conversation.lastMessage}
-            </p>
+          ))
+        ) : (
+          <div className="p-4 text-center text-gray-500">
+            <p>No conversations found</p>
           </div>
-          </button>
-        ))}
+        )}
       </div>
     </div>
   );

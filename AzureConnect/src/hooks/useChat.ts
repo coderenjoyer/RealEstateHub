@@ -232,6 +232,17 @@ export function useChat() {
     }
   }, [session?.user?.id]);
 
+  // Remove a conversation from local state immediately
+  const removeConversationFromState = useCallback((conversationId: number) => {
+    setConversations((prev) => prev.filter((conv) => conv.id !== conversationId));
+    // Also remove associated messages
+    setMessages((prev) => {
+      const newMessages = { ...prev };
+      delete newMessages[conversationId];
+      return newMessages;
+    });
+  }, []);
+
   // Subscribe to real-time updates for a conversation
   const subscribeToConversation = useCallback((conversationId: number) => {
     if (!session?.user?.id) return;
@@ -317,6 +328,7 @@ export function useChat() {
     getOrCreateConversation,
     sendMessage,
     deleteMessage,
+    removeConversationFromState,
     subscribeToConversation,
   };
 }

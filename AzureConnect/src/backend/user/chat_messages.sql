@@ -108,6 +108,15 @@ CREATE POLICY "Users can update own conversations"
         auth.uid() = participant_2_id
     );
 
+-- Users can delete conversations they're part of
+CREATE POLICY "Users can delete own conversations"
+    ON conversations FOR DELETE
+    TO authenticated
+    USING (
+        auth.uid() = participant_1_id OR 
+        auth.uid() = participant_2_id
+    );
+
 -- 8. RLS Policies for messages
 -- Users can view messages in their conversations
 CREATE POLICY "Users can view own messages"

@@ -134,10 +134,10 @@ export function ChatWindow({
                 <p className="text-sm leading-relaxed">{message.text}</p>
               </div>
 
-              {/* Delete Button - shows on hover */}
-              {hoveredMessage === message.id && (
+              {/* Delete Button - shows on hover for user's own messages */}
+              {hoveredMessage === message.id && message.sender === "user" && (
                 <button
-                  className="p-1.5 hover:bg-rose-100 rounded-full transition-all bg-white shadow-md border border-rose-200 opacity-0 group-hover:opacity-100"
+                  className="p-1.5 hover:bg-rose-100 rounded-full transition-all bg-white shadow-md border border-rose-200"
                   onClick={() => onDeleteMessage(message.id)}
                   title="Delete message"
                 >

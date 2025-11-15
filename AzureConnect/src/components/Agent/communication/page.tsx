@@ -6,6 +6,7 @@ import { MessagesSidebar } from "./MessagesSidebar";
 import { ChatWindow } from "./ChatWindow";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/AuthContext";
+import supabase from "@/supabaseClient";
 import type { Conversation, Message } from "./types";
 
 export default function ChatPage() {
@@ -14,9 +15,11 @@ export default function ChatPage() {
     conversations: dbConversations,
     messages: dbMessages,
     loading,
+    fetchConversations,
     fetchMessages,
     sendMessage,
     deleteMessage,
+    removeConversationFromState,
     subscribeToConversation,
   } = useChat();
 
@@ -42,7 +45,9 @@ export default function ChatPage() {
   }));
 
   // Get current conversation data
-  const selectedConversation = conversations.find((c) => c.id === selectedConversationId?.toString());
+  const selectedConversation = selectedConversationId 
+    ? conversations.find((c) => c.id === selectedConversationId?.toString())
+    : null;
   const currentDbMessages = selectedConversationId ? dbMessages[selectedConversationId] || [] : [];
 
   // Convert database messages to component format
@@ -127,6 +132,48 @@ export default function ChatPage() {
     setShowChatView(false);
   };
 
+  const handleDeleteConversation = async (conversationId: string) => {
+    try {
+      const convId = parseInt(conversationId);
+      
+      // Remove from local state immediately
+      removeConversationFromState(convId);
+      
+      // Reset selected conversation immediately if it was the deleted one
+      if (selectedConversationId === convId) {
+        setSelectedConversationId(null);
+      }
+      
+      // Delete all messages in this conversation first
+      const { error: messagesError } = await supabase
+        .from('messages')
+        .delete()
+        .eq('conversation_id', convId);
+      
+      if (messagesError) {
+        console.error('Error deleting messages:', messagesError);
+        throw messagesError;
+      }
+      
+      // Then delete the conversation
+      const { error: conversationError } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', convId);
+      
+      if (conversationError) {
+        console.error('Error deleting conversation:', conversationError);
+        throw conversationError;
+      }
+      
+      console.log('Conversation deleted successfully:', convId);
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      // Re-fetch to ensure UI is in sync with database
+      fetchConversations();
+    }
+  };
+
   // Fetch messages and subscribe when conversation is selected
   useEffect(() => {
     if (selectedConversationId) {
@@ -136,12 +183,31 @@ export default function ChatPage() {
     }
   }, [selectedConversationId, fetchMessages, subscribeToConversation]);
 
-  // Auto-select first conversation if available
+  // Handle case when selected conversation is deleted
   useEffect(() => {
-    if (conversations.length > 0 && !selectedConversationId) {
+    if (selectedConversationId && !selectedConversation && conversations.length > 0) {
+      // If we had a selected conversation but it's no longer in the list, select the first one
       setSelectedConversationId(parseInt(conversations[0].id));
+    } else if (selectedConversationId && !selectedConversation && conversations.length === 0) {
+      // If we had a selected conversation but all conversations are gone, clear selection
+      setSelectedConversationId(null);
+    }
+  }, [selectedConversationId, selectedConversation, conversations]);
+
+  // Handle case when all conversations are deleted
+  useEffect(() => {
+    if (conversations.length === 0 && selectedConversationId) {
+      setSelectedConversationId(null);
     }
   }, [conversations.length, selectedConversationId]);
+
+  // Handle case when conversations list changes
+  useEffect(() => {
+    // If we have a selected conversation but it's no longer in the list, clear the selection
+    if (selectedConversationId && !conversations.some(c => c.id === selectedConversationId.toString())) {
+      setSelectedConversationId(null);
+    }
+  }, [conversations, selectedConversationId]);
 
   // Show loading state
   if (loading && conversations.length === 0) {
@@ -177,8 +243,9 @@ export default function ChatPage() {
       <div className="flex h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50">
         <MessagesSidebar
           conversations={conversations}
-          selectedConversation={selectedConversation || conversations[0]}
+          selectedConversation={selectedConversation || undefined}
           onSelectConversation={handleSelectConversation}
+          onDeleteConversation={handleDeleteConversation}
           isMobileView={isMobileView}
           showChatView={showChatView}
           searchQuery={searchQuery}

@@ -93,6 +93,7 @@ ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can view own conversations" ON conversations;
 DROP POLICY IF EXISTS "Users can create conversations" ON conversations;
 DROP POLICY IF EXISTS "Users can update own conversations" ON conversations;
+DROP POLICY IF EXISTS "Users can delete own conversations" ON conversations;
 DROP POLICY IF EXISTS "Users can view own messages" ON messages;
 DROP POLICY IF EXISTS "Users can send messages" ON messages;
 DROP POLICY IF EXISTS "Users can update own messages" ON messages;
@@ -119,6 +120,14 @@ CREATE POLICY "Users can create conversations"
 
 CREATE POLICY "Users can update own conversations"
     ON conversations FOR UPDATE
+    TO authenticated
+    USING (
+        auth.uid() = participant_1_id OR 
+        auth.uid() = participant_2_id
+    );
+
+CREATE POLICY "Users can delete own conversations"
+    ON conversations FOR DELETE
     TO authenticated
     USING (
         auth.uid() = participant_1_id OR 
