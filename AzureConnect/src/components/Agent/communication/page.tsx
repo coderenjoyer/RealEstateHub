@@ -23,7 +23,9 @@ export default function ChatPage() {
     subscribeToConversation,
   } = useChat();
 
-  const [selectedConversationId, setSelectedConversationId] = useState<number | null>(null);
+  const [selectedConversationId, setSelectedConversationId] = useState<
+    number | null
+  >(null);
   const [messageInput, setMessageInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [sendingMessage, setSendingMessage] = useState(false);
@@ -33,38 +35,43 @@ export default function ChatPage() {
   // Convert database conversations to component format
   const conversations: Conversation[] = dbConversations.map((conv) => ({
     id: conv.id.toString(),
-    name: conv.other_participant_name || 'Unknown User',
-    lastMessage: conv.last_message || 'No messages yet',
-    avatar: conv.other_participant_avatar || '',
+    name: conv.other_participant_name || "Unknown User",
+    lastMessage: conv.last_message || "No messages yet",
+    avatar: conv.other_participant_avatar || "",
     unread: (conv.unread_count || 0) > 0,
-    time: new Date(conv.last_message_at).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
+    time: new Date(conv.last_message_at).toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     }),
   }));
 
   // Get current conversation data
-  const selectedConversation = selectedConversationId 
+  const selectedConversation = selectedConversationId
     ? conversations.find((c) => c.id === selectedConversationId?.toString())
     : null;
-  const currentDbMessages = selectedConversationId ? dbMessages[selectedConversationId] || [] : [];
+  const currentDbMessages = selectedConversationId
+    ? dbMessages[selectedConversationId] || []
+    : [];
 
   // Convert database messages to component format
   const messages: Message[] = currentDbMessages.map((msg) => ({
     id: msg.id.toString(),
     conversationId: msg.conversation_id.toString(),
-    sender: msg.sender_id === session?.user?.id ? 'user' : 'other',
+    sender: msg.sender_id === session?.user?.id ? "user" : "other",
     text: msg.message_text,
-    timestamp: new Date(msg.created_at).toLocaleString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
+    timestamp: new Date(msg.created_at).toLocaleString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     }),
-    avatar: msg.sender_id === session?.user?.id ? '' : (selectedConversation?.avatar || ''),
+    avatar:
+      msg.sender_id === session?.user?.id
+        ? ""
+        : selectedConversation?.avatar || "",
   }));
 
   // Check for mobile view on mount and resize
@@ -82,16 +89,20 @@ export default function ChatPage() {
   }, []);
 
   const handleSendMessage = async () => {
-    if (!messageInput.trim() || !selectedConversationId || !selectedConversation) {
+    if (
+      !messageInput.trim() ||
+      !selectedConversationId ||
+      !selectedConversation
+    ) {
       return;
     }
 
     // Get the other participant's ID from the conversation
-    const dbConv = dbConversations.find(c => c.id === selectedConversationId);
+    const dbConv = dbConversations.find((c) => c.id === selectedConversationId);
     const receiverId = dbConv?.other_participant_id;
 
     if (!receiverId) {
-      console.error('Cannot find receiver ID');
+      console.error("Cannot find receiver ID");
       return;
     }
 
@@ -102,9 +113,9 @@ export default function ChatPage() {
         receiverId,
         messageInput.trim()
       );
-      setMessageInput('');
+      setMessageInput("");
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error("Error sending message:", error);
     } finally {
       setSendingMessage(false);
     }
@@ -114,7 +125,7 @@ export default function ChatPage() {
     try {
       await deleteMessage(parseInt(messageId));
     } catch (error) {
-      console.error('Error deleting message:', error);
+      console.error("Error deleting message:", error);
     }
   };
 
@@ -135,40 +146,40 @@ export default function ChatPage() {
   const handleDeleteConversation = async (conversationId: string) => {
     try {
       const convId = parseInt(conversationId);
-      
+
       // Remove from local state immediately
       removeConversationFromState(convId);
-      
+
       // Reset selected conversation immediately if it was the deleted one
       if (selectedConversationId === convId) {
         setSelectedConversationId(null);
       }
-      
+
       // Delete all messages in this conversation first
       const { error: messagesError } = await supabase
-        .from('messages')
+        .from("messages")
         .delete()
-        .eq('conversation_id', convId);
-      
+        .eq("conversation_id", convId);
+
       if (messagesError) {
-        console.error('Error deleting messages:', messagesError);
+        console.error("Error deleting messages:", messagesError);
         throw messagesError;
       }
-      
+
       // Then delete the conversation
       const { error: conversationError } = await supabase
-        .from('conversations')
+        .from("conversations")
         .delete()
-        .eq('id', convId);
-      
+        .eq("id", convId);
+
       if (conversationError) {
-        console.error('Error deleting conversation:', conversationError);
+        console.error("Error deleting conversation:", conversationError);
         throw conversationError;
       }
-      
-      console.log('Conversation deleted successfully:', convId);
+
+      console.log("Conversation deleted successfully:", convId);
     } catch (error) {
-      console.error('Error deleting conversation:', error);
+      console.error("Error deleting conversation:", error);
       // Re-fetch to ensure UI is in sync with database
       fetchConversations();
     }
@@ -185,10 +196,18 @@ export default function ChatPage() {
 
   // Handle case when selected conversation is deleted
   useEffect(() => {
-    if (selectedConversationId && !selectedConversation && conversations.length > 0) {
+    if (
+      selectedConversationId &&
+      !selectedConversation &&
+      conversations.length > 0
+    ) {
       // If we had a selected conversation but it's no longer in the list, select the first one
       setSelectedConversationId(parseInt(conversations[0].id));
-    } else if (selectedConversationId && !selectedConversation && conversations.length === 0) {
+    } else if (
+      selectedConversationId &&
+      !selectedConversation &&
+      conversations.length === 0
+    ) {
       // If we had a selected conversation but all conversations are gone, clear selection
       setSelectedConversationId(null);
     }
@@ -204,7 +223,10 @@ export default function ChatPage() {
   // Handle case when conversations list changes
   useEffect(() => {
     // If we have a selected conversation but it's no longer in the list, clear the selection
-    if (selectedConversationId && !conversations.some(c => c.id === selectedConversationId.toString())) {
+    if (
+      selectedConversationId &&
+      !conversations.some((c) => c.id === selectedConversationId.toString())
+    ) {
       setSelectedConversationId(null);
     }
   }, [conversations, selectedConversationId]);
@@ -230,8 +252,12 @@ export default function ChatPage() {
         <div className="flex h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50">
           <div className="text-center max-w-md">
             <div className="text-6xl mb-4">💬</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">No Conversations Yet</h2>
-            <p className="text-gray-600">When users message you, their conversations will appear here.</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              No Conversations Yet
+            </h2>
+            <p className="text-gray-600">
+              When users message you, their conversations will appear here.
+            </p>
           </div>
         </div>
       </AgentCommunicationLayout>
@@ -245,7 +271,6 @@ export default function ChatPage() {
           conversations={conversations}
           selectedConversation={selectedConversation || undefined}
           onSelectConversation={handleSelectConversation}
-          onDeleteConversation={handleDeleteConversation}
           isMobileView={isMobileView}
           showChatView={showChatView}
           searchQuery={searchQuery}
@@ -260,6 +285,7 @@ export default function ChatPage() {
             onMessageInputChange={setMessageInput}
             onSendMessage={handleSendMessage}
             onDeleteMessage={handleDeleteMessage}
+            onDeleteConversation={handleDeleteConversation}
             onBackToConversations={handleBackToConversations}
             isMobileView={isMobileView}
             sendingMessage={sendingMessage}

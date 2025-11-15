@@ -219,18 +219,40 @@ export function useChat() {
   // Delete a message
   const deleteMessage = useCallback(async (messageId: number) => {
     try {
+      // First, find which conversation this message belongs to
+      const conversationId = Object.keys(messages).find((convId) =>
+        messages[parseInt(convId)]?.some((msg) => msg.id === messageId)
+      );
+
+      // Optimistically update the UI immediately
+      if (conversationId) {
+        setMessages((prev) => ({
+          ...prev,
+          [conversationId]: prev[parseInt(conversationId)].filter(
+            (msg) => msg.id !== messageId
+          ),
+        }));
+      }
+
+      // Then delete from database
       const { error: deleteError } = await supabase
         .from('messages')
         .delete()
         .eq('id', messageId)
         .eq('sender_id', session?.user?.id);
 
-      if (deleteError) throw deleteError;
+      if (deleteError) {
+        // If delete fails, refetch messages to restore state
+        if (conversationId) {
+          await fetchMessages(parseInt(conversationId));
+        }
+        throw deleteError;
+      }
     } catch (err: any) {
       console.error('Error deleting message:', err);
       setError(err.message);
     }
-  }, [session?.user?.id]);
+  }, [session?.user?.id, messages, fetchMessages]);
 
   // Remove a conversation from local state immediately
   const removeConversationFromState = useCallback((conversationId: number) => {

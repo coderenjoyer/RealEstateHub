@@ -1,13 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import {
-  Search,
-  X,
-  Phone,
-  Minus,
-  Send,
-  Paperclip,
-  Trash2,
-} from "lucide-react";
+import { Search, X, Phone, Minus, Send, Paperclip, Trash2 } from "lucide-react";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/AuthContext";
 
@@ -42,7 +34,6 @@ export function MessengerDropdown({
 
   const [isOpen, setIsOpen] = useState(true);
   const [selectedChat, setSelectedChat] = useState<number | null>(null);
-  const [hoveredMessage, setHoveredMessage] = useState<number | null>(null);
   const [activeFilter, setActiveFilter] = useState<"all" | "unread">("all");
   const [messageInput, setMessageInput] = useState("");
   const [sendingMessage, setSendingMessage] = useState(false);
@@ -51,14 +42,16 @@ export function MessengerDropdown({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Get current conversation data
-  const selectedConversation = dbConversations.find((c) => c.id === selectedChat);
+  const selectedConversation = dbConversations.find(
+    (c) => c.id === selectedChat
+  );
   const currentMessages = selectedChat ? dbMessages[selectedChat] || [] : [];
 
   // Get other participant info for selected conversation
   const otherParticipant = selectedConversation
     ? {
-        id: selectedConversation.other_participant_id || '',
-        name: selectedConversation.other_participant_name || 'Unknown',
+        id: selectedConversation.other_participant_id || "",
+        name: selectedConversation.other_participant_name || "Unknown",
         avatar: selectedConversation.other_participant_avatar,
       }
     : null;
@@ -71,7 +64,6 @@ export function MessengerDropdown({
     return true;
   });
 
-
   const handleFileUpload = () => {
     fileInputRef.current?.click();
   };
@@ -83,38 +75,33 @@ export function MessengerDropdown({
     }
   };
 
-  const handleDeleteMessage = async (messageId: number) => {
-    await deleteMessage(messageId);
-    setHoveredMessage(null);
-  };
-
   const handleSendMessage = async () => {
-    if (!messageInput.trim() || !selectedChat || !otherParticipant?.id || !session?.user?.id) {
+    if (
+      !messageInput.trim() ||
+      !selectedChat ||
+      !otherParticipant?.id ||
+      !session?.user?.id
+    ) {
       return;
     }
 
     try {
       setSendingMessage(true);
-      await sendMessage(
-        selectedChat,
-        otherParticipant.id,
-        messageInput.trim()
-      );
-      setMessageInput('');
+      await sendMessage(selectedChat, otherParticipant.id, messageInput.trim());
+      setMessageInput("");
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error("Error sending message:", error);
     } finally {
       setSendingMessage(false);
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
-
 
   // Handle agent contact - create or open conversation with agent
   useEffect(() => {
@@ -131,7 +118,12 @@ export function MessengerDropdown({
     };
 
     handleAgentContact();
-  }, [initialChatId, agentToContact, session?.user?.id, getOrCreateConversation]);
+  }, [
+    initialChatId,
+    agentToContact,
+    session?.user?.id,
+    getOrCreateConversation,
+  ]);
 
   // ✅ FIXED: Use setIsOpen
   useEffect(() => {
@@ -274,7 +266,9 @@ export function MessengerDropdown({
                   {/* Avatar */}
                   <div className="relative flex-shrink-0">
                     <div className="h-12 w-12 rounded-full bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center text-white font-semibold text-base">
-                      {conv.other_participant_name?.substring(0, 2).toUpperCase() || '??'}
+                      {conv.other_participant_name
+                        ?.substring(0, 2)
+                        .toUpperCase() || "??"}
                     </div>
                     {/* Always show as online for now - can be enhanced later */}
                     <div className="absolute bottom-0 right-0 h-4 w-4 bg-green-500 rounded-full border-2 border-white" />
@@ -284,10 +278,13 @@ export function MessengerDropdown({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-0.5">
                       <h3 className="font-semibold text-gray-900 text-sm truncate">
-                        {conv.other_participant_name || 'Unknown User'}
+                        {conv.other_participant_name || "Unknown User"}
                       </h3>
                       <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
-                        {new Date(conv.last_message_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                        {new Date(conv.last_message_at).toLocaleTimeString(
+                          "en-US",
+                          { hour: "numeric", minute: "2-digit", hour12: true }
+                        )}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
@@ -298,7 +295,7 @@ export function MessengerDropdown({
                             : "text-gray-600"
                         }`}
                       >
-                        {conv.last_message || 'No messages yet'}
+                        {conv.last_message || "No messages yet"}
                       </p>
                       {(conv.unread_count || 0) > 0 && (
                         <div className="h-2.5 w-2.5 bg-sky-500 rounded-full flex-shrink-0 ml-2" />
@@ -332,13 +329,14 @@ export function MessengerDropdown({
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="relative flex-shrink-0">
                 <div className="h-9 w-9 rounded-full bg-white flex items-center justify-center text-sky-700 font-semibold text-xs shadow-inner">
-                  {otherParticipant?.name?.substring(0, 2).toUpperCase() || '??'}
+                  {otherParticipant?.name?.substring(0, 2).toUpperCase() ||
+                    "??"}
                 </div>
                 <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-400 rounded-full border-2 border-white" />
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-white text-sm truncate tracking-wide">
-                  {otherParticipant?.name || 'Unknown User'}
+                  {otherParticipant?.name || "Unknown User"}
                 </h3>
                 <p className="text-xs text-sky-100">Active now</p>
               </div>
@@ -361,9 +359,7 @@ export function MessengerDropdown({
           </div>
 
           {/* Messages Area */}
-          <div
-            className="flex-1 overflow-y-auto p-2.5 space-y-2 bg-white min-h-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
-          >
+          <div className="flex-1 overflow-y-auto p-2.5 space-y-2 bg-white min-h-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             {currentMessages.map((msg) => {
               const isSender = msg.sender_id === session?.user?.id;
               return (
@@ -371,15 +367,12 @@ export function MessengerDropdown({
                   key={msg.id}
                   className={`flex ${
                     isSender ? "justify-end" : "justify-start"
-                  } relative group`}
-                  onMouseEnter={() => setHoveredMessage(msg.id)}
-                  onMouseLeave={() => {
-                    setHoveredMessage(null);
-                  }}
+                  }`}
                 >
                   {!isSender && (
                     <div className="h-6 w-6 rounded-full bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center text-white font-semibold text-[10px] mr-2 flex-shrink-0">
-                      {otherParticipant?.name?.substring(0, 2).toUpperCase() || '??'}
+                      {otherParticipant?.name?.substring(0, 2).toUpperCase() ||
+                        "??"}
                     </div>
                   )}
                   <div
@@ -397,11 +390,14 @@ export function MessengerDropdown({
                             {msg.message_text}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {new Date(msg.created_at).toLocaleTimeString('en-US', {
-                              hour: 'numeric',
-                              minute: '2-digit',
-                              hour12: true
-                            })}
+                            {new Date(msg.created_at).toLocaleTimeString(
+                              "en-US",
+                              {
+                                hour: "numeric",
+                                minute: "2-digit",
+                                hour12: true,
+                              }
+                            )}
                           </p>
                         </div>
                       </div>
@@ -413,34 +409,19 @@ export function MessengerDropdown({
                             : "bg-gray-100 text-gray-900"
                         }`}
                       >
-                        <p className="text-sm break-words">{msg.message_text}</p>
+                        <p className="text-sm break-words">
+                          {msg.message_text}
+                        </p>
                       </div>
                     )}
                     <span className="text-xs text-gray-500 px-1">
-                      {new Date(msg.created_at).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
+                      {new Date(msg.created_at).toLocaleTimeString("en-US", {
+                        hour: "numeric",
+                        minute: "2-digit",
+                        hour12: true,
                       })}
                     </span>
                   </div>
-
-                  {/* Action buttons - show on hover, positioned close to message */}
-                  {hoveredMessage === msg.id && isSender && (
-                    <div
-                      className={`absolute top-1/2 -translate-y-1/2 flex items-center gap-1 ${
-                        isSender ? "-left-0.5" : "-right-0.5"
-                      }`}
-                    >
-                      <button
-                        className="p-1.5 hover:bg-gray-200 rounded-full transition-colors bg-white shadow-md"
-                        onClick={() => handleDeleteMessage(msg.id)}
-                        title="Delete message"
-                      >
-                        <Trash2 className="h-4 w-4 text-gray-500" />
-                      </button>
-                    </div>
-                  )}
                 </div>
               );
             })}
