@@ -2,7 +2,6 @@ import { useState, useRef } from "react";
 import { ArrowLeft, MoreVertical, Paperclip, Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type {
   Conversation,
   Message,
@@ -68,17 +67,6 @@ export function ChatWindow({
         )}
 
         <div className="flex items-center gap-3">
-          <Avatar className="h-11 w-11 ring-2 ring-sky-200">
-            <AvatarImage
-              src={selectedConversation.avatar || "/placeholder.svg"}
-            />
-            <AvatarFallback className="bg-gradient-to-br from-sky-400 to-blue-500 text-white font-semibold">
-              {selectedConversation.name
-                .split(" ")
-                .map((n: string) => n[0])
-                .join("")}
-            </AvatarFallback>
-          </Avatar>
           <div>
             <h3 className="font-bold text-gray-800 text-lg">
               {selectedConversation.name}
@@ -107,15 +95,7 @@ export function ChatWindow({
             onMouseLeave={() => setHoveredMessage(null)}
           >
             {message.sender === "other" && (
-              <Avatar className="h-8 w-8 ring-2 ring-sky-200/50 flex-shrink-0">
-                <AvatarImage src={message.avatar || "/placeholder.svg"} />
-                <AvatarFallback className="bg-gradient-to-br from-sky-400 to-blue-500 text-white text-xs">
-                  {selectedConversation.name
-                    .split(" ")
-                    .map((n: string) => n[0])
-                    .join("")}
-                </AvatarFallback>
-              </Avatar>
+              <div className="w-8 flex-shrink-0" />
             )}
 
             <div
@@ -130,13 +110,22 @@ export function ChatWindow({
                     : "bg-white text-gray-800 shadow-md border border-sky-100"
                 } rounded-2xl p-3 relative transition-all hover:shadow-lg`}
               >
-                <p
-                  className={`text-xs mb-1 ${
-                    message.sender === "user" ? "text-sky-100" : "text-sky-600"
-                  } font-medium`}
-                >
-                  {message.timestamp}
-                </p>
+                <div className="flex items-center justify-between mb-1">
+                  <p
+                    className={`text-xs font-semibold ${
+                      message.sender === "user" ? "text-sky-50" : "text-sky-700"
+                    }`}
+                  >
+                    {message.sender === "user" ? "You" : selectedConversation.name}
+                  </p>
+                  <p
+                    className={`text-xs ${
+                      message.sender === "user" ? "text-sky-100" : "text-sky-600"
+                    } font-medium ml-2`}
+                  >
+                    {message.timestamp}
+                  </p>
+                </div>
                 <p className="text-sm leading-relaxed">{message.text}</p>
               </div>
 
@@ -153,12 +142,7 @@ export function ChatWindow({
             </div>
 
             {message.sender === "user" && (
-              <Avatar className="h-8 w-8 ring-2 ring-sky-200/50 flex-shrink-0">
-                <AvatarImage src={message.avatar || "/placeholder.svg"} />
-                <AvatarFallback className="bg-gradient-to-br from-violet-400 to-purple-500 text-white text-xs">
-                  You
-                </AvatarFallback>
-              </Avatar>
+              <div className="w-8 flex-shrink-0" />
             )}
           </div>
         ))}

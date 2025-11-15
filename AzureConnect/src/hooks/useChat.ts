@@ -62,9 +62,34 @@ export function useChat() {
               ? conv.participant_2_id
               : conv.participant_1_id;
 
-          // Get user details
-          const { data: userData } = await supabase.rpc('get_all_users');
-          const otherUser = userData?.find((u: any) => u.id === otherParticipantId);
+          // Get user details - query from profiles or auth metadata
+          let participantName = 'Unknown User';
+          let otherUser = null;
+          
+          // Try to get from profiles table first (using user_id column)
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('first_name, last_name, email')
+            .eq('user_id', otherParticipantId)
+            .maybeSingle();
+          
+          if (profileData) {
+            otherUser = profileData;
+            const fullName = `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim();
+            if (fullName) {
+              participantName = fullName;
+            } else if (profileData.email) {
+              participantName = profileData.email.split('@')[0];
+            }
+          } else {
+            console.log('No profile found for user:', otherParticipantId);
+            // If profiles table doesn't work, we'll keep it as Unknown User
+            // The user ID will still work for messaging
+          }
+          
+          console.log('Other participant ID:', otherParticipantId);
+          console.log('Found user profile:', otherUser);
+          console.log('Participant name:', participantName);
 
           // Get last message
           const { data: lastMsg } = await supabase
@@ -86,9 +111,7 @@ export function useChat() {
           return {
             ...conv,
             other_participant_id: otherParticipantId,
-            other_participant_name: otherUser
-              ? `${otherUser.first_name || ''} ${otherUser.last_name || ''}`.trim() || otherUser.email
-              : 'Unknown User',
+            other_participant_name: participantName,
             other_participant_avatar: null, // TODO: Fetch from storage
             last_message: lastMsg?.message_text,
             unread_count: unreadCount || 0,
@@ -224,11 +247,16 @@ export function useChat() {
           filter: `conversation_id=eq.${conversationId}`,
         },
         (payload) => {
-          console.log('New message received:', payload);
-          setMessages((prev) => ({
-            ...prev,
-            [conversationId]: [...(prev[conversationId] || []), payload.new as Message],
-          }));
+          const newMessage = payload.new as Message;
+          
+          // Only add message if current user is sender or receiver
+          if (newMessage.sender_id === session.user.id || newMessage.receiver_id === session.user.id) {
+            console.log('New message received:', payload);
+            setMessages((prev) => ({
+              ...prev,
+              [conversationId]: [...(prev[conversationId] || []), newMessage],
+            }));
+          }
         }
       )
       .on(
@@ -240,13 +268,18 @@ export function useChat() {
           filter: `conversation_id=eq.${conversationId}`,
         },
         (payload) => {
-          console.log('Message deleted:', payload);
-          setMessages((prev) => ({
-            ...prev,
-            [conversationId]: (prev[conversationId] || []).filter(
-              (msg) => msg.id !== (payload.old as Message).id
-            ),
-          }));
+          const deletedMessage = payload.old as Message;
+          
+          // Only process delete if current user is sender or receiver
+          if (deletedMessage.sender_id === session.user.id || deletedMessage.receiver_id === session.user.id) {
+            console.log('Message deleted:', payload);
+            setMessages((prev) => ({
+              ...prev,
+              [conversationId]: (prev[conversationId] || []).filter(
+                (msg) => msg.id !== deletedMessage.id
+              ),
+            }));
+          }
         }
       )
       .subscribe();

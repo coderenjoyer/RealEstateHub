@@ -1,7 +1,6 @@
 import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import type { Conversation } from "@/components/Agent/communication/types";
 
@@ -82,39 +81,25 @@ export function MessagesSidebar({
                 : ""
             }`}
           >
-            <div className="relative">
-              <Avatar className="h-12 w-12 ring-2 ring-sky-200/50">
-                <AvatarImage src={conversation.avatar || "/placeholder.svg"} />
-                <AvatarFallback className="bg-gradient-to-br from-sky-400 to-blue-500 text-white">
-                  {conversation.name
-                    .split(" ")
-                    .map((n: string) => n[0])
-                    .join("")}
-                </AvatarFallback>
-              </Avatar>
-              {conversation.unread && (
-                <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 ring-2 ring-white" />
-              )}
-            </div>
-            <div className="flex-1 text-left min-w-0">
-              <div className="flex items-center justify-between mb-1">
-                <p className="font-semibold text-gray-800 truncate">
-                  {conversation.name}
-                </p>
-                <span className="text-xs text-sky-600 font-medium">
-                  {conversation.time}
-                </span>
-              </div>
-              <p
-                className={`text-sm truncate ${
-                  conversation.unread
-                    ? "text-gray-800 font-medium"
-                    : "text-gray-500"
-                }`}
-              >
-                {conversation.lastMessage}
+          <div className="flex-1 text-left min-w-0">
+            <div className="flex items-center justify-between mb-1">
+              <p className="font-semibold text-gray-800 truncate">
+                {conversation.name}
               </p>
+              <span className="text-xs text-sky-600 font-medium">
+                {conversation.time}
+              </span>
             </div>
+            <p
+              className={`text-sm truncate ${
+                conversation.unread
+                  ? "text-gray-800 font-medium"
+                  : "text-gray-500"
+              }`}
+            >
+              {conversation.lastMessage}
+            </p>
+          </div>
           </button>
         ))}
       </div>
