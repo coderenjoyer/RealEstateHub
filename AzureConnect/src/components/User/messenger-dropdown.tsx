@@ -48,7 +48,7 @@ export function MessengerDropdown({
   const [sendingMessage, setSendingMessage] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Get current conversation data
   const selectedConversation = dbConversations.find((c) => c.id === selectedChat);
@@ -71,13 +71,7 @@ export function MessengerDropdown({
     return true;
   });
 
-  // Function to scroll to bottom of messages
-  const scrollToBottom = () => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop =
-        messagesContainerRef.current.scrollHeight;
-    }
-  };
+
   const handleFileUpload = () => {
     fileInputRef.current?.click();
   };
@@ -155,11 +149,9 @@ export function MessengerDropdown({
     }
   }, [selectedChat, fetchMessages, subscribeToConversation]);
 
-  // Auto-scroll to bottom when messages change
+  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    if (currentMessages.length > 0) {
-      setTimeout(scrollToBottom, 100);
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [currentMessages]);
 
   // Close when clicking outside
@@ -370,7 +362,6 @@ export function MessengerDropdown({
 
           {/* Messages Area */}
           <div
-            ref={messagesContainerRef}
             className="flex-1 overflow-y-auto p-2.5 space-y-2 bg-white min-h-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
           >
             {currentMessages.map((msg) => {
@@ -453,6 +444,7 @@ export function MessengerDropdown({
                 </div>
               );
             })}
+            <div ref={messagesEndRef} />
           </div>
 
           {/* Message Input */}
