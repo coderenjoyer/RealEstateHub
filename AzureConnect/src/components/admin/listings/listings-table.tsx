@@ -35,6 +35,8 @@ export function PendingListingsTable() {
   const [filter, setFilter] = useState<"All" | "Pending" | "Approved" | "Rejected">("Pending")
   const [loading, setLoading] = useState(true)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
+  const [deleteSource, setDeleteSource] = useState<"listing_approvals" | "listed_properties" | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const itemsPerPage = 5
   
@@ -46,13 +48,36 @@ export function PendingListingsTable() {
   const fetchListings = async () => {
     try {
       setLoading(true)
-      const { data, error } = await supabase
+      setListings([]) // Clear listings first
+      
+      // Fetch pending and rejected from listing_approvals
+      const { data: approvalsData, error: approvalsError } = await supabase
         .from('listing_approvals')
         .select('*')
+        .in('approval_status', ['pending', 'rejected'])
         .order('submitted_at', { ascending: false })
       
-      if (error) throw error
-      setListings(data || [])
+      if (approvalsError) throw approvalsError
+      
+      // Fetch approved listings from listed_properties
+      const { data: listedData, error: listedError } = await supabase
+        .from('listed_properties')
+        .select('*')
+        .order('created_at', { ascending: false })
+      
+      if (listedError) throw listedError
+      
+      // Combine both arrays, with approval_status set to 'approved' for listed_properties
+      const combinedListings = [
+        ...(approvalsData || []),
+        ...(listedData || []).map(item => ({
+          ...item,
+          approval_status: 'approved' as const,
+          submitted_at: item.created_at
+        }))
+      ]
+      
+      setListings(combinedListings)
     } catch (error) {
       console.error('Error fetching listings:', error)
     } finally {
@@ -82,20 +107,15 @@ export function PendingListingsTable() {
 
   const handleApprove = async (id: string) => {
     try {
-      console.log('Attempting to approve listing:', id)
-      
       // Call the approve_listing function
       const { data, error } = await supabase
         .rpc('approve_listing', { approval_record_id: parseInt(id) })
-      
-      console.log('Approval response:', { data, error })
       
       if (error) {
         console.error('Database error:', error)
         throw error
       }
       
-      console.log('Successfully approved, refetching listings...')
       // Refetch listings to get updated data from database
       await fetchListings()
       setSelectedListing(null)
@@ -110,8 +130,6 @@ export function PendingListingsTable() {
 
   const handleReject = async (id: string) => {
     try {
-      console.log('Attempting to reject listing:', id)
-      
       const reason = prompt('Enter rejection reason (optional):') || null
       
       // Call the reject_listing function
@@ -121,14 +139,11 @@ export function PendingListingsTable() {
           reason: reason 
         })
       
-      console.log('Rejection response:', { data, error })
-      
       if (error) {
         console.error('Database error:', error)
         throw error
       }
       
-      console.log('Successfully rejected, refetching listings...')
       // Refetch listings to get updated data from database
       await fetchListings()
       setSelectedListing(null)
@@ -143,20 +158,90 @@ export function PendingListingsTable() {
   
   const handleDelete = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('listing_approvals')
+      setDeleteError(null)
+      if (!deleteSource) {
+        setDeleteError('Error: Could not determine which table to delete from')
+        return
+      }
+      
+      // Get current user and their role
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      
+      if (userError || !user) {
+        console.error('Failed to get user:', userError)
+        setDeleteError('Authentication error: Could not verify your permissions')
+        return
+      }
+      
+      const userRole = user.user_metadata?.role
+      
+      if (userRole !== 'admin') {
+        setDeleteError(`Permission denied: You are not an admin (your role: ${userRole || 'none'})`)
+        return
+      }
+      
+      // Convert string ID to number for database query
+      const numericId = parseInt(id)
+      
+      console.log('Deleting from:', deleteSource, 'ID:', id)
+      
+      // First, verify the record exists
+      const { data: existingData } = await supabase
+        .from(deleteSource)
+        .select('id')
+        .eq('id', numericId)
+        .limit(1)
+      
+      if (!existingData || existingData.length === 0) {
+        console.warn('Record does not exist with ID:', numericId)
+        setDeleteError('Record not found. It may have already been deleted.')
+        return
+      }
+      
+      let deleteResult = await supabase
+        .from(deleteSource)
         .delete()
-        .eq('id', id)
+        .eq('id', numericId)
+        .select()
       
-      if (error) throw error
+      // If first attempt returns 0 rows, try with string ID
+      if (!deleteResult.data || deleteResult.data.length === 0) {
+        deleteResult = await supabase
+          .from(deleteSource)
+          .delete()
+          .eq('id', id)
+          .select()
+      }
       
-      // Refetch listings to get updated data from database
-      await fetchListings()
+      const { data, error } = deleteResult
+      
+      if (error) {
+        console.error('Supabase delete error:', error)
+        setDeleteError(`Failed to delete: ${error.message}`)
+        throw error
+      }
+      
+      if (!data || data.length === 0) {
+        setDeleteError('Delete failed: RLS policy may be blocking this operation or record not found')
+        return
+      }
+      console.log('Delete successful, rows affected:', data.length)
+      
+      // Close modal immediately
       setDeleteConfirmId(null)
+      setDeleteSource(null)
       setSelectedListing(null)
-    } catch (error) {
+      
+      // Remove the deleted item from local state immediately using numeric ID
+      setListings(prev => prev.filter(listing => parseInt(listing.id) !== numericId))
+      
+      // Wait a moment for database to process, then refetch to ensure sync
+      setTimeout(async () => {
+        await fetchListings()
+      }, 500)
+    } catch (error: any) {
       console.error('Error deleting listing:', error)
-      alert('Failed to delete listing')
+      setDeleteError(`Failed to delete listing: ${error.message || 'Unknown error'}`)
     }
   }
 
@@ -328,7 +413,22 @@ export function PendingListingsTable() {
                         )}
                         {listing.approval_status === "rejected" && (
                           <button
-                            onClick={() => setDeleteConfirmId(listing.id)}
+                            onClick={() => {
+                              setDeleteConfirmId(listing.id)
+                              setDeleteSource('listing_approvals')
+                            }}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                        {listing.approval_status === "approved" && (
+                          <button
+                            onClick={() => {
+                              setDeleteConfirmId(listing.id)
+                              setDeleteSource('listed_properties')
+                            }}
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                             title="Delete"
                           >
@@ -502,7 +602,10 @@ export function PendingListingsTable() {
         
         {/* Delete Confirmation Modal */}
         {deleteConfirmId && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setDeleteConfirmId(null)}>
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => {
+            setDeleteConfirmId(null)
+            setDeleteSource(null)
+          }}>
             <div className="bg-white rounded-xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
               <div className="p-6">
                 <div className="flex items-center gap-3 text-red-600 mb-4">
@@ -510,11 +613,19 @@ export function PendingListingsTable() {
                   <h3 className="text-xl font-bold text-gray-900">Delete Listing</h3>
                 </div>
                 <p className="text-gray-600 mb-6">
-                  Are you sure you want to permanently delete this rejected listing? This action cannot be undone.
+                  Are you sure you want to permanently delete this {deleteSource === 'listed_properties' ? 'approved' : 'rejected'} listing? This action cannot be undone.
                 </p>
+                {deleteError && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                    <p className="text-red-800 text-sm">{deleteError}</p>
+                  </div>
+                )}
                 <div className="flex gap-3">
                   <button
-                    onClick={() => setDeleteConfirmId(null)}
+                    onClick={() => {
+                      setDeleteConfirmId(null)
+                      setDeleteSource(null)
+                    }}
                     className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     Cancel
