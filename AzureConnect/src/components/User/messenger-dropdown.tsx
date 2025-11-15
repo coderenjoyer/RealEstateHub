@@ -392,7 +392,7 @@ export function MessengerDropdown({
                     </div>
                   )}
                   <div
-                    className={`max-w-[72%] ${
+                    className={`max-w-[65%] ${
                       isSender ? "items-end" : "items-start"
                     } flex flex-col gap-1`}
                   >
@@ -416,13 +416,13 @@ export function MessengerDropdown({
                       </div>
                     ) : (
                       <div
-                        className={`px-3 py-1.5 rounded-2xl transition-colors relative max-w-[72%] ${
+                        className={`px-3 py-1.5 rounded-2xl transition-colors relative break-words ${
                           isSender
                             ? "bg-gradient-to-br from-sky-400 to-blue-500 text-white"
                             : "bg-gray-100 text-gray-900"
                         }`}
                       >
-                        <p className="text-sm">{msg.message_text}</p>
+                        <p className="text-sm break-words">{msg.message_text}</p>
                       </div>
                     )}
                     <span className="text-xs text-gray-500 px-1">
@@ -465,7 +465,7 @@ export function MessengerDropdown({
                 onKeyPress={handleKeyPress}
                 placeholder="Aa"
                 disabled={sendingMessage}
-                className="flex-1 px-3 py-1.5 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="flex-1 px-3 py-1.5 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
               />
               <button
                 className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
