@@ -13,6 +13,11 @@ export default function HomePage() {
   const [selectedChatId, setSelectedChatId] = useState<number | undefined>(
     undefined
   );
+  const [agentToContact, setAgentToContact] = useState<{
+    id: string;
+    name: string;
+    avatar: string | null;
+  } | undefined>(undefined);
   const [filters, setFilters] = useState<FilterState>({
     selectedTypes: [],
     selectedAmenities: [],
@@ -25,24 +30,21 @@ export default function HomePage() {
     setFilters(newFilters);
   };
 
-  const handleContactAgent = (agentId: number, agentName: string) => {
-    // Map agent names to chat IDs for demonstration
-    // In a real app, you would use agentId to fetch the correct chat
-    const agentToChatMap: { [key: string]: number } = {
-      "Sarah Johnson": 1,
-      "Michael Rodriguez": 5,
-      "Property Investment Group": 2,
-    };
-
-    // Use agentId as fallback if name mapping fails
-    const chatId = agentToChatMap[agentName] || agentId || 1;
-    setSelectedChatId(chatId);
+  const handleContactAgent = (agentId: string, agentName: string, agentAvatar?: string | null) => {
+    // Set agent to contact
+    setAgentToContact({
+      id: agentId,
+      name: agentName,
+      avatar: agentAvatar || null,
+    });
+    // Open messenger dropdown
     setActiveDropdown("chats");
   };
 
   const handleCloseDropdown = () => {
     setActiveDropdown("none");
     setSelectedChatId(undefined);
+    setAgentToContact(undefined);
   };
 
   return (
@@ -67,6 +69,7 @@ export default function HomePage() {
             setActiveDropdown={setActiveDropdown}
             selectedChatId={selectedChatId}
             onCloseDropdown={handleCloseDropdown}
+            agentToContact={agentToContact}
           />
         </div>
 

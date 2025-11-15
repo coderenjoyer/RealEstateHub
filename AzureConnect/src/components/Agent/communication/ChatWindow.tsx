@@ -17,6 +17,7 @@ interface ChatWindowProps {
   onDeleteMessage: (messageId: string) => void;
   onBackToConversations?: () => void;
   isMobileView: boolean;
+  sendingMessage?: boolean;
 }
 
 export function ChatWindow({
@@ -28,6 +29,7 @@ export function ChatWindow({
   onDeleteMessage,
   onBackToConversations,
   isMobileView,
+  sendingMessage = false,
 }: ChatWindowProps) {
   const [hoveredMessage, setHoveredMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -193,8 +195,9 @@ export function ChatWindow({
           />
           <Button
             onClick={onSendMessage}
+            disabled={!messageInput.trim() || sendingMessage}
             size="icon"
-            className="h-9 w-9 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-600 hover:to-blue-600 text-white shadow-md hover:shadow-lg transition-all"
+            className="h-9 w-9 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-600 hover:to-blue-600 text-white shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Send className="h-4 w-4" />
           </Button>

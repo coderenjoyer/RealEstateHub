@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Star, MapPin, Bed, Bath, Maximize } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import supabase from "@/supabaseClient";
 
 interface PropertyDetailsPanelProps {
   property: {
@@ -14,25 +15,127 @@ interface PropertyDetailsPanelProps {
     sqft: number;
     rating: string;
     images?: string[];
-    agent?: {
-      id: number;
-      name: string;
-      avatar: string;
-      online: boolean;
-    };
+    propertyType?: string;
   };
+  propertyId: number;
   onClose: () => void;
-  onContactAgent?: (agentId: number, agentName: string) => void;
+  onContactAgent?: (agentId: string, agentName: string, agentAvatar?: string | null) => void;
+}
+
+interface PropertyDetails {
+  id: number;
+  property_title: string;
+  property_type: string;
+  listing_type: string;
+  property_status: string;
+  price: number;
+  bedrooms: number;
+  bathrooms: number;
+  square_feet: number | null;
+  lot_size: number | null;
+  year_built: number | null;
+  parking_spaces: number | null;
+  available_from: string | null;
+  furnished: string | null;
+  pet_policy: string | null;
+  street_address: string;
+  city: string;
+  state: string | null;
+  zip_postal: string;
+  country: string;
+  description: string;
+  about_property: string | null;
+  full_name: string;
+  email: string;
+  phone_number: string;
+  features: string[] | null;
+  utilities: string[] | null;
+  nearby_places: any[] | null;
+  media: any[] | null;
+  user_id: string;
+  created_at: string;
+}
+
+interface AgentInfo {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  avatar: string | null;
 }
 
 export function PropertyDetailsPanel({
   property,
+  propertyId,
   onClose,
   onContactAgent,
 }: PropertyDetailsPanelProps) {
   const [activeTab, setActiveTab] = useState<"overview" | "reviews" | "about">(
     "overview"
   );
+  const [propertyDetails, setPropertyDetails] = useState<PropertyDetails | null>(null);
+  const [agentInfo, setAgentInfo] = useState<AgentInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch property details from database
+  useEffect(() => {
+    fetchPropertyDetails();
+  }, [propertyId]);
+
+  const fetchPropertyDetails = async () => {
+    try {
+      setLoading(true);
+
+      // Fetch property details
+      const { data: propertyData, error: propertyError } = await supabase
+        .from('listed_properties')
+        .select('*')
+        .eq('id', propertyId)
+        .single();
+
+      if (propertyError) {
+        console.error('Error fetching property details:', propertyError);
+        return;
+      }
+
+      console.log('Property data:', propertyData);
+      setPropertyDetails(propertyData);
+
+      // Fetch agent information using the contact info from the property
+      if (propertyData?.user_id) {
+        console.log('Agent user_id:', propertyData.user_id);
+        
+        // Use the contact information already in the property listing
+        const agentName = propertyData.full_name || 'Property Agent';
+        const agentEmail = propertyData.email || '';
+        const agentPhone = propertyData.phone_number || '';
+        
+        // Get agent avatar from storage
+        const { data: avatarData } = supabase.storage
+          .from('user-media')
+          .getPublicUrl(`${propertyData.user_id}/profile.jpg`);
+
+        setAgentInfo({
+          id: propertyData.user_id,
+          name: agentName,
+          email: agentEmail,
+          phone: agentPhone,
+          avatar: avatarData?.publicUrl || null,
+        });
+        
+        console.log('Agent info set:', {
+          id: propertyData.user_id,
+          name: agentName,
+          email: agentEmail,
+          phone: agentPhone,
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Default images if none provided
   const defaultImages = [
@@ -41,7 +144,17 @@ export function PropertyDetailsPanel({
     "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop",
   ];
 
-  const images = property.images || defaultImages;
+  // Get images from database media or use defaults
+  const getImages = () => {
+    if (propertyDetails?.media && propertyDetails.media.length > 0) {
+      return propertyDetails.media.map((item: any) => 
+        supabase.storage.from('property-media').getPublicUrl(item.bucket_path).data.publicUrl
+      );
+    }
+    return property.images || defaultImages;
+  };
+
+  const images = getImages();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const handleImageClick = (index: number) => {
@@ -49,8 +162,8 @@ export function PropertyDetailsPanel({
   };
 
   const handleContactAgentClick = () => {
-    if (property.agent && onContactAgent) {
-      onContactAgent(property.agent.id, property.agent.name);
+    if (agentInfo && onContactAgent) {
+      onContactAgent(agentInfo.id, agentInfo.name, agentInfo.avatar);
       // Close the property details panel after contacting agent
       onClose();
     }
@@ -107,10 +220,10 @@ export function PropertyDetailsPanel({
               <X className="h-5 w-5 text-gray-600" />
             </button>
 
-            {/* Villa Badge */}
+            {/* Property Type Badge */}
             <div className="absolute top-4 right-4 z-10">
               <span className="px-4 py-1.5 bg-white/95 backdrop-blur-sm rounded-full text-xs font-medium text-gray-700 shadow-sm">
-                Villa
+                {loading ? "Loading..." : (propertyDetails?.property_type || property.propertyType || "Property")}
               </span>
             </div>
           </div>
@@ -147,18 +260,53 @@ export function PropertyDetailsPanel({
             <p className="text-sm">{property.address}</p>
           </div>
 
+          {/* Agent Information Display */}
+          {agentInfo && (
+            <div className="mt-4 bg-gradient-to-r from-sky-50 to-blue-50 rounded-2xl p-4 border border-sky-100">
+              <div className="flex items-center gap-3">
+                {/* Agent Avatar */}
+                <div className="relative flex-shrink-0">
+                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center text-white font-semibold text-base overflow-hidden border-2 border-white shadow-md">
+                    {agentInfo.avatar ? (
+                      <img 
+                        src={agentInfo.avatar} 
+                        alt={agentInfo.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Fallback to initials if image fails to load
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.parentElement!.textContent = agentInfo.name.substring(0, 2).toUpperCase();
+                        }}
+                      />
+                    ) : (
+                      agentInfo.name.substring(0, 2).toUpperCase()
+                    )}
+                  </div>
+                  <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-400 rounded-full border-2 border-white" />
+                </div>
+
+                {/* Agent Details */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-gray-900 text-sm truncate">
+                    {agentInfo.name}
+                  </h3>
+                  <p className="text-xs text-gray-500">Property Agent</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Contact Agent Button */}
           <Button
             onClick={handleContactAgentClick}
-            className={`w-full mt-4 rounded-full py-6 font-semibold shadow-lg transition-all duration-200 ${
-              property.agent
-                ? "bg-sky-500 hover:bg-sky-600 text-white shadow-sky-500/30 cursor-pointer"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            className={`w-full mt-4 rounded-full py-6 font-medium text-sm transition-all duration-200 ${
+              agentInfo
+                ? "bg-sky-500 hover:bg-sky-600 text-white shadow-lg shadow-sky-500/30 cursor-pointer hover:scale-[1.02]"
+                : "bg-gray-200 text-gray-400 cursor-not-allowed"
             }`}
-            disabled={!property.agent}
-            title={property.agent ? "Contact Agent" : "No agent assigned"}
+            disabled={!agentInfo || loading}
           >
-            {property.agent ? "Contact Agent ➜" : "No Agent Available"}
+            {loading ? "Loading..." : (agentInfo ? "Contact Agent ➜" : "No Agent Available")}
           </Button>
         </div>
 
@@ -240,6 +388,11 @@ export function PropertyDetailsPanel({
                 <p className="text-2xl font-bold text-sky-600">
                   {property.price}
                 </p>
+                {propertyDetails && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    {propertyDetails.listing_type === 'sale' ? 'For Sale' : 'For Rent'}
+                  </p>
+                )}
               </div>
 
               <div className="bg-gray-50 rounded-2xl p-4">
@@ -247,28 +400,65 @@ export function PropertyDetailsPanel({
                   Description
                 </h3>
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  Beautiful villa located in a prime location with modern
-                  amenities and spacious rooms. Perfect for families looking for
-                  comfort and convenience. Features include a modern kitchen,
-                  large living area, and well-maintained garden.
+                  {loading ? "Loading description..." : (propertyDetails?.description || "No description available.")}
                 </p>
               </div>
 
-              <div className="bg-gray-50 rounded-2xl p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Amenities</h3>
-                <div className="flex flex-wrap gap-2">
-                  {["Parking", "Garden", "Pool", "Gym", "Security"].map(
-                    (amenity) => (
+              {propertyDetails?.features && propertyDetails.features.length > 0 && (
+                <div className="bg-gray-50 rounded-2xl p-4">
+                  <h3 className="font-semibold text-gray-900 mb-3">Features</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {propertyDetails.features.map((feature) => (
                       <span
-                        key={amenity}
+                        key={feature}
                         className="px-3 py-1.5 bg-sky-100 text-sky-700 rounded-full text-xs font-medium"
                       >
-                        {amenity}
+                        {feature}
                       </span>
-                    )
-                  )}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {propertyDetails?.parking_spaces !== null && propertyDetails?.parking_spaces !== undefined && (
+                <div className="bg-gray-50 rounded-2xl p-4">
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    Additional Details
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    {propertyDetails?.parking_spaces > 0 && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Parking Spaces</span>
+                        <span className="font-medium text-gray-900">{propertyDetails?.parking_spaces}</span>
+                      </div>
+                    )}
+                    {propertyDetails?.year_built && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Year Built</span>
+                        <span className="font-medium text-gray-900">{propertyDetails?.year_built}</span>
+                      </div>
+                    )}
+                    {propertyDetails?.lot_size && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Lot Size</span>
+                        <span className="font-medium text-gray-900">{propertyDetails?.lot_size} sqm</span>
+                      </div>
+                    )}
+                    {propertyDetails?.furnished && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Furnished</span>
+                        <span className="font-medium text-gray-900">{propertyDetails?.furnished}</span>
+                      </div>
+                    )}
+                    {propertyDetails?.pet_policy && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Pet Policy</span>
+                        <span className="font-medium text-gray-900">{propertyDetails?.pet_policy}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -303,43 +493,66 @@ export function PropertyDetailsPanel({
 
           {activeTab === "about" && (
             <div className="space-y-4">
-              <div className="bg-gray-50 rounded-2xl p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">
-                  About This Property
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed mb-4">
-                  Aurelia Heights represents modern luxury living at its finest.
-                  Built in 2020, this property offers state-of-the-art
-                  facilities and premium finishes throughout.
-                </p>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  The development features 24/7 security, beautifully landscaped
-                  grounds, and is conveniently located near schools, shopping
-                  centers, and major transport links.
-                </p>
-              </div>
+              {propertyDetails?.about_property && (
+                <div className="bg-gray-50 rounded-2xl p-4">
+                  <h3 className="font-semibold text-gray-900 mb-3">
+                    About This Property
+                  </h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {propertyDetails.about_property}
+                  </p>
+                </div>
+              )}
 
-              <div className="bg-gray-50 rounded-2xl p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Nearby</h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">Shopping Mall</span>
-                    <span className="font-medium text-gray-900">0.5 km</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">Schools</span>
-                    <span className="font-medium text-gray-900">1.2 km</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">Hospital</span>
-                    <span className="font-medium text-gray-900">2.0 km</span>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">Public Transport</span>
-                    <span className="font-medium text-gray-900">0.3 km</span>
+              {agentInfo && (
+                <div className="bg-gray-50 rounded-2xl p-4">
+                  <h3 className="font-semibold text-gray-900 mb-3">Agent Information</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">Name</span>
+                      <span className="font-medium text-gray-900">{agentInfo.name}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">Email</span>
+                      <span className="font-medium text-gray-900">{agentInfo.email}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">Phone</span>
+                      <span className="font-medium text-gray-900">{agentInfo.phone}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
+
+              {propertyDetails?.nearby_places && propertyDetails.nearby_places.length > 0 && (
+                <div className="bg-gray-50 rounded-2xl p-4">
+                  <h3 className="font-semibold text-gray-900 mb-3">Nearby Places</h3>
+                  <div className="space-y-2">
+                    {propertyDetails.nearby_places.map((place: any, index: number) => (
+                      <div key={index} className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">{place.name}</span>
+                        <span className="font-medium text-gray-900">{place.distance_km} km</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {propertyDetails?.utilities && propertyDetails.utilities.length > 0 && (
+                <div className="bg-gray-50 rounded-2xl p-4">
+                  <h3 className="font-semibold text-gray-900 mb-3">Utilities</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {propertyDetails.utilities.map((utility: string) => (
+                      <span
+                        key={utility}
+                        className="px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-xs font-medium"
+                      >
+                        {utility}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

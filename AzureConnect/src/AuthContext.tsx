@@ -123,13 +123,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	};
 
 	const signOut: AuthContextValue["signOut"] = async () => {
-		const { error } = await supabase.auth.signOut();
-		if (error) {
-			console.error(error);
-			return { success: false, error: error.message };
-		}
+		// Clear session state immediately to prevent UI issues
 		setSession(null);
-		return { success: true };
+		
+		try {
+			// Attempt to sign out from Supabase
+			const { error } = await supabase.auth.signOut();
+			
+			// Ignore "Auth session missing" errors since we're already logged out
+			if (error && !error.message.includes('session')) {
+				console.error('Logout error:', error);
+				// Even if there's an error, we've already cleared local session
+				// So we still consider it a success for the user
+			}
+			
+			return { success: true };
+		} catch (err: any) {
+			console.error('Exception during logout:', err);
+			// Still return success since local state is cleared
+			return { success: true };
+		}
 	};
 
 	const resetPasswordForEmail: AuthContextValue["resetPasswordForEmail"] = async ({

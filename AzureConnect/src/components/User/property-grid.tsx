@@ -27,7 +27,7 @@ interface Property {
 interface PropertyGridProps {
   activeTab: string;
   filters?: FilterState;
-  onContactAgent?: (agentId: number, agentName: string) => void;
+  onContactAgent?: (agentId: string, agentName: string, agentAvatar?: string | null) => void;
 }
 
 export function PropertyGrid({ activeTab, filters, onContactAgent }: PropertyGridProps) {
@@ -206,6 +206,7 @@ export function PropertyGrid({ activeTab, filters, onContactAgent }: PropertyGri
       {selectedProperty && (
         <PropertyDetailsPanel
           property={transformProperty(selectedProperty)}
+          propertyId={selectedProperty.id}
           onClose={() => setSelectedProperty(null)}
           onContactAgent={onContactAgent}
         />

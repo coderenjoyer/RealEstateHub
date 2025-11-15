@@ -28,6 +28,9 @@ export function MessagesSidebar({
     conv.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Calculate total unread count
+  const totalUnreadCount = conversations.filter(c => c.unread).length;
+
   return (
     <div
       className={`${
@@ -41,9 +44,11 @@ export function MessagesSidebar({
             <h2 className="text-xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">
               Messages
             </h2>
-            <Badge className="rounded-full h-6 w-6 p-0 flex items-center justify-center text-xs bg-gradient-to-r from-rose-500 to-pink-500 border-0">
-              1
-            </Badge>
+            {totalUnreadCount > 0 && (
+              <Badge className="rounded-full h-6 w-6 p-0 flex items-center justify-center text-xs bg-gradient-to-r from-rose-500 to-pink-500 border-0">
+                {totalUnreadCount}
+              </Badge>
+            )}
           </div>
           <Button
             size="icon"

@@ -28,6 +28,11 @@ interface TopNavProps {
   ) => void;
   selectedChatId?: number;
   onCloseDropdown?: () => void;
+  agentToContact?: {
+    id: string;
+    name: string;
+    avatar: string | null;
+  };
 }
 
 export function TopNav({
@@ -37,6 +42,7 @@ export function TopNav({
   setActiveDropdown,
   selectedChatId,
   onCloseDropdown,
+  agentToContact,
 }: TopNavProps) {
   const navigate = useNavigate();
   const { signOut } = useAuth();
@@ -314,6 +320,7 @@ export function TopNav({
           onClose={handleCloseDropdown}
           unreadCount={unreadChatsCount}
           initialChatId={selectedChatId}
+          agentToContact={agentToContact}
         />
       )}
       {activeDropdown === "notifications" && (
