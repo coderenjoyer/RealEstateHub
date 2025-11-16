@@ -17,6 +17,7 @@ import { NotificationDropdown } from "./notification";
 import { UserProfileDropdown } from "./user-profile-dropdown";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
+import { useNotifications } from "../../hooks/useNotifications";
 import supabase from "../../supabaseClient";
 
 interface TopNavProps {
@@ -72,8 +73,9 @@ export function TopNav({
     })();
     return () => { isMounted = false };
   }, [session?.user?.id]);
+
   const unreadChatsCount = 3;
-  const unreadNotificationsCount = 2;
+  const { unreadCount: unreadNotificationsCount } = useNotifications();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState<any[]>([]);

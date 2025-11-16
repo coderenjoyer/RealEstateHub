@@ -103,6 +103,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 			console.error(error);
 			return { success: false, error: error.message };
 		}
+
+		// Check if user is deactivated
+		if (data.session?.user?.user_metadata?.status === "Inactive") {
+			// Sign out immediately if account is deactivated
+			await supabase.auth.signOut();
+			return { success: false, error: "This account has been deactivated. Please contact an administrator." };
+		}
+
 		setSession(data.session ?? null);
 		return { success: true, data };
 	};

@@ -60,9 +60,14 @@ export function Sidebar() {
           "py-6 border-b border-[#a0bfce] flex items-center gap-3",
           isCollapsed ? "justify-center px-4" : "px-6"
         )}>
-          <div className="w-10 h-10 bg-gradient-to-br from-sky-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
+          <Link
+            to="/admin"
+            className="w-10 h-10 bg-gradient-to-br from-sky-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2"
+            style={{ '--tw-ring-offset-color': '#b8d4e3' } as React.CSSProperties}
+            aria-label="Admin Dashboard"
+          >
             <Home className="w-6 h-6 text-white" aria-hidden="true" />
-          </div>
+          </Link>
           <div className={cn(
             "transition-all duration-300",
             isCollapsed ? "w-0 opacity-0 overflow-hidden" : "w-auto opacity-100"

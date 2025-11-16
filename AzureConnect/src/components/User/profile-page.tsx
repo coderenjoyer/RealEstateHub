@@ -74,13 +74,19 @@ function UserProfilePage() {
 
   const upsertProfile = async (partial: Record<string, unknown>) => {
     if (!userId) return { error: new Error("No user session") };
-    const payload = { user_id: userId, ...partial };
-    const { error } = await supabase
+    
+    // Just try to update - the profile should already exist
+    const { error: updateError } = await supabase
       .from("profiles")
-      .upsert(payload, { onConflict: "user_id" })
-      .select("id")
-      .single();
-    return { error };
+      .update(partial)
+      .eq("user_id", userId);
+    
+    if (updateError) {
+      console.error("Update error:", updateError);
+      return { error: updateError };
+    }
+    
+    return { error: null };
   };
 
   const uploadImageFromDataUrl = async (dataUrl: string, kind: "profile" | "cover") => {
@@ -173,7 +179,7 @@ function UserProfilePage() {
       setIsSaving(false);
       if (error) {
         console.error("Failed to save bio:", error);
-        setErrorMessage(`Failed to save bio: ${error.message ?? 'Unknown error'}`);
+        setErrorMessage(`Failed to save bio: ${error.message ?? 'Unknown error'} (Code: ${(error as any).code})`);
         return;
       }
       setIsEditModalOpen(false);
@@ -194,7 +200,7 @@ function UserProfilePage() {
       setIsSaving(false);
       if (error) {
         console.error("Failed to save preferences:", error);
-        setErrorMessage(`Failed to save preferences: ${error.message ?? 'Unknown error'}`);
+        setErrorMessage(`Failed to save preferences: ${error.message ?? 'Unknown error'} (Code: ${(error as any).code})`);
         return;
       }
       setIsEditModalOpen(false);

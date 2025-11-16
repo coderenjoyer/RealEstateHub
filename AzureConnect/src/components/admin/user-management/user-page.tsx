@@ -65,11 +65,11 @@ export default function UserManagementPage() {
       if (usersData && Array.isArray(usersData)) {
         const formattedAccounts: Account[] = usersData.map((user: any) => ({
           id: user.id || user.user_id,
-          name: `${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email?.split("@")[0] || "Unknown User",
+          name: `${user.first_name || ""}${user.last_name ? " " + user.last_name : ""}`.trim() || user.email?.split("@")[0] || "Unknown User",
           email: user.email || "",
           phone: user.mobile_number || user.phone || "Not provided",
           properties: user.properties_count || 0,
-          status: user.status || "Inactive",
+          status: user.status === "Inactive" ? "Inactive" : "Active",
         }))
         
         setAccounts(formattedAccounts)
@@ -328,7 +328,17 @@ export default function UserManagementPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredAccounts.map((account) => (
-                    <AccountCard key={account.id} account={account} showStatus={true} />
+                    <AccountCard 
+                      key={account.id} 
+                      account={account} 
+                      showStatus={true} 
+                      isAgent={activeTab === "agent"}
+                      onAccountUpdate={() => {
+                        setTimeout(() => {
+                          fetchAccounts()
+                        }, 1000)
+                      }}
+                    />
                   ))}
                 </div>
               )}

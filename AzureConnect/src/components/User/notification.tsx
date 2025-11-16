@@ -1,98 +1,32 @@
 import { useState, useEffect } from "react"
 import { Bell, Check, CheckCheck, Home, Heart, MessageSquare, Calendar, AlertCircle } from "lucide-react"
-
-type Notification = {
-  id: number
-  title: string
-  message: string
-  time: string
-  type: 'property' | 'message' | 'favorite' | 'appointment' | 'system'
-  read: boolean
-  icon: string
-}
+import { useNotifications } from "../../hooks/useNotifications"
 
 interface NotificationDropdownProps {
   onClose: () => void;
-  unreadCount: number;  // ✅ NEW
+  unreadCount: number;
 }
 
-export function NotificationDropdown({ onClose, unreadCount }: NotificationDropdownProps) {
+export function NotificationDropdown({ onClose, unreadCount: propUnreadCount }: NotificationDropdownProps) {
   const [isOpen, setIsOpen] = useState(true) // Always open when rendered
   const [activeFilter, setActiveFilter] = useState<'all' | 'unread'>('all')
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: 1,
-      title: "New Property Match",
-      message: "A 3-bedroom house in Downtown matches your preferences",
-      time: "2m",
-      type: 'property',
-      read: false,
-      icon: "🏠"
-    },
-    {
-      id: 2,
-      title: "Message from Agent",
-      message: "Sarah Johnson sent you a message about the property viewing",
-      time: "5m",
-      type: 'message',
-      read: false,
-      icon: "💬"
-    },
-    {
-      id: 3,
-      title: "Property Added to Favorites",
-      message: "You saved 'Modern Apartment in City Center' to your favorites",
-      time: "1h",
-      type: 'favorite',
-      read: true,
-      icon: "❤️"
-    },
-    {
-      id: 4,
-      title: "Appointment Reminder",
-      message: "Property viewing scheduled for tomorrow at 2:00 PM",
-      time: "2h",
-      type: 'appointment',
-      read: true,
-      icon: "📅"
-    },
-    {
-      id: 5,
-      title: "Price Drop Alert",
-      message: "The house you're interested in has reduced its price by $15,000",
-      time: "3h",
-      type: 'property',
-      read: false,
-      icon: "💰"
-    },
-    {
-      id: 6,
-      title: "System Update",
-      message: "New features have been added to your dashboard",
-      time: "1d",
-      type: 'system',
-      read: true,
-      icon: "⚙️"
-    },
-    {
-      id: 7,
-      title: "New Message",
-      message: "Mike Chen wants to schedule a property tour",
-      time: "1d",
-      type: 'message',
-      read: true,
-      icon: "💬"
-    },
-    {
-      id: 8,
-      title: "Market Update",
-      message: "Real estate prices in your area have increased by 3.2%",
-      time: "2d",
-      type: 'system',
-      read: true,
-      icon: "📊"
-    }
-  ])
+  const { notifications, loading, unreadCount, markAsRead, markAllAsRead } = useNotifications()
+
+  // Format time ago string
+  const formatTimeAgo = (createdAt: string): string => {
+    const now = new Date()
+    const created = new Date(createdAt)
+    const seconds = Math.floor((now.getTime() - created.getTime()) / 1000)
+    
+    if (seconds < 60) return 'just now'
+    const minutes = Math.floor(seconds / 60)
+    if (minutes < 60) return `${minutes}m`
+    const hours = Math.floor(minutes / 60)
+    if (hours < 24) return `${hours}h`
+    const days = Math.floor(hours / 24)
+    if (days < 7) return `${days}d`
+    return created.toLocaleDateString()
+  }
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -109,22 +43,6 @@ export function NotificationDropdown({ onClose, unreadCount }: NotificationDropd
       default:
         return <Bell className="h-4 w-4 text-gray-600" />
     }
-  }
-
-  const markAsRead = (id: number) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, read: true }
-          : notification
-      )
-    )
-  }
-
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, read: true }))
-    )
   }
 
   // Filter notifications based on active filter
@@ -169,23 +87,25 @@ export function NotificationDropdown({ onClose, unreadCount }: NotificationDropd
     <div className="notification-dropdown-container fixed right-4 top-20 w-[380px] max-h-[70vh] z-50 flex flex-col animate-in fade-in-0 zoom-in-95 duration-150">
       {/* Dropdown Content */}
       <div className="bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-200 flex flex-col max-h-[70vh]">
-        {/* Header - ✅ USE unreadCount + Button + setIsOpen */}
+        {/* Header */}
         <div className="p-4 border-b border-gray-200 bg-white">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              {/* ✅ UNREADCOUNT USED - Show dot */}
               <h2 className="text-xl font-bold text-gray-900">Notifications</h2>
               {unreadCount > 0 && (
                 <div className="w-2 h-2 bg-red-500 rounded-full"></div>
               )}
             </div>
             <div className="flex items-center gap-1.5">
-              <button 
-                className="p-1.5 hover:bg-sky-100 rounded-full transition-colors"
-                onClick={markAllAsRead}
-              >
-                <CheckCheck className="h-5 w-5 text-sky-600" />
-              </button>
+              {unreadCount > 0 && (
+                <button 
+                  className="p-1.5 hover:bg-sky-100 rounded-full transition-colors"
+                  onClick={markAllAsRead}
+                  title="Mark all as read"
+                >
+                  <CheckCheck className="h-5 w-5 text-sky-600" />
+                </button>
+              )}
             </div>
           </div>
 
@@ -216,7 +136,12 @@ export function NotificationDropdown({ onClose, unreadCount }: NotificationDropd
 
         {/* Notifications List */}
         <div className="flex-1 overflow-y-auto scrollbar-hide">
-          {filteredNotifications.length === 0 ? (
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+              <div className="h-8 w-8 border-4 border-gray-300 border-t-sky-600 rounded-full animate-spin mb-3"></div>
+              <p className="text-sm">Loading notifications...</p>
+            </div>
+          ) : (filteredNotifications && filteredNotifications.length === 0) ? (
             <div className="flex flex-col items-center justify-center py-12 text-gray-500">
               <Bell className="h-12 w-12 text-gray-300 mb-3" />
               <p className="text-lg font-medium">
@@ -230,10 +155,12 @@ export function NotificationDropdown({ onClose, unreadCount }: NotificationDropd
             filteredNotifications.map((notification) => (
               <div
                 key={notification.id}
+                data-notification
+                data-read={notification.read}
                 className={`flex items-start gap-3 p-4 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0 ${
                   !notification.read ? 'bg-sky-50/50' : ''
                 }`}
-                onClick={() => markAsRead(notification.id)}
+                onClick={() => !notification.read && markAsRead(notification.id)}
               >
                 {/* Icon */}
                 <div className="flex-shrink-0 mt-0.5">
@@ -258,7 +185,7 @@ export function NotificationDropdown({ onClose, unreadCount }: NotificationDropd
                     </h3>
                     <div className="flex items-center gap-2 flex-shrink-0 ml-2">
                       <span className="text-xs text-gray-500">
-                        {notification.time}
+                        {formatTimeAgo(notification.created_at)}
                       </span>
                       {!notification.read && (
                         <div className="h-2 w-2 bg-sky-500 rounded-full" />

@@ -12,8 +12,8 @@ import ErrorPage from "./components/ui/errorpage";
 import AdminPage from "./components/admin/admin-page";
 import ListingApprovalsPage from "./components/admin/listings/admin-listing";
 import UserManagementPage from "./components/admin/user-management/user-page";
-import AdminProfilePage from "./components/admin/profile/profile-page";
-import ReportsPage from "./components/admin/reports/reports-page";
+import AdminProfilePage from "./components/admin/profile/admin";
+import ReportsPage from "./components/admin/reports/admin_controls";
 import { BookmarkProvider } from "./contexts/BookmarkContext";
 import AzureRealEstateLoader from "./components/ui/loadingscreen";
 const AgentListedPropertiesPage = lazy(

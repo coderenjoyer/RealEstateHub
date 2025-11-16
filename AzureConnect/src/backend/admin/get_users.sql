@@ -21,16 +21,7 @@ RETURNS TABLE (
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
-DECLARE
-  properties_table_exists BOOLEAN;
 BEGIN
-  -- Check if properties table exists (optional - won't break if it doesn't)
-  SELECT EXISTS (
-    SELECT FROM information_schema.tables 
-    WHERE table_schema = 'public' 
-    AND table_name = 'properties'
-  ) INTO properties_table_exists;
-
   RETURN QUERY
   SELECT 
     au.id,
@@ -40,22 +31,10 @@ BEGIN
     (au.raw_user_meta_data->>'mobile_number')::TEXT as mobile_number,
     (au.raw_user_meta_data->>'mobile_number')::TEXT as phone,
     (au.raw_user_meta_data->>'role')::TEXT as role,
+    0::BIGINT as properties_count,
     CASE 
-      WHEN properties_table_exists THEN
-        COALESCE(
-          (SELECT COUNT(*) 
-           FROM public.properties p 
-           WHERE p.user_id = au.id
-             AND (user_role IS NULL OR 
-                  (user_role = 'agent' AND (au.raw_user_meta_data->>'role')::TEXT = 'agent') OR
-                  (user_role = 'user' AND (au.raw_user_meta_data->>'role')::TEXT = 'user'))
-          ), 0
-        )
-      ELSE 0
-    END as properties_count,
-    CASE 
-      WHEN au.email_confirmed_at IS NOT NULL THEN 'Active'::TEXT
-      ELSE 'Inactive'::TEXT
+      WHEN (au.raw_user_meta_data->>'status')::TEXT = 'Inactive' THEN 'Inactive'::TEXT
+      ELSE 'Active'::TEXT
     END as status,
     au.created_at
   FROM auth.users au
