@@ -91,11 +91,8 @@ TO authenticated
 USING ((auth.jwt() ->> 'role') = 'admin')
 WITH CHECK ((auth.jwt() ->> 'role') = 'admin');
 
--- Admins can delete rejected submissions
-CREATE POLICY "Admins can delete rejected submissions"
+-- Admins can delete any submissions
+CREATE POLICY "Admins can delete submissions"
 ON listing_approvals FOR DELETE
 TO authenticated
-USING (
-    (auth.jwt() ->> 'role') = 'admin' AND 
-    approval_status = 'rejected'
-);
+USING ((auth.jwt() ->> 'role') = 'admin');

@@ -118,3 +118,9 @@ ON listed_properties FOR UPDATE
 TO authenticated
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id AND is_deleted = true);
+
+-- Admins can permanently delete any properties
+CREATE POLICY "Admins can delete properties"
+ON listed_properties FOR DELETE
+TO authenticated
+USING ((auth.jwt() ->> 'role') = 'admin');
