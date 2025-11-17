@@ -15,6 +15,7 @@ import {
 import { MessengerDropdown } from "./messenger-dropdown";
 import { NotificationDropdown } from "./notification";
 import { UserProfileDropdown } from "./user-profile-dropdown";
+import { LogoutConfirmationModal } from "@/components/ui/logout-confirmation-modal";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
 import { useNotifications } from "../../hooks/useNotifications";
@@ -49,6 +50,8 @@ export function TopNav({
   const { signOut } = useAuth();
   const { session } = useAuth();
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -122,9 +125,27 @@ export function TopNav({
     setActiveDropdown("none");
   };
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate("/login");
+  const handleLogout = () => {
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      const result = await signOut();
+      if (result?.success) {
+        navigate("/login");
+      }
+    } finally {
+      setIsLoggingOut(false);
+      setShowLogoutModal(false);
+    }
+  };
+
+  const cancelLogout = () => {
+    if (!isLoggingOut) {
+      setShowLogoutModal(false);
+    }
   };
 
   // Fetch location suggestions from Geoapify
@@ -337,6 +358,13 @@ export function TopNav({
           unreadCount={unreadNotificationsCount}
         />
       )}
+
+      <LogoutConfirmationModal
+        open={showLogoutModal}
+        onConfirm={confirmLogout}
+        onCancel={cancelLogout}
+        isProcessing={isLoggingOut}
+      />
     </div>
   );
 }

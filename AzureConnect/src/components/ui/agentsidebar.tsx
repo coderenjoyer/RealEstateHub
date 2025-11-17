@@ -6,6 +6,7 @@ import { User, BarChart3, FileCheck, List, MessageSquare, ChevronLeft, LogOut, H
 import { cn } from "@/lib/utils"
 import { useSidebar } from "@/contexts/SidebarContext"
 import { useAuth } from "@/AuthContext"
+import { LogoutConfirmationModal } from "@/components/ui/logout-confirmation-modal"
 
 const menuItems = [
   { icon: User, label: "Profile", to: "/agent/profile" },
@@ -21,19 +22,31 @@ export function Sidebar() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const { signOut } = useAuth()
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
-  const handleLogout = async () => {
+  const handleLogoutClick = () => setShowLogoutModal(true)
+
+  const confirmLogout = async () => {
     try {
+      setIsLoggingOut(true)
       const result = await signOut()
-      if (result.success) {
+      if (result?.success) {
         navigate("/login")
       } else {
-        console.error("Logout failed:", result.error)
-        navigate("/login")
+        console.error("Logout failed:", result?.error)
       }
     } catch (error) {
       console.error("Error during logout:", error)
-      navigate("/login")
+    } finally {
+      setIsLoggingOut(false)
+      setShowLogoutModal(false)
+    }
+  }
+
+  const cancelLogout = () => {
+    if (!isLoggingOut) {
+      setShowLogoutModal(false)
     }
   }
 
@@ -150,7 +163,7 @@ export function Sidebar() {
         {/* Logout Button */}
         <div className="border-t border-sky-200 p-3">
           <button
-            onClick={handleLogout}
+            onClick={handleLogoutClick}
             className={cn(
               "flex items-center gap-3 py-3.5 text-slate-600 w-full rounded-xl",
               "hover:bg-red-50 hover:text-red-600 transition-all duration-200 group",
@@ -194,6 +207,12 @@ export function Sidebar() {
           aria-hidden="true"
         />
       </button>
+      <LogoutConfirmationModal
+        open={showLogoutModal}
+        onConfirm={confirmLogout}
+        onCancel={cancelLogout}
+        isProcessing={isLoggingOut}
+      />
     </>
   )
 }
