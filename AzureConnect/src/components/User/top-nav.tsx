@@ -117,6 +117,11 @@ export function TopNav({
     setActiveDropdown("none");
   };
 
+  const handleNavigateToPropertyMaintenance = () => {
+    navigate("/user/property-maintenance");
+    setActiveDropdown("none");
+  };
+
   const handleLogout = async () => {
     await signOut();
     navigate("/login");
@@ -310,6 +315,7 @@ export function TopNav({
             <UserProfileDropdown
               onClose={handleCloseDropdown}
               onNavigateToProfile={handleNavigateToProfile}
+              onNavigateToPropertyMaintenance={handleNavigateToPropertyMaintenance}
               onLogout={handleLogout}
             />
           )}
