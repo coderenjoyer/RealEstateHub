@@ -1,7 +1,18 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, ChevronRight, X, Home, MapPin, Bed, Bath, Trash2 } from "lucide-react"
+import {
+  Search,
+  ChevronRight,
+  X,
+  Home,
+  MapPin,
+  Bed,
+  Bath,
+  Trash2,
+  UserPlus,
+  Send,
+} from "lucide-react"
 import supabase from "@/supabaseClient"
 import { useAuth } from "@/AuthContext"
 
@@ -35,6 +46,16 @@ export function PropertiesTable() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [deactivateConfirmId, setDeactivateConfirmId] = useState<number | null>(null)
   const { session } = useAuth()
+  const [transferModalProperty, setTransferModalProperty] = useState<Property | null>(null)
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false)
+  const [transferNotes, setTransferNotes] = useState("")
+  const [ownerSearchTerm, setOwnerSearchTerm] = useState("")
+  const [ownerResults, setOwnerResults] = useState<any[]>([])
+  const [ownerSearchLoading, setOwnerSearchLoading] = useState(false)
+  const [selectedOwner, setSelectedOwner] = useState<any>(null)
+  const [transferError, setTransferError] = useState<string | null>(null)
+  const [transferSuccess, setTransferSuccess] = useState<string | null>(null)
+  const [transferLoading, setTransferLoading] = useState(false)
 
   useEffect(() => {
     fetchProperties()
@@ -119,6 +140,148 @@ export function PropertiesTable() {
     } catch (error) {
       console.error('Error:', error)
       alert('Failed to deactivate listing')
+    }
+  }
+
+  const openTransferModal = (property: Property) => {
+    setTransferModalProperty(property)
+    setTransferNotes("")
+    setOwnerSearchTerm("")
+    setOwnerResults([])
+    setSelectedOwner(null)
+    setOwnerSearchLoading(false)
+    setTransferError(null)
+    setTransferSuccess(null)
+    setIsTransferModalOpen(true)
+  }
+
+  const closeTransferModal = () => {
+    setIsTransferModalOpen(false)
+    setTransferModalProperty(null)
+    setTransferNotes("")
+    setTransferError(null)
+    setTransferSuccess(null)
+    setTransferLoading(false)
+    setOwnerSearchTerm("")
+    setOwnerResults([])
+    setSelectedOwner(null)
+    setOwnerSearchLoading(false)
+  }
+
+  useEffect(() => {
+    let isMounted = true
+
+    const searchOwners = async () => {
+      if (!isTransferModalOpen) return
+      const term = ownerSearchTerm.trim()
+
+      if (term.length < 2) {
+        setOwnerResults([])
+        setOwnerSearchLoading(false)
+        return
+      }
+
+      setOwnerSearchLoading(true)
+      try {
+        const { data, error } = await supabase.rpc("get_all_users", { user_role: "user" })
+
+        if (!isMounted) return
+
+        if (error) {
+          console.error("Owner search failed:", error)
+          setOwnerResults([])
+        } else {
+          const lowerTerm = term.toLowerCase()
+          const filtered = (data || [])
+            .filter((owner: any) => {
+              const fullName = `${owner.first_name ?? ""} ${owner.last_name ?? ""}`.trim().toLowerCase()
+              const email = owner.email?.toLowerCase() || ""
+              return fullName.includes(lowerTerm) || email.includes(lowerTerm)
+            })
+            .slice(0, 5)
+          setOwnerResults(filtered)
+        }
+      } catch (ownerError) {
+        console.error("Owner search error:", ownerError)
+        if (isMounted) setOwnerResults([])
+      } finally {
+        if (isMounted) setOwnerSearchLoading(false)
+      }
+    }
+
+    const timeout = setTimeout(searchOwners, 300)
+
+    return () => {
+      isMounted = false
+      clearTimeout(timeout)
+    }
+  }, [ownerSearchTerm, isTransferModalOpen])
+
+  const handleTransferOwnership = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!transferModalProperty) return
+    if (!selectedOwner) {
+      setTransferError("Please select an owner from the search results.")
+      return
+    }
+    if (!session?.user?.id) {
+      setTransferError("You must be signed in to transfer a listing.")
+      return
+    }
+
+    setTransferLoading(true)
+    setTransferError(null)
+    setTransferSuccess(null)
+
+    try {
+      if (selectedOwner.id === session.user.id) {
+        throw new Error("You already own this property.")
+      }
+
+      const ownershipPayload = {
+        property_id: transferModalProperty.id,
+        owner_id: selectedOwner.id,
+        agent_id: session.user.id,
+        owner_email: selectedOwner.email,
+        owner_name: `${selectedOwner.first_name ?? ""} ${selectedOwner.last_name ?? ""}`.trim() ||
+          selectedOwner.email,
+        maintenance_status: "pending",
+        notes: transferNotes.trim() || null,
+      }
+
+      const { error: ownershipError } = await supabase
+        .from("property_ownerships")
+        .upsert(ownershipPayload, { onConflict: "property_id" })
+
+      if (ownershipError) {
+        throw ownershipError
+      }
+
+      const newStatus = transferModalProperty.listing_type === "sale" ? "sold" : "rented"
+
+      const { error: listingUpdateError } = await supabase
+        .from("listed_properties")
+        .update({
+          is_public: false,
+          property_status: newStatus,
+        })
+        .eq("id", transferModalProperty.id)
+        .eq("user_id", session.user.id)
+
+      if (listingUpdateError) {
+        throw listingUpdateError
+      }
+
+      setTransferSuccess("Ownership transferred successfully. The homeowner now sees it in maintenance.")
+      await fetchProperties()
+      setTimeout(() => {
+        closeTransferModal()
+      }, 2000)
+    } catch (error: any) {
+      console.error("Transfer error:", error)
+      setTransferError(error?.message || "Unable to transfer ownership right now.")
+    } finally {
+      setTransferLoading(false)
     }
   }
 
@@ -234,14 +397,24 @@ export function PropertiesTable() {
                     </button>
                   </td>
                   <td className="px-6 py-4 text-sm">
-                    <button 
-                      onClick={() => setDeactivateConfirmId(property.id)}
-                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 font-medium hover:bg-red-100 transition-colors"
-                      title="Deactivate Listing"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Deactivate
-                    </button>
+                    <div className="flex flex-wrap gap-3">
+                      <button 
+                        onClick={() => openTransferModal(property)}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 font-medium hover:bg-emerald-100 transition-colors"
+                        title="Transfer Ownership"
+                      >
+                        <UserPlus className="w-4 h-4" />
+                        Transfer
+                      </button>
+                      <button 
+                        onClick={() => setDeactivateConfirmId(property.id)}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 font-medium hover:bg-red-100 transition-colors"
+                        title="Deactivate Listing"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Deactivate
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -439,6 +612,128 @@ export function PropertiesTable() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transfer Ownership Modal */}
+      {isTransferModalOpen && transferModalProperty && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={closeTransferModal}>
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-semibold text-slate-900">Transfer Ownership</h3>
+                <p className="text-sm text-slate-500">Send {transferModalProperty.property_title} to a homeowner</p>
+              </div>
+              <button
+                onClick={closeTransferModal}
+                className="p-2 rounded-full hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-slate-500" />
+              </button>
+            </div>
+
+            <form className="px-6 py-6 space-y-4" onSubmit={handleTransferOwnership}>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Select Homeowner
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={ownerSearchTerm}
+                    onChange={(e) => setOwnerSearchTerm(e.target.value)}
+                    placeholder="Search by name or email"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                  {ownerSearchLoading && (
+                    <div className="absolute right-3 top-2 text-xs text-slate-400">
+                      Searching...
+                    </div>
+                  )}
+                </div>
+                {ownerResults.length > 0 && (
+                  <div className="mt-2 border border-slate-200 rounded-lg divide-y divide-slate-200 max-h-48 overflow-y-auto">
+                    {ownerResults.map((owner) => {
+                      const fullName = `${owner.first_name ?? ""} ${owner.last_name ?? ""}`.trim()
+                      return (
+                        <button
+                          key={owner.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedOwner(owner)
+                            setOwnerResults([])
+                            setOwnerSearchTerm(fullName || owner.email)
+                          }}
+                          className={`w-full px-4 py-2 text-left text-sm hover:bg-emerald-50 transition-colors ${
+                            selectedOwner?.id === owner.id ? "bg-emerald-50" : ""
+                          }`}
+                        >
+                          <p className="font-medium text-slate-900">
+                            {fullName || owner.email?.split("@")[0] || "Unnamed User"}
+                          </p>
+                          <p className="text-xs text-slate-500">{owner.email}</p>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+                {selectedOwner && (
+                  <p className="text-xs text-emerald-600 mt-1">
+                    Selected owner:{" "}
+                    {`${selectedOwner.first_name ?? ""} ${selectedOwner.last_name ?? ""}`.trim() ||
+                      selectedOwner.email}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Notes for the Owner
+                </label>
+                <textarea
+                  value={transferNotes}
+                  onChange={(e) => setTransferNotes(e.target.value)}
+                  rows={3}
+                  placeholder="Include reminders, warranty information, etc."
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              {transferError && (
+                <div className="rounded-lg bg-red-50 text-red-700 px-3 py-2 text-sm">
+                  {transferError}
+                </div>
+              )}
+
+              {transferSuccess && (
+                <div className="rounded-lg bg-emerald-50 text-emerald-700 px-3 py-2 text-sm">
+                  {transferSuccess}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={closeTransferModal}
+                  className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors"
+                  disabled={transferLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-70"
+                  disabled={transferLoading}
+                >
+                  <Send className="w-4 h-4" />
+                  {transferLoading ? "Transferring..." : "Transfer"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

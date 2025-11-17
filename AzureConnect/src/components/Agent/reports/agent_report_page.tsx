@@ -1,8 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { AgentLayout } from "@/components/layouts/AgentLayout"
 import { Search, Filter, Download, Eye, X, AlertTriangle, CheckCircle, Clock, XCircle, Calendar, User, FileText, ChevronDown } from "lucide-react"
+import { useAuth } from "@/AuthContext"
+import supabase from "@/supabaseClient"
 
 interface Report {
   id: number
@@ -11,6 +13,9 @@ interface Report {
   details: string
   propertyId?: string
   propertyTitle?: string
+  ownerName?: string
+  ownerId?: string
+  propertyOwnershipId?: number
   reportedBy: string
   reportedByRole: string
   reportedDate: string
@@ -19,125 +24,12 @@ interface Report {
   assignedTo?: string
   resolution?: string
   attachments?: number
+  scheduledDate?: string | null
+  estimatedCost?: number | null
 }
 
-const reportsData: Report[] = [
-  {
-    id: 1,
-    type: "Scam Alert",
-    reportCategory: "Fraudulent Listing",
-    details: "Property listing appears to be fake with stolen images and unrealistic pricing",
-    propertyId: "PROP-2834",
-    propertyTitle: "Luxury Villa in Makati",
-    reportedBy: "Kristian Lopez",
-    reportedByRole: "User",
-    reportedDate: "2024-10-20",
-    status: "Under Review",
-    priority: "Critical",
-    assignedTo: "Admin Team",
-    attachments: 3
-  },
-  {
-    id: 2,
-    type: "Property Issue",
-    reportCategory: "Misleading Information",
-    details: "Property description doesn't match actual condition. Missing amenities listed",
-    propertyId: "PROP-1923",
-    propertyTitle: "Modern Condo Unit",
-    reportedBy: "Maria Santos",
-    reportedByRole: "Tenant",
-    reportedDate: "2024-10-19",
-    status: "Resolved",
-    priority: "Medium",
-    assignedTo: "John Michael Santos",
-    resolution: "Property listing updated with accurate information",
-    attachments: 5
-  },
-  {
-    id: 3,
-    type: "User Complaint",
-    reportCategory: "Unprofessional Behavior",
-    details: "Agent was unresponsive and rude during property viewing",
-    reportedBy: "David Tan",
-    reportedByRole: "User",
-    reportedDate: "2024-10-18",
-    status: "Pending",
-    priority: "Low",
-    attachments: 1
-  },
-  {
-    id: 4,
-    type: "Scam Alert",
-    reportCategory: "Payment Fraud",
-    details: "Agent requested payment outside platform for reservation fee",
-    propertyId: "PROP-3421",
-    propertyTitle: "Townhouse in Quezon City",
-    reportedBy: "Anna Cruz",
-    reportedByRole: "User",
-    reportedDate: "2024-10-17",
-    status: "Under Review",
-    priority: "Critical",
-    assignedTo: "Security Team",
-    attachments: 2
-  },
-  {
-    id: 5,
-    type: "Property Issue",
-    reportCategory: "Safety Concern",
-    details: "Electrical wiring issues and fire hazards observed",
-    propertyId: "PROP-2156",
-    propertyTitle: "Studio Apartment",
-    reportedBy: "Robert Chen",
-    reportedByRole: "Tenant",
-    reportedDate: "2024-10-16",
-    status: "Resolved",
-    priority: "High",
-    assignedTo: "Maintenance Team",
-    resolution: "Property removed from listings until repairs completed",
-    attachments: 8
-  },
-  {
-    id: 6,
-    type: "Technical Issue",
-    reportCategory: "Platform Bug",
-    details: "Unable to submit application form, system keeps timing out",
-    reportedBy: "Lisa Wang",
-    reportedByRole: "User",
-    reportedDate: "2024-10-15",
-    status: "Resolved",
-    priority: "Medium",
-    assignedTo: "Tech Support",
-    resolution: "Bug fixed in latest update"
-  },
-  {
-    id: 7,
-    type: "User Complaint",
-    reportCategory: "Spam Messages",
-    details: "Receiving repeated unwanted messages from agent",
-    reportedBy: "Michael Brown",
-    reportedByRole: "User",
-    reportedDate: "2024-10-14",
-    status: "Rejected",
-    priority: "Low",
-    resolution: "User can use block feature in messaging"
-  },
-  {
-    id: 8,
-    type: "Property Issue",
-    reportCategory: "Incorrect Pricing",
-    details: "Listed price differs significantly from advertised price",
-    propertyId: "PROP-4567",
-    propertyTitle: "Commercial Space",
-    reportedBy: "Sarah Johnson",
-    reportedByRole: "Agent",
-    reportedDate: "2024-10-13",
-    status: "Pending",
-    priority: "High",
-    attachments: 1
-  }
-]
-
 export default function EnhancedReportsPage() {
+  const { session } = useAuth()
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedReport, setSelectedReport] = useState<Report | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -146,6 +38,11 @@ export default function EnhancedReportsPage() {
   const [filterType, setFilterType] = useState("all")
   const [showFilters, setShowFilters] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const [reportsData, setReportsData] = useState<Report[]>([])
+  const [loadingReports, setLoadingReports] = useState(true)
+  const [fetchError, setFetchError] = useState<string | null>(null)
+  const [resolvingReport, setResolvingReport] = useState(false)
+  const [resolveError, setResolveError] = useState<string | null>(null)
   const itemsPerPage = 6
 
   const statusColors = {
@@ -169,6 +66,104 @@ export default function EnhancedReportsPage() {
     Rejected: XCircle
   }
 
+  const mapMaintenanceStatus = (status: string | null): Report["status"] => {
+    switch ((status || "").toLowerCase()) {
+      case "completed":
+        return "Resolved"
+      case "in-progress":
+        return "Under Review"
+      case "pending":
+      default:
+        return "Pending"
+    }
+  }
+
+  const mapPriority = (priority: string | null): Report["priority"] => {
+    switch ((priority || "").toLowerCase()) {
+      case "critical":
+        return "Critical"
+      case "high":
+        return "High"
+      case "low":
+        return "Low"
+      default:
+        return "Medium"
+    }
+  }
+
+  const fetchMaintenanceReports = async () => {
+    if (!session?.user?.id) return
+    setLoadingReports(true)
+    setFetchError(null)
+    try {
+      const { data, error } = await supabase
+        .from("property_maintenance_logs")
+        .select(`
+          id,
+          maintenance_type,
+          maintenance_status,
+          priority,
+          description,
+          scheduled_date,
+          estimated_cost,
+          assigned_to,
+          created_at,
+          property:listed_properties!property_maintenance_logs_property_id_fkey (
+            id,
+            property_title,
+            street_address,
+            city
+          ),
+          ownership:property_ownerships!property_maintenance_logs_property_ownership_id_fkey (
+            id,
+            agent_id,
+            owner_id,
+            owner_name
+          ),
+          property_ownership_id
+        `)
+        .eq("ownership.agent_id", session.user.id)
+        .order("created_at", { ascending: false })
+
+      if (error) {
+        throw error
+      }
+
+      const mappedReports: Report[] = (data || []).map((log: any) => ({
+        id: log.id,
+        type: log.maintenance_type || "Maintenance",
+        reportCategory: log.maintenance_type || "Maintenance",
+        details: log.description || "No description provided.",
+        propertyId: log.property?.id ? `PROP-${log.property.id}` : undefined,
+        propertyTitle: log.property?.property_title,
+        ownerName: log.ownership?.owner_name,
+        ownerId: log.ownership?.owner_id,
+        propertyOwnershipId: log.property_ownership_id,
+        reportedBy: "Homeowner",
+        reportedByRole: "User",
+        reportedDate: log.created_at,
+        status: mapMaintenanceStatus(log.maintenance_status),
+        priority: mapPriority(log.priority),
+        assignedTo: log.assigned_to || undefined,
+        resolution: log.maintenance_status === "completed" ? "Marked completed by homeowner" : undefined,
+        scheduledDate: log.scheduled_date ?? null,
+        estimatedCost: log.estimated_cost ?? null
+      }))
+
+      setReportsData(mappedReports)
+    } catch (err: any) {
+      console.error("Error fetching maintenance logs:", err)
+      setFetchError(err.message || "Unable to load maintenance reports.")
+      setReportsData([])
+    } finally {
+      setLoadingReports(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchMaintenanceReports()
+  }, [session?.user?.id])
+
   const openModal = (report: Report) => {
     setSelectedReport(report)
     setIsModalOpen(true)
@@ -177,6 +172,69 @@ export default function EnhancedReportsPage() {
   const closeModal = () => {
     setIsModalOpen(false)
     setSelectedReport(null)
+    setResolveError(null)
+  }
+
+  const handleMarkAsResolved = async () => {
+    if (!selectedReport || !selectedReport.ownerId || !selectedReport.propertyOwnershipId) {
+      setResolveError("Missing required information to resolve this report.")
+      return
+    }
+
+    setResolvingReport(true)
+    setResolveError(null)
+
+    try {
+      // 1. Update the maintenance log status to "completed"
+      const { error: logError } = await supabase
+        .from("property_maintenance_logs")
+        .update({ maintenance_status: "completed" })
+        .eq("id", selectedReport.id)
+
+      if (logError) throw logError
+
+      // 2. Update the property_ownerships maintenance_status to "completed"
+      const { error: ownershipError } = await supabase
+        .from("property_ownerships")
+        .update({ maintenance_status: "completed" })
+        .eq("id", selectedReport.propertyOwnershipId)
+
+      if (ownershipError) throw ownershipError
+
+      // 3. Create a notification for the owner
+      const propertyTitle = selectedReport.propertyTitle || "your property"
+      const propertyIdNum = selectedReport.propertyId 
+        ? parseInt(selectedReport.propertyId.replace("PROP-", ""), 10)
+        : null
+      
+      const { error: notificationError } = await supabase
+        .from("notifications")
+        .insert({
+          user_id: selectedReport.ownerId,
+          title: "Maintenance Request Resolved",
+          message: `Your maintenance request for ${propertyTitle} has been marked as resolved by your agent.`,
+          type: "system",
+          related_property_id: isNaN(propertyIdNum as number) ? null : propertyIdNum,
+          related_agent_id: session?.user?.id || null,
+          read: false,
+        })
+
+      if (notificationError) {
+        console.error("Error creating notification:", notificationError)
+        // Don't throw here - the main action succeeded, notification is secondary
+      }
+
+      // 4. Refresh the reports list
+      await fetchMaintenanceReports()
+
+      // 5. Close the modal
+      closeModal()
+    } catch (err: any) {
+      console.error("Error resolving report:", err)
+      setResolveError(err.message || "Failed to mark report as resolved. Please try again.")
+    } finally {
+      setResolvingReport(false)
+    }
   }
 
   // Filter data
@@ -218,23 +276,23 @@ export default function EnhancedReportsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
             <div className="bg-white rounded-xl shadow-md p-4">
               <p className="text-sm text-gray-600 mb-1">Total Reports</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+              <p className="text-2xl font-bold text-gray-900">{loadingReports ? "—" : stats.total}</p>
             </div>
             <div className="bg-white rounded-xl shadow-md p-4">
               <p className="text-sm text-gray-600 mb-1">Pending</p>
-              <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+              <p className="text-2xl font-bold text-yellow-600">{loadingReports ? "—" : stats.pending}</p>
             </div>
             <div className="bg-white rounded-xl shadow-md p-4">
               <p className="text-sm text-gray-600 mb-1">Under Review</p>
-              <p className="text-2xl font-bold text-blue-600">{stats.underReview}</p>
+              <p className="text-2xl font-bold text-blue-600">{loadingReports ? "—" : stats.underReview}</p>
             </div>
             <div className="bg-white rounded-xl shadow-md p-4">
               <p className="text-sm text-gray-600 mb-1">Resolved</p>
-              <p className="text-2xl font-bold text-green-600">{stats.resolved}</p>
+              <p className="text-2xl font-bold text-green-600">{loadingReports ? "—" : stats.resolved}</p>
             </div>
             <div className="bg-white rounded-xl shadow-md p-4">
               <p className="text-sm text-gray-600 mb-1">Critical</p>
-              <p className="text-2xl font-bold text-red-600">{stats.critical}</p>
+              <p className="text-2xl font-bold text-red-600">{loadingReports ? "—" : stats.critical}</p>
             </div>
           </div>
 
@@ -320,16 +378,30 @@ export default function EnhancedReportsPage() {
 
             {/* Reports Table */}
             <div className="overflow-x-auto">
+              {fetchError && (
+                <div className="px-6 py-4 text-sm text-red-600 bg-red-50 border-b border-red-100">
+                  {fetchError}
+                </div>
+              )}
+              {loadingReports && !fetchError && (
+                <div className="px-6 py-10 text-center text-gray-500">
+                  Loading maintenance reports...
+                </div>
+              )}
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Report ID</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Type & Category</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Owner</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Details</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Reported By</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Priority</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Priority</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Scheduled</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Est. Cost</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Assigned</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Details</th>
                   </tr>
                 </thead>
@@ -345,6 +417,14 @@ export default function EnhancedReportsPage() {
                           <div>
                             <p className="font-medium text-gray-900 text-sm">{report.type}</p>
                             <p className="text-xs text-gray-600">{report.reportCategory}</p>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">{report.ownerName || "Unknown Owner"}</p>
+                            {report.propertyTitle && (
+                              <p className="text-xs text-gray-600">{report.propertyTitle}</p>
+                            )}
                           </div>
                         </td>
                         <td className="px-6 py-4">
@@ -372,6 +452,23 @@ export default function EnhancedReportsPage() {
                             {report.priority}
                           </span>
                         </td>
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {report.scheduledDate
+                            ? new Date(report.scheduledDate).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })
+                            : "TBD"}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 font-medium">
+                          {typeof report.estimatedCost === "number"
+                            ? `₱${report.estimatedCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                            : "—"}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {report.assignedTo || "Unassigned"}
+                        </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[report.status]}`}>
                             <StatusIcon className="w-3 h-3" />
@@ -395,7 +492,7 @@ export default function EnhancedReportsPage() {
           </div>
 
             {/* Empty State */}
-            {paginatedData.length === 0 && (
+            {!loadingReports && paginatedData.length === 0 && (
               <div className="p-12 text-center">
                 <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-500 font-medium">No reports found</p>
@@ -504,6 +601,12 @@ export default function EnhancedReportsPage() {
                       </div>
                     </>
                   )}
+                  {selectedReport.ownerName && (
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700 mb-1 block">Property Owner</label>
+                      <p className="text-gray-900">{selectedReport.ownerName}</p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-4">
@@ -528,6 +631,32 @@ export default function EnhancedReportsPage() {
                         day: 'numeric'
                       })}
                     </p>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700 mb-1 block">Scheduled Date</label>
+                      <p className="text-gray-900">
+                        {selectedReport.scheduledDate
+                          ? new Date(selectedReport.scheduledDate).toLocaleDateString("en-US", {
+                              weekday: "long",
+                              month: "long",
+                              day: "numeric",
+                              year: "numeric",
+                            })
+                          : "TBD"}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold text-gray-700 mb-1 block">Estimated Cost</label>
+                      <p className="text-gray-900">
+                        {typeof selectedReport.estimatedCost === "number"
+                          ? `₱${selectedReport.estimatedCost.toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}`
+                          : "Not provided"}
+                      </p>
+                    </div>
                   </div>
                   {selectedReport.assignedTo && (
                     <div>
@@ -579,10 +708,26 @@ export default function EnhancedReportsPage() {
                   <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
                     Assign to Team
                   </button>
-                  <button className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
-                    Mark as Resolved
+                  <button
+                    onClick={handleMarkAsResolved}
+                    disabled={resolvingReport}
+                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {resolvingReport ? (
+                      <>
+                        <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Resolving...
+                      </>
+                    ) : (
+                      "Mark as Resolved"
+                    )}
                   </button>
                 </>
+              )}
+              {resolveError && (
+                <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  {resolveError}
+                </div>
               )}
             </div>
           </div>

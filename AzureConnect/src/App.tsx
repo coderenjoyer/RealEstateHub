@@ -23,7 +23,7 @@ const AgentProfilePage = lazy(() => import("./components/Agent/profile/page"));
 const AgentListPropertyPage = lazy(
   () => import("./components/Agent/createlist/createlistpage")
 );
-const AgentReportsPage = lazy(() => import("./components/Agent/reports/page"));
+const AgentReportsPage = lazy(() => import("./components/Agent/reports/agent_report_page"));
 const AgentCommunicationPage = lazy(
   () => import("./components/Agent/communication/page")
 );
