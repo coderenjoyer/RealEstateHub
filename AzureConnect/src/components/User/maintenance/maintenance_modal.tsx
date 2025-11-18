@@ -240,9 +240,9 @@ export function MaintenanceModal({
 
       <div className="relative z-10 w-full max-w-3xl animate-in fade-in-0 zoom-in-95 duration-200">
         <div className="max-h-[90vh] overflow-hidden rounded-3xl border border-white/60 bg-white/95 shadow-[0_30px_80px_rgba(15,23,42,0.35)] backdrop-blur">
-          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 bg-gradient-to-r from-blue-500/10 via-white to-indigo-500/10 px-8 py-6">
+          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 bg-gradient-to-r from-sky-400/20 via-white to-blue-500/10 px-8 py-6">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-500">Maintenance</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-sky-600">Maintenance</p>
               <h2 className="mt-2 text-2xl font-semibold text-slate-900">Submit a request</h2>
               <p className="text-sm text-slate-500">
                 Provide context so your agent can coordinate contractors quickly.
@@ -372,7 +372,7 @@ export function MaintenanceModal({
               <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">Estimated Cost</label>
                 <div className="relative">
-                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">₱</span>
                   <input
                     type="number"
                     name="estimatedCost"
@@ -404,7 +404,7 @@ export function MaintenanceModal({
               </button>
               <button
                 type="submit"
-                className="flex-1 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:shadow-blue-500/30 disabled:opacity-70"
+                className="flex-1 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:shadow-sky-500/40 disabled:opacity-70"
                 disabled={loading}
               >
                 {loading ? "Saving..." : "Submit request"}
