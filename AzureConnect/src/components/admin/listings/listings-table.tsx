@@ -37,6 +37,11 @@ export function PendingListingsTable() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [deleteSource, setDeleteSource] = useState<"listing_approvals" | "listed_properties" | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [approveConfirmId, setApproveConfirmId] = useState<string | null>(null)
+  const [rejectConfirmId, setRejectRejectId] = useState<string | null>(null)
+  const [rejectionReason, setRejectionReason] = useState<string>("")
+  const [successMessage, setSuccessMessage] = useState<string | null>(null) // New state for success messages
+  const [errorMessage, setErrorMessage] = useState<string | null>(null) // New state for error messages
 
   const itemsPerPage = 5
   
@@ -119,24 +124,25 @@ export function PendingListingsTable() {
       // Refetch listings to get updated data from database
       await fetchListings()
       setSelectedListing(null)
+      setApproveConfirmId(null) // Close confirmation modal
       
       // Show success message
-      alert('Listing approved and moved to listed properties!')
+      setSuccessMessage('Listing approved and moved to listed properties!')
+      setTimeout(() => setSuccessMessage(null), 3000) // Clear message after 3 seconds
     } catch (error: any) {
       console.error('Error approving listing:', error)
-      alert(`Failed to approve listing: ${error.message || 'Unknown error'}`)
+      setErrorMessage(`Failed to approve listing: ${error.message || 'Unknown error'}`)
+      setTimeout(() => setErrorMessage(null), 5000) // Clear message after 5 seconds
     }
   }
 
   const handleReject = async (id: string) => {
     try {
-      const reason = prompt('Enter rejection reason (optional):') || null
-      
       // Call the reject_listing function
       const { data, error } = await supabase
         .rpc('reject_listing', { 
           approval_record_id: parseInt(id),
-          reason: reason 
+          reason: rejectionReason || null
         })
       
       if (error) {
@@ -147,12 +153,16 @@ export function PendingListingsTable() {
       // Refetch listings to get updated data from database
       await fetchListings()
       setSelectedListing(null)
+      setRejectRejectId(null) // Close confirmation modal
+      setRejectionReason("") // Clear rejection reason
       
       // Show success message
-      alert('Listing rejected successfully!')
+      setSuccessMessage('Listing rejected successfully!')
+      setTimeout(() => setSuccessMessage(null), 3000) // Clear message after 3 seconds
     } catch (error: any) {
       console.error('Error rejecting listing:', error)
-      alert(`Failed to reject listing: ${error.message || 'Unknown error'}`)
+      setErrorMessage(`Failed to reject listing: ${error.message || 'Unknown error'}`)
+      setTimeout(() => setErrorMessage(null), 5000) // Clear message after 5 seconds
     }
   }
   
@@ -396,14 +406,14 @@ export function PendingListingsTable() {
                         {listing.approval_status === "pending" && (
                           <>
                             <button
-                              onClick={() => handleApprove(listing.id)}
+                              onClick={() => setApproveConfirmId(listing.id)} // Open confirmation modal instead of direct approve
                               className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                               title="Approve"
                             >
                               <CheckCircle className="w-4 h-4" />
                             </button>
                             <button
-                              onClick={() => handleReject(listing.id)}
+                              onClick={() => setRejectRejectId(listing.id)} // Open confirmation modal instead of direct reject
                               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                               title="Reject"
                             >
@@ -580,14 +590,14 @@ export function PendingListingsTable() {
                 {selectedListing.approval_status === "pending" && (
                   <div className="flex gap-3 pt-4">
                     <button
-                      onClick={() => handleApprove(selectedListing.id)}
+                      onClick={() => setApproveConfirmId(selectedListing.id)} // Open confirmation modal instead of direct approve
                       className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
                     >
                       <CheckCircle className="w-5 h-5" />
                       Approve Listing
                     </button>
                     <button
-                      onClick={() => handleReject(selectedListing.id)}
+                      onClick={() => setRejectRejectId(selectedListing.id)} // Open confirmation modal instead of direct reject
                       className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors"
                     >
                       <XCircle className="w-5 h-5" />
@@ -641,6 +651,102 @@ export function PendingListingsTable() {
             </div>
           </div>
         )}
+
+        {/* Approve Confirmation Modal */}
+        {approveConfirmId && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setApproveConfirmId(null)}>
+            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+              <div className="p-6">
+                <div className="flex items-center gap-3 text-green-600 mb-4">
+                  <CheckCircle className="w-6 h-6" />
+                  <h3 className="text-xl font-bold text-gray-900">Approve Listing</h3>
+                </div>
+                <p className="text-gray-600 mb-6">
+                  Are you sure you want to approve this listing? This will make it publicly visible on the platform.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setApproveConfirmId(null)}
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleApprove(approveConfirmId)}
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    Approve
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Reject Confirmation Modal */}
+        {rejectConfirmId && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => {
+            setRejectRejectId(null)
+            setRejectionReason("")
+          }}>
+            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+              <div className="p-6">
+                <div className="flex items-center gap-3 text-red-600 mb-4">
+                  <XCircle className="w-6 h-6" />
+                  <h3 className="text-xl font-bold text-gray-900">Reject Listing</h3>
+                </div>
+                <p className="text-gray-600 mb-4">
+                  Please provide a reason for rejecting this listing (optional):
+                </p>
+                <textarea
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                  placeholder="Enter rejection reason..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+                  rows={3}
+                />
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setRejectRejectId(null)
+                      setRejectionReason("")
+                    }}
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleReject(rejectConfirmId)}
+                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Success Message Toast */}
+        {successMessage && (
+          <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5" />
+              <span>{successMessage}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Error Message Toast */}
+        {errorMessage && (
+          <div className="fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in">
+            <div className="flex items-center gap-2">
+              <XCircle className="w-5 h-5" />
+              <span>{errorMessage}</span>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   )
