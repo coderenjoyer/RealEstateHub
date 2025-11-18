@@ -16,6 +16,8 @@ import AdminProfilePage from "./components/admin/profile/admin";
 import ReportsPage from "./components/admin/reports/admin_controls";
 import { BookmarkProvider } from "./contexts/BookmarkContext";
 import AzureRealEstateLoader from "./components/ui/loadingscreen";
+import { ProtectedRoute } from "./components/ui/ProtectedRoute";
+
 const AgentListedPropertiesPage = lazy(
   () => import("./components/Agent/listedproperties/page")
 );
@@ -54,26 +56,125 @@ function App() {
         />
         <Route path="/login" element={<LoginParentContainer />} />
         <Route path="/login/reset" element={<LoginParentContainer />} />
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/admin/profile" element={<AdminProfilePage />} />
-        <Route path="/admin/listings" element={<ListingApprovalsPage />} />
-        <Route path="/admin/users" element={<UserManagementPage />} />
-        <Route path="/admin/reports" element={<ReportsPage />} />
-        <Route path="/user" element={<UserHomePage />} />
-        <Route path="/user/profile" element={<UserProfilePage />} />
-        <Route path="/user/favorites" element={<FavoritesPage />} />
-        <Route path="/user/property-maintenance" element={<PropertyMaintenancePage />} />
+        
+        {/* Admin Routes */}
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/profile" 
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminProfilePage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/listings" 
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <ListingApprovalsPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/users" 
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <UserManagementPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/reports" 
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <ReportsPage />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* User Routes */}
+        <Route 
+          path="/user" 
+          element={
+            <ProtectedRoute requiredRole="user">
+              <UserHomePage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/user/profile" 
+          element={
+            <ProtectedRoute requiredRole="user">
+              <UserProfilePage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/user/favorites" 
+          element={
+            <ProtectedRoute requiredRole="user">
+              <FavoritesPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/user/property-maintenance" 
+          element={
+            <ProtectedRoute requiredRole="user">
+              <PropertyMaintenancePage />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Agent Routes */}
         <Route
           path="/agent/listed-properties"
-          element={<AgentListedPropertiesPage />}
+          element={
+            <ProtectedRoute requiredRole="agent">
+              <AgentListedPropertiesPage />
+            </ProtectedRoute>
+          }
         />
-        <Route path="/agent/profile" element={<AgentProfilePage />} />
-        <Route path="/agent/createlist" element={<AgentListPropertyPage />} />
-        <Route path="/agent/reports" element={<AgentReportsPage />} />
+        <Route 
+          path="/agent/profile" 
+          element={
+            <ProtectedRoute requiredRole="agent">
+              <AgentProfilePage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/agent/createlist" 
+          element={
+            <ProtectedRoute requiredRole="agent">
+              <AgentListPropertyPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/agent/reports" 
+          element={
+            <ProtectedRoute requiredRole="agent">
+              <AgentReportsPage />
+            </ProtectedRoute>
+          } 
+        />
         <Route
           path="/agent/communication"
-          element={<AgentCommunicationPage />}
+          element={
+            <ProtectedRoute requiredRole="agent">
+              <AgentCommunicationPage />
+            </ProtectedRoute>
+          }
         />
+        
         <Route
           path="*"
           element={<ErrorPage />}
@@ -83,4 +184,5 @@ function App() {
     </BookmarkProvider>
   );
 }
+
 export default App;
