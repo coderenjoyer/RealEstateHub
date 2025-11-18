@@ -398,14 +398,16 @@ export function PropertiesTable() {
                   </td>
                   <td className="px-6 py-4 text-sm">
                     <div className="flex flex-wrap gap-3">
-                      <button 
-                        onClick={() => openTransferModal(property)}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 font-medium hover:bg-emerald-100 transition-colors"
-                        title="Transfer Ownership"
-                      >
-                        <UserPlus className="w-4 h-4" />
-                        Transfer
-                      </button>
+                      {property.property_status !== "sold" && (
+                        <button 
+                          onClick={() => openTransferModal(property)}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 font-medium hover:bg-emerald-100 transition-colors"
+                          title="Transfer Ownership"
+                        >
+                          <UserPlus className="w-4 h-4" />
+                          Transfer
+                        </button>
+                      )}
                       <button 
                         onClick={() => setDeactivateConfirmId(property.id)}
                         className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 font-medium hover:bg-red-100 transition-colors"
