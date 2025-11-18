@@ -3,7 +3,10 @@ import { Search, X, Phone, Minus, Send, Paperclip, Trash2 } from "lucide-react";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/AuthContext";
 import supabase from "@/supabaseClient";
-import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+import type {
+  RealtimeChannel,
+  RealtimePostgresChangesPayload,
+} from "@supabase/supabase-js";
 
 interface MessengerDropdownProps {
   onClose: () => void;
@@ -71,52 +74,52 @@ export function MessengerDropdown({
   useEffect(() => {
     // Subscribe to real-time conversation updates
     const channel: RealtimeChannel = supabase
-      .channel('messenger-dropdown-conversations')
+      .channel("messenger-dropdown-conversations")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'conversations',
+          event: "INSERT",
+          schema: "public",
+          table: "conversations",
         },
         (payload: RealtimePostgresChangesPayload<any>) => {
-          console.log('New conversation in dropdown:', payload);
+          console.log("New conversation in dropdown:", payload);
           fetchConversations();
         }
       )
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
         },
         (payload: RealtimePostgresChangesPayload<any>) => {
-          console.log('New message in dropdown:', payload);
+          console.log("New message in dropdown:", payload);
           fetchConversations();
         }
       )
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'messages',
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
         },
         (payload: RealtimePostgresChangesPayload<any>) => {
-          console.log('Message updated in dropdown:', payload);
+          console.log("Message updated in dropdown:", payload);
           fetchConversations();
         }
       )
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'messages',
+          event: "DELETE",
+          schema: "public",
+          table: "messages",
         },
         (payload: RealtimePostgresChangesPayload<any>) => {
-          console.log('Message deleted in dropdown:', payload);
+          console.log("Message deleted in dropdown:", payload);
           fetchConversations();
         }
       )
@@ -508,13 +511,6 @@ export function MessengerDropdown({
                 disabled={sendingMessage}
                 className="flex-1 px-3 py-1.5 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
               />
-              <button
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
-                onClick={handleFileUpload}
-                title="Send files"
-              >
-                <Paperclip className="h-4 w-4 text-sky-600" />
-              </button>
               <button
                 onClick={handleSendMessage}
                 disabled={!messageInput.trim() || sendingMessage}

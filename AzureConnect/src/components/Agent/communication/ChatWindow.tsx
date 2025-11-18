@@ -321,15 +321,6 @@ export function ChatWindow({
         />
 
         <div className="flex gap-2 items-center bg-white rounded-full p-2 shadow-md border border-sky-200">
-          <Button
-            onClick={handleFileUpload}
-            size="icon"
-            variant="ghost"
-            className="h-9 w-9 rounded-full hover:bg-sky-100 text-sky-600"
-            title="Attach files"
-          >
-            <Paperclip className="h-4 w-4" />
-          </Button>
           <Input
             value={messageInput}
             onChange={(e) => onMessageInputChange(e.target.value)}
@@ -337,14 +328,6 @@ export function ChatWindow({
             placeholder="Type your message here..."
             className="flex-1 border-0 bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-0 placeholder:text-gray-400"
           />
-          <Button
-            onClick={onSendMessage}
-            disabled={!messageInput.trim() || sendingMessage}
-            size="icon"
-            className="h-9 w-9 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-600 hover:to-blue-600 text-white shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
         </div>
       </div>
     </div>

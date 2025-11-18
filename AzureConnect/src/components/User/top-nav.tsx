@@ -21,7 +21,10 @@ import { useAuth } from "../../AuthContext";
 import { useNotifications } from "../../hooks/useNotifications";
 import { useChat } from "../../hooks/useChat";
 import supabase from "../../supabaseClient";
-import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+import type {
+  RealtimeChannel,
+  RealtimePostgresChangesPayload,
+} from "@supabase/supabase-js";
 
 interface TopNavProps {
   isSidebarOpen: boolean;
@@ -55,7 +58,10 @@ export function TopNav({
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const { unreadCount: unreadNotificationsCount, refetch: refetchNotifications } = useNotifications();
+  const {
+    unreadCount: unreadNotificationsCount,
+    refetch: refetchNotifications,
+  } = useNotifications();
   const { totalUnreadCount: unreadChatsCount, fetchConversations } = useChat();
 
   // Add real-time subscription for chat updates
@@ -64,28 +70,28 @@ export function TopNav({
 
     // Subscribe to real-time changes for messages
     const channel: RealtimeChannel = supabase
-      .channel('top-nav-chat-changes')
+      .channel("top-nav-chat-changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
         },
         (payload: RealtimePostgresChangesPayload<any>) => {
-          console.log('New message in top nav:', payload);
+          console.log("New message in top nav:", payload);
           fetchConversations();
         }
       )
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'messages',
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
         },
         (payload: RealtimePostgresChangesPayload<any>) => {
-          console.log('Message updated in top nav:', payload);
+          console.log("Message updated in top nav:", payload);
           fetchConversations();
         }
       )
@@ -102,28 +108,28 @@ export function TopNav({
 
     // Subscribe to real-time changes for notifications
     const channel: RealtimeChannel = supabase
-      .channel('top-nav-notification-changes')
+      .channel("top-nav-notification-changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'notifications',
+          event: "UPDATE",
+          schema: "public",
+          table: "notifications",
         },
         (payload: RealtimePostgresChangesPayload<any>) => {
-          console.log('Notification updated in top nav:', payload);
+          console.log("Notification updated in top nav:", payload);
           refetchNotifications();
         }
       )
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
         },
         (payload: RealtimePostgresChangesPayload<any>) => {
-          console.log('New notification in top nav:', payload);
+          console.log("New notification in top nav:", payload);
           refetchNotifications();
         }
       )
@@ -155,7 +161,9 @@ export function TopNav({
       }
       setProfileImageUrl(data?.profile_image_url ?? null);
     })();
-    return () => { isMounted = false };
+    return () => {
+      isMounted = false;
+    };
   }, [session?.user?.id]);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -406,7 +414,10 @@ export function TopNav({
           >
             {/* Removed hardcoded name/email display */}
             <Avatar className="h-8 w-8 lg:h-10 lg:w-10">
-              <AvatarImage src={profileImageUrl || "/def-prof.jpg"} alt="User profile" />
+              <AvatarImage
+                src={profileImageUrl || "/def-prof.jpg"}
+                alt="User profile"
+              />
             </Avatar>
             <ChevronDown
               className={`h-3 w-3 lg:h-4 lg:w-4 text-white/80 transition-transform duration-200 ${
@@ -420,7 +431,9 @@ export function TopNav({
             <UserProfileDropdown
               onClose={handleCloseDropdown}
               onNavigateToProfile={handleNavigateToProfile}
-              onNavigateToPropertyMaintenance={handleNavigateToPropertyMaintenance}
+              onNavigateToPropertyMaintenance={
+                handleNavigateToPropertyMaintenance
+              }
               onLogout={handleLogout}
             />
           )}
