@@ -60,6 +60,18 @@ const priorityColor = (priority: string) => {
   }
 }
 
+const statusBadgeColor = (status: MaintenanceStatus = "pending") => {
+  switch (status) {
+    case "completed":
+      return "bg-emerald-50 text-emerald-700 border border-emerald-200"
+    case "in-progress":
+      return "bg-sky-50 text-sky-700 border border-sky-200"
+    case "pending":
+    default:
+      return "bg-amber-50 text-amber-700 border border-amber-200"
+  }
+}
+
 const statusIcon = (status: MaintenanceStatus) => {
   switch (status) {
     case "completed":
@@ -203,177 +215,194 @@ export function MaintenanceModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={onClose}>
+    <div className="fixed inset-0 z-[70] flex min-h-screen items-center justify-center px-4 py-6">
       <div
-        className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">Property Maintenance Request</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-            disabled={loading}
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+        onClick={() => {
+          if (!loading) onClose()
+        }}
+        aria-hidden="true"
+      />
 
-        <form className="p-6 space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Property <span className="text-red-500">*</span>
-            </label>
-            <select
-              name="propertyId"
-              value={formData.propertyId}
-              onChange={handleChange}
-              required
-              disabled={!!item}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500"
-            >
-              <option value="">Select a property</option>
-              {propertyOptions.map((prop) => (
-                <option key={prop.value} value={prop.value}>
-                  {prop.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Maintenance Type <span className="text-red-500">*</span>
-            </label>
-            <select
-              name="maintenanceType"
-              value={formData.maintenanceType}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Select maintenance type</option>
-              {maintenanceTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+      <div className="relative z-10 w-full max-w-3xl animate-in fade-in-0 zoom-in-95 duration-200">
+        <div className="max-h-[90vh] overflow-hidden rounded-3xl border border-white/60 bg-white/95 shadow-[0_30px_80px_rgba(15,23,42,0.35)] backdrop-blur">
+          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 bg-gradient-to-r from-blue-500/10 via-white to-indigo-500/10 px-8 py-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Priority <span className="text-red-500">*</span>
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-500">Maintenance</p>
+              <h2 className="mt-2 text-2xl font-semibold text-slate-900">Submit a request</h2>
+              <p className="text-sm text-slate-500">
+                Provide context so your agent can coordinate contractors quickly.
+              </p>
+            </div>
+            {item && (
+              <div className="rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-xs text-slate-600 shadow-inner">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-400">Selected property</p>
+                <p className="mt-1 text-base font-semibold text-slate-900">{item.property}</p>
+                <p className="text-slate-500">Ownership #{item.id}</p>
+                <span className={`mt-2 inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold ${statusBadgeColor(item.status)}`}>
+                  {statusIcon(item.status)}
+                  {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                </span>
+              </div>
+            )}
+            <button
+              onClick={onClose}
+              className="ml-auto rounded-2xl border border-slate-200/80 bg-white/60 p-2 text-slate-500 transition hover:text-slate-700"
+              disabled={loading}
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <form className="max-h-[calc(90vh-150px)] space-y-6 overflow-y-auto px-8 py-6" onSubmit={handleSubmit}>
+          <div>
+              <label className="mb-2 block text-sm font-semibold text-slate-700">
+                Property <span className="text-red-500">*</span>
               </label>
               <select
-                name="priority"
-                value={formData.priority}
+                name="propertyId"
+                value={formData.propertyId}
                 onChange={handleChange}
                 required
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${priorityColor(formData.priority)}`}
+                disabled={!!item}
+                className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-sky-400 focus:ring-2 focus:ring-sky-300 disabled:bg-slate-50"
               >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
+                <option value="">Select a property</option>
+                {propertyOptions.map((prop) => (
+                  <option key={prop.value} value={prop.value}>
+                    {prop.label}
+                  </option>
+                ))}
               </select>
             </div>
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              required
-              rows={4}
-              placeholder="Describe the maintenance issue or work needed..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Scheduled Date
+              <label className="mb-2 block text-sm font-semibold text-slate-700">
+                Maintenance Type <span className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <input
-                  type="date"
-                  name="scheduledDate"
-                  value={formData.scheduledDate}
+              <select
+                name="maintenanceType"
+                value={formData.maintenanceType}
+                onChange={handleChange}
+                required
+                className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-sky-400 focus:ring-2 focus:ring-sky-300"
+              >
+                <option value="">Select maintenance type</option>
+                {maintenanceTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Priority <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="priority"
+                  value={formData.priority}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                  className={`w-full rounded-2xl border px-4 py-3 text-sm font-semibold shadow-inner focus:border-sky-400 focus:ring-2 focus:ring-sky-300 ${priorityColor(formData.priority)}`}
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">Assigned To</label>
+                <input
+                  type="text"
+                  name="assignedTo"
+                  value={formData.assignedTo}
+                  onChange={handleChange}
+                  placeholder="Contractor or technician name"
+                  className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-sky-400 focus:ring-2 focus:ring-sky-300"
                 />
-                <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
               </div>
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Estimated Cost
+              <label className="mb-2 block text-sm font-semibold text-slate-700">
+                Description <span className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                <input
-                  type="number"
-                  name="estimatedCost"
-                  value={formData.estimatedCost}
-                  onChange={handleChange}
-                  placeholder="0.00"
-                  step="0.01"
-                  min="0"
-                  className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                required
+                rows={4}
+                placeholder="Describe the maintenance issue or work needed..."
+                className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-sky-400 focus:ring-2 focus:ring-sky-300"
+              />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">Scheduled Date</label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    name="scheduledDate"
+                    value={formData.scheduledDate}
+                    onChange={handleChange}
+                    className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-sky-400 focus:ring-2 focus:ring-sky-300"
+                  />
+                  <Calendar className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                </div>
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">Estimated Cost</label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                  <input
+                    type="number"
+                    name="estimatedCost"
+                    value={formData.estimatedCost}
+                    onChange={handleChange}
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    className="w-full rounded-2xl border border-slate-200 bg-white/80 pl-8 pr-4 py-3 text-sm text-slate-700 shadow-inner focus:border-sky-400 focus:ring-2 focus:ring-sky-300"
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Assigned To
-            </label>
-            <input
-              type="text"
-              name="assignedTo"
-              value={formData.assignedTo}
-              onChange={handleChange}
-              placeholder="Contractor or technician name"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
+            {error && (
+              <div className="rounded-2xl border border-rose-100 bg-rose-50/80 px-4 py-3 text-sm text-rose-700 shadow-inner">
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="rounded-2xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-700 shadow-inner">
+                {success}
+              </div>
+            )}
 
-          {error && (
-            <div className="rounded-lg bg-red-50 text-red-700 px-3 py-2 text-sm">
-              {error}
+            <div className="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 rounded-2xl border border-slate-300 bg-white/70 px-4 py-3 text-sm font-semibold text-slate-600 shadow-sm transition hover:bg-white"
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="flex-1 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:shadow-blue-500/30 disabled:opacity-70"
+                disabled={loading}
+              >
+                {loading ? "Saving..." : "Submit request"}
+              </button>
             </div>
-          )}
-          {success && (
-            <div className="rounded-lg bg-green-50 text-green-700 px-3 py-2 text-sm">
-              {success}
-            </div>
-          )}
-
-          <div className="flex gap-3 pt-4 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-              disabled={loading}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm disabled:opacity-70"
-              disabled={loading}
-            >
-              {loading ? "Saving..." : "Submit Request"}
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   )

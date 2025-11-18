@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   ImagePlus,
   Check,
@@ -19,6 +20,68 @@ import {
 import { AgentLayout } from "@/components/layouts/AgentLayout";
 import supabase from "@/supabaseClient";
 import { useAuth } from "@/AuthContext";
+
+interface SubmissionConfirmationModalProps {
+  open: boolean
+  onClose: () => void
+}
+
+const SubmissionConfirmationModal = ({ open, onClose }: SubmissionConfirmationModalProps) => {
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null)
+
+  useEffect(() => {
+    setPortalContainer(document.body)
+  }, [])
+
+  if (!open || !portalContainer) return null
+
+  return createPortal(
+    <div className="fixed inset-0 z-[70] flex min-h-screen items-center justify-center px-4">
+      <div
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity animate-in fade-in-0"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      <div className="relative w-full max-w-md animate-in fade-in-0 zoom-in-95 duration-200">
+        <div className="rounded-3xl border border-white/60 bg-white/95 shadow-2xl backdrop-blur p-8">
+          <div className="flex flex-col items-center text-center space-y-3">
+            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 text-white shadow-lg ring-4 ring-emerald-100">
+              <Check className="h-7 w-7" />
+            </div>
+            <p className="text-sm font-semibold tracking-[0.2em] text-emerald-500">
+              LISTING SUBMITTED
+            </p>
+            <h2 className="text-2xl font-semibold text-slate-900">
+              Property sent for review
+            </h2>
+            <p className="text-sm text-slate-600">
+              Our admin team is reviewing your property. We will notify you once it goes live on AzureConnect.
+            </p>
+          </div>
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              className="flex-1 rounded-2xl border border-slate-200 bg-white/70 text-slate-700 hover:bg-white py-2 font-medium transition-colors"
+              onClick={onClose}
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              className="flex-1 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg hover:from-sky-600 hover:to-blue-700 py-2 font-medium transition-colors"
+              onClick={onClose}
+            >
+              Add another listing
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>,
+    portalContainer,
+  )
+}
 
 export default function ListPropertyPage() {
   const { session } = useAuth();
@@ -74,6 +137,7 @@ export default function ListPropertyPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [isAgent, setIsAgent] = useState<boolean | null>(null);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   const propertyTypes = [
     "House",
@@ -175,11 +239,10 @@ export default function ListPropertyPage() {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-
     setIsSubmitting(true);
     setSubmitError(null);
     setSubmitSuccess(false);
-
+    setShowConfirmationModal(false);
     try {
       // Refresh session to ensure JWT is up to date
       const {
@@ -234,17 +297,15 @@ export default function ListPropertyPage() {
       };
 
       // Insert property into listing_approvals table
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("listing_approvals")
         .insert(propertyData);
-
       if (error) {
         console.error("Supabase insert error:", error);
         throw error;
       }
-
       setSubmitSuccess(true);
-
+      setShowConfirmationModal(true);
       // Scroll to top of page
       window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -381,6 +442,7 @@ export default function ListPropertyPage() {
     setUploadedImages([null, null])
     setSubmitError(null)
     setSubmitSuccess(false)
+    setShowConfirmationModal(false)
   };
 
   const addFeature = (feature: string) => {
@@ -1506,6 +1568,10 @@ export default function ListPropertyPage() {
           </div>
         </div>
       </div>
+      <SubmissionConfirmationModal
+        open={showConfirmationModal}
+        onClose={() => setShowConfirmationModal(false)}
+      />
     </AgentLayout>
   );
 }
