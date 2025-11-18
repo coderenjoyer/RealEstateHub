@@ -19,7 +19,9 @@ import { LogoutConfirmationModal } from "@/components/ui/logout-confirmation-mod
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
 import { useNotifications } from "../../hooks/useNotifications";
+import { useChat } from "../../hooks/useChat";
 import supabase from "../../supabaseClient";
+import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
 interface TopNavProps {
   isSidebarOpen: boolean;
@@ -53,6 +55,85 @@ export function TopNav({
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
+  const { unreadCount: unreadNotificationsCount, refetch: refetchNotifications } = useNotifications();
+  const { totalUnreadCount: unreadChatsCount, fetchConversations } = useChat();
+
+  // Add real-time subscription for chat updates
+  useEffect(() => {
+    if (!session?.user?.id) return;
+
+    // Subscribe to real-time changes for messages
+    const channel: RealtimeChannel = supabase
+      .channel('top-nav-chat-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+        },
+        (payload: RealtimePostgresChangesPayload<any>) => {
+          console.log('New message in top nav:', payload);
+          fetchConversations();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'messages',
+        },
+        (payload: RealtimePostgresChangesPayload<any>) => {
+          console.log('Message updated in top nav:', payload);
+          fetchConversations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [session?.user?.id, fetchConversations]);
+
+  // Add real-time subscription for notification updates
+  useEffect(() => {
+    if (!session?.user?.id) return;
+
+    // Subscribe to real-time changes for notifications
+    const channel: RealtimeChannel = supabase
+      .channel('top-nav-notification-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'notifications',
+        },
+        (payload: RealtimePostgresChangesPayload<any>) => {
+          console.log('Notification updated in top nav:', payload);
+          refetchNotifications();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+        },
+        (payload: RealtimePostgresChangesPayload<any>) => {
+          console.log('New notification in top nav:', payload);
+          refetchNotifications();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [session?.user?.id, refetchNotifications]);
+
   useEffect(() => {
     let isMounted = true;
     (async () => {
@@ -76,9 +157,6 @@ export function TopNav({
     })();
     return () => { isMounted = false };
   }, [session?.user?.id]);
-
-  const unreadChatsCount = 3;
-  const { unreadCount: unreadNotificationsCount } = useNotifications();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -113,6 +191,12 @@ export function TopNav({
   const handleCloseDropdown = () => {
     setActiveDropdown("none");
     onCloseDropdown?.();
+    // Refresh chat conversations when dropdown is closed to update unread counts
+    // Add a small delay to ensure read operations complete
+    setTimeout(() => {
+      fetchConversations();
+      refetchNotifications(); // Also refresh notifications
+    }, 500);
   };
 
   const handleNavigateToProfile = () => {

@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react"
 import { Bell, Check, CheckCheck, Home, Heart, MessageSquare, Calendar, AlertCircle, Wrench } from "lucide-react"
 import { useNotifications } from "../../hooks/useNotifications"
+import supabase from "../../supabaseClient"
+import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 
 interface NotificationDropdownProps {
   onClose: () => void;
@@ -10,7 +12,33 @@ interface NotificationDropdownProps {
 export function NotificationDropdown({ onClose, unreadCount: propUnreadCount }: NotificationDropdownProps) {
   const [isOpen, setIsOpen] = useState(true) // Always open when rendered
   const [activeFilter, setActiveFilter] = useState<'all' | 'unread'>('all')
-  const { notifications, loading, unreadCount, markAsRead, markAllAsRead } = useNotifications()
+  const { notifications, loading, unreadCount, markAsRead, markAllAsRead, refetch } = useNotifications()
+
+  // Add real-time subscription for immediate updates
+  useEffect(() => {
+    if (!supabase) return;
+
+    const channel: RealtimeChannel = supabase
+      .channel('notification-dropdown-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'notifications',
+        },
+        (payload: RealtimePostgresChangesPayload<any>) => {
+          console.log('Notification updated in dropdown:', payload);
+          // Refetch notifications to ensure UI is in sync
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetch]);
 
   // Format time ago string
   const formatTimeAgo = (createdAt: string): string => {
@@ -162,7 +190,13 @@ export function NotificationDropdown({ onClose, unreadCount: propUnreadCount }: 
                 className={`flex items-start gap-3 p-4 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0 ${
                   !notification.read ? 'bg-sky-50/50' : ''
                 }`}
-                onClick={() => !notification.read && markAsRead(notification.id)}
+                onClick={async () => {
+                  if (!notification.read) {
+                    await markAsRead(notification.id);
+                    // Force a refresh of the notifications to ensure UI updates immediately
+                    // This is a workaround for potential real-time update delays
+                  }
+                }}
               >
                 {/* Icon */}
                 <div className="flex-shrink-0 mt-0.5">

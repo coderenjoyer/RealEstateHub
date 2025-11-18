@@ -37,6 +37,7 @@ export function useChat() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [realtimeChannel, setRealtimeChannel] = useState<RealtimeChannel | null>(null);
+  const [totalUnreadCount, setTotalUnreadCount] = useState(0);
 
   // Fetch all conversations for the current user
   const fetchConversations = useCallback(async () => {
@@ -120,6 +121,10 @@ export function useChat() {
       );
 
       setConversations(conversationsWithDetails);
+      
+      // Calculate and set total unread count
+      const totalUnread = conversationsWithDetails.reduce((sum, conv) => sum + (conv.unread_count || 0), 0);
+      setTotalUnreadCount(totalUnread);
     } catch (err: any) {
       console.error('Error fetching conversations:', err);
       setError(err.message);
@@ -153,11 +158,14 @@ export function useChat() {
         .eq('conversation_id', conversationId)
         .eq('receiver_id', session.user.id)
         .eq('is_read', false);
+      
+      // Refresh conversations to update unread counts
+      await fetchConversations();
     } catch (err: any) {
       console.error('Error fetching messages:', err);
       setError(err.message);
     }
-  }, [session?.user?.id]);
+  }, [session?.user?.id, fetchConversations]);
 
   // Get or create conversation with another user
   const getOrCreateConversation = useCallback(async (otherUserId: string) => {
@@ -207,6 +215,9 @@ export function useChat() {
         .single();
 
       if (sendError) throw sendError;
+      
+      // Refresh conversations to update last message
+      await fetchConversations();
 
       return data as Message;
     } catch (err: any) {
@@ -214,7 +225,7 @@ export function useChat() {
       setError(err.message);
       return null;
     }
-  }, [session?.user?.id]);
+  }, [session?.user?.id, fetchConversations]);
 
   // Delete a message
   const deleteMessage = useCallback(async (messageId: number) => {
@@ -248,11 +259,14 @@ export function useChat() {
         }
         throw deleteError;
       }
+      
+      // Refresh conversations to update last message
+      await fetchConversations();
     } catch (err: any) {
       console.error('Error deleting message:', err);
       setError(err.message);
     }
-  }, [session?.user?.id, messages, fetchMessages]);
+  }, [session?.user?.id, messages, fetchMessages, fetchConversations]);
 
   // Remove a conversation from local state immediately
   const removeConversationFromState = useCallback((conversationId: number) => {
@@ -264,6 +278,12 @@ export function useChat() {
       return newMessages;
     });
   }, []);
+
+  // Add a function to manually refresh the total unread count
+  const refreshTotalUnreadCount = useCallback(() => {
+    const totalUnread = conversations.reduce((sum, conv) => sum + (conv.unread_count || 0), 0);
+    setTotalUnreadCount(totalUnread);
+  }, [conversations]);
 
   // Subscribe to real-time updates for a conversation
   const subscribeToConversation = useCallback((conversationId: number) => {
@@ -288,6 +308,29 @@ export function useChat() {
             setMessages((prev) => ({
               ...prev,
               [conversationId]: [...(prev[conversationId] || []), newMessage],
+            }));
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        (payload) => {
+          const updatedMessage = payload.new as Message;
+          
+          // Only process update if current user is sender or receiver
+          if (updatedMessage.sender_id === session.user.id || updatedMessage.receiver_id === session.user.id) {
+            console.log('Message updated:', payload);
+            setMessages((prev) => ({
+              ...prev,
+              [conversationId]: (prev[conversationId] || []).map((msg) =>
+                msg.id === updatedMessage.id ? updatedMessage : msg
+              ),
             }));
           }
         }
@@ -333,6 +376,95 @@ export function useChat() {
     };
   }, [realtimeChannel]);
 
+  // Set up real-time subscription for conversations and messages
+  useEffect(() => {
+    if (!session?.user?.id) return;
+
+    let channel: RealtimeChannel | null = null;
+
+    const setupRealtime = async () => {
+      try {
+        // Fetch initial data
+        await fetchConversations();
+
+        // Subscribe to real-time changes for conversations
+        channel = supabase
+          .channel('chat-changes')
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'conversations',
+            },
+            (payload) => {
+              console.log('New conversation:', payload);
+              fetchConversations(); // Refresh all conversations
+            }
+          )
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'messages',
+            },
+            (payload) => {
+              console.log('New message:', payload);
+              fetchConversations(); // Refresh all conversations to update unread counts
+            }
+          )
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'messages',
+            },
+            (payload) => {
+              console.log('Message updated:', payload);
+              fetchConversations(); // Refresh all conversations to update unread counts
+            }
+          )
+          .on(
+            'postgres_changes',
+            {
+              event: 'DELETE',
+              schema: 'public',
+              table: 'messages',
+            },
+            (payload) => {
+              console.log('Message deleted:', payload);
+              fetchConversations(); // Refresh all conversations to update unread counts
+            }
+          )
+          .on(
+            'postgres_changes',
+            {
+              event: 'DELETE',
+              schema: 'public',
+              table: 'conversations',
+            },
+            (payload) => {
+              console.log('Conversation deleted:', payload);
+              fetchConversations(); // Refresh all conversations
+            }
+          )
+          .subscribe();
+      } catch (err) {
+        console.error('Error setting up realtime:', err);
+      }
+    };
+
+    setupRealtime();
+
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
+  }, [session?.user?.id, fetchConversations]);
+
   // Fetch conversations on mount
   useEffect(() => {
     if (session?.user?.id) {
@@ -345,6 +477,7 @@ export function useChat() {
     messages,
     loading,
     error,
+    totalUnreadCount,
     fetchConversations,
     fetchMessages,
     getOrCreateConversation,
@@ -352,5 +485,6 @@ export function useChat() {
     deleteMessage,
     removeConversationFromState,
     subscribeToConversation,
+    refreshTotalUnreadCount, // Add this line
   };
 }

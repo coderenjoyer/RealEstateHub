@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { Search, X, Phone, Minus, Send, Paperclip, Trash2 } from "lucide-react";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/AuthContext";
+import supabase from "@/supabaseClient";
+import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
 interface MessengerDropdownProps {
   onClose: () => void;
@@ -26,6 +28,7 @@ export function MessengerDropdown({
     messages: dbMessages,
     loading,
     fetchMessages,
+    fetchConversations, // Add this
     getOrCreateConversation,
     sendMessage,
     deleteMessage,
@@ -63,6 +66,66 @@ export function MessengerDropdown({
     }
     return true;
   });
+
+  // Add effect to subscribe to real-time conversation updates
+  useEffect(() => {
+    // Subscribe to real-time conversation updates
+    const channel: RealtimeChannel = supabase
+      .channel('messenger-dropdown-conversations')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversations',
+        },
+        (payload: RealtimePostgresChangesPayload<any>) => {
+          console.log('New conversation in dropdown:', payload);
+          fetchConversations();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+        },
+        (payload: RealtimePostgresChangesPayload<any>) => {
+          console.log('New message in dropdown:', payload);
+          fetchConversations();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'messages',
+        },
+        (payload: RealtimePostgresChangesPayload<any>) => {
+          console.log('Message updated in dropdown:', payload);
+          fetchConversations();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'messages',
+        },
+        (payload: RealtimePostgresChangesPayload<any>) => {
+          console.log('Message deleted in dropdown:', payload);
+          fetchConversations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchConversations]);
 
   const handleFileUpload = () => {
     fileInputRef.current?.click();
@@ -128,9 +191,14 @@ export function MessengerDropdown({
   // ✅ FIXED: Use setIsOpen
   useEffect(() => {
     if (!isOpen) {
+      // Refresh conversations when dropdown is closed
+      // Add a small delay to ensure read operations complete
+      setTimeout(() => {
+        fetchConversations();
+      }, 500);
       onClose();
     }
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, fetchConversations]);
 
   // Fetch messages and subscribe to realtime updates when conversation is selected
   useEffect(() => {
@@ -151,27 +219,27 @@ export function MessengerDropdown({
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (!target.closest(".messenger-dropdown-container")) {
-        setIsOpen(false); // ✅ USE setIsOpen
-        onClose();
+        setIsOpen(false); // This will trigger the useEffect above
+        // Remove onClose() from here since it's now in the useEffect
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [onClose]);
+  }, []);
 
   // Close on Escape key
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setIsOpen(false); // ✅ USE setIsOpen
-        onClose();
+        setIsOpen(false); // This will trigger the useEffect above
+        // Remove onClose() from here since it's now in the useEffect
       }
     };
 
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
-  }, [onClose]);
+  }, []);
 
   const handleCloseChat = () => {
     setSelectedChat(null);

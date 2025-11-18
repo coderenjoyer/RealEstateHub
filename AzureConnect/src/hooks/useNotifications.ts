@@ -75,34 +75,52 @@ export function useNotifications() {
           .on(
             'postgres_changes',
             {
-              event: '*',
+              event: 'INSERT',
               schema: 'public',
               table: 'notifications',
               filter: `user_id=eq.${session.user.id}`,
             },
             (payload) => {
-              if (payload.eventType === 'INSERT') {
-                setNotifications((prev) => [payload.new as Notification, ...prev]);
-                setUnreadCount((prev) => prev + 1);
-              } else if (payload.eventType === 'UPDATE') {
-                const updatedNotification = payload.new as Notification;
-                setNotifications((prev) =>
-                  prev.map((n) =>
-                    n.id === updatedNotification.id ? updatedNotification : n
-                  )
-                );
-                // Recalculate unread count after update
-                setNotifications((prev) => {
-                  const unread = prev.filter((n) => !n.read).length;
-                  setUnreadCount(unread);
-                  return prev;
-                });
-              } else if (payload.eventType === 'DELETE') {
-                setNotifications((prev) =>
-                  prev.filter((n) => n.id !== (payload.old as Notification).id)
-                );
-                setUnreadCount((prev) => Math.max(0, prev - 1));
-              }
+              setNotifications((prev) => [payload.new as Notification, ...prev]);
+              setUnreadCount((prev) => prev + 1);
+            }
+          )
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'notifications',
+              filter: `user_id=eq.${session.user.id}`,
+            },
+            (payload) => {
+              const updatedNotification = payload.new as Notification;
+              setNotifications((prev) =>
+                prev.map((n) =>
+                  n.id === updatedNotification.id ? updatedNotification : n
+                )
+              );
+              // Recalculate unread count after update
+              setNotifications((prev) => {
+                const unread = prev.filter((n) => !n.read).length;
+                setUnreadCount(unread);
+                return prev;
+              });
+            }
+          )
+          .on(
+            'postgres_changes',
+            {
+              event: 'DELETE',
+              schema: 'public',
+              table: 'notifications',
+              filter: `user_id=eq.${session.user.id}`,
+            },
+            (payload) => {
+              setNotifications((prev) =>
+                prev.filter((n) => n.id !== (payload.old as Notification).id)
+              );
+              setUnreadCount((prev) => Math.max(0, prev - 1));
             }
           )
           .subscribe();
@@ -128,7 +146,7 @@ export function useNotifications() {
       try {
         const { error } = await supabase
           .from('notifications')
-          .update({ read: true })
+          .update({ read: true, updated_at: new Date().toISOString() }) // Add updated_at to trigger real-time update
           .eq('id', notificationId)
           .eq('user_id', session.user.id);
 
@@ -156,7 +174,7 @@ export function useNotifications() {
     try {
       const { error } = await supabase
         .from('notifications')
-        .update({ read: true })
+        .update({ read: true, updated_at: new Date().toISOString() }) // Add updated_at to trigger real-time update
         .eq('user_id', session.user.id)
         .eq('read', false);
 
