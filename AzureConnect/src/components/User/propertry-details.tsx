@@ -13,7 +13,6 @@ interface PropertyDetailsPanelProps {
     beds: number;
     baths: number;
     sqft: number;
-    rating: string;
     images?: string[];
     propertyType?: string;
   };
@@ -70,7 +69,7 @@ export function PropertyDetailsPanel({
   onClose,
   onContactAgent,
 }: PropertyDetailsPanelProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "reviews" | "about">(
+  const [activeTab, setActiveTab] = useState<"overview" | "about">(
     "overview"
   );
   const [propertyDetails, setPropertyDetails] = useState<PropertyDetails | null>(null);
@@ -168,27 +167,6 @@ export function PropertyDetailsPanel({
       onClose();
     }
   };
-
-  const reviews = [
-    {
-      id: 1,
-      text: "Spdnckd dkrf vdkxn. The management here really understood our needs during move in very accommodating during move process.",
-      rating: 5,
-      author: "Mark L.",
-    },
-    {
-      id: 2,
-      text: "Spdnckd dkrf vdkxn. The management here really understood our needs during move in very accommodating during process.",
-      rating: 5,
-      author: "Sarah M.",
-    },
-    {
-      id: 3,
-      text: "Spdnckd dkrf vdkxn. The management here really understood our needs during move in very accommodating during move process.",
-      rating: 4,
-      author: "James K.",
-    },
-  ];
 
   return (
     <div
@@ -323,16 +301,6 @@ export function PropertyDetailsPanel({
             Overview
           </button>
           <button
-            onClick={() => setActiveTab("reviews")}
-            className={`pb-3 font-semibold text-sm transition-all ${
-              activeTab === "reviews"
-                ? "text-gray-900 border-b-2 border-sky-500"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            Reviews
-          </button>
-          <button
             onClick={() => setActiveTab("about")}
             className={`pb-3 font-semibold text-sm transition-all ${
               activeTab === "about"
@@ -459,35 +427,6 @@ export function PropertyDetailsPanel({
                   </div>
                 </div>
               )}
-            </div>
-          )}
-
-          {activeTab === "reviews" && (
-            <div className="space-y-4">
-              {reviews.map((review) => (
-                <div key={review.id} className="bg-sky-50 rounded-2xl p-4">
-                  <p className="text-sm text-gray-700 leading-relaxed mb-3">
-                    {review.text}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-gray-500">
-                      {review.author}
-                    </span>
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${
-                            i < review.rating
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-gray-300"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
             </div>
           )}
 

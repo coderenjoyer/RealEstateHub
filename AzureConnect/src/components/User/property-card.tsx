@@ -11,7 +11,6 @@ interface PropertyCardProps {
     beds: number;
     baths: number;
     sqft: number;
-    rating: string;
     images?: string[];
     propertyType?: string;
   };
@@ -152,12 +151,6 @@ export function PropertyCard({
               <Maximize className="h-4 w-4" />
               <span className="text-sm font-medium">{property.sqft}</span>
             </div>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="text-orange-400 text-sm">★</span>
-            <span className="text-sm font-semibold text-gray-900">
-              {property.rating}
-            </span>
           </div>
         </div>
       </div>
