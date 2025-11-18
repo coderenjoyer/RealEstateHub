@@ -21,7 +21,14 @@ interface MaintenanceModalProps {
     address: string
   }>
   onClose: () => void
-  onUpdated: () => void | Promise<void>
+  onUpdated: (details?: MaintenanceConfirmationDetails) => void | Promise<void>
+}
+
+export interface MaintenanceConfirmationDetails {
+  property: string
+  maintenanceType: string
+  priority: "low" | "medium" | "high"
+  scheduledDate?: string | null
 }
 
 interface MaintenanceFormState {
@@ -105,7 +112,6 @@ export function MaintenanceModal({
 }: MaintenanceModalProps) {
   const [formData, setFormData] = useState<MaintenanceFormState>(defaultForm)
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   const propertyOptions = useMemo(() => {
@@ -127,7 +133,6 @@ export function MaintenanceModal({
       description: item?.notes ?? "",
     }))
     setError(null)
-    setSuccess(null)
   }, [open, item])
 
   if (!open) {
@@ -168,7 +173,6 @@ export function MaintenanceModal({
 
     setLoading(true)
     setError(null)
-    setSuccess(null)
 
     try {
       const ownershipUpdatePayload: Record<string, any> = {
@@ -203,8 +207,18 @@ export function MaintenanceModal({
 
       if (logError) throw logError
 
-      setSuccess("Maintenance request saved.")
-      await onUpdated()
+      const selectedPropertyLabel =
+        item?.property ??
+        propertyOptions.find((prop) => prop.value === formData.propertyId)?.label ??
+        "Selected Property"
+      const propertyName = item?.property ?? selectedPropertyLabel.split(" – ")[0] ?? selectedPropertyLabel
+
+      await onUpdated({
+        property: propertyName,
+        maintenanceType: formData.maintenanceType || "General Maintenance",
+        priority: formData.priority,
+        scheduledDate: formData.scheduledDate || null,
+      })
       setFormData(defaultForm)
     } catch (err: any) {
       console.error("Maintenance submit error:", err)
@@ -373,14 +387,9 @@ export function MaintenanceModal({
               </div>
             </div>
 
-            {error && (
+      {error && (
               <div className="rounded-2xl border border-rose-100 bg-rose-50/80 px-4 py-3 text-sm text-rose-700 shadow-inner">
                 {error}
-              </div>
-            )}
-            {success && (
-              <div className="rounded-2xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-700 shadow-inner">
-                {success}
               </div>
             )}
 

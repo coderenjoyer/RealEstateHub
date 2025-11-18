@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../../AuthContext";
-import { Wrench, ArrowLeft, CalendarDays, MapPin, ClipboardCheck, Loader2 } from "lucide-react";
+import { Wrench, ArrowLeft, CalendarDays, MapPin, ClipboardCheck, Loader2, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import supabase from "../../../supabaseClient";
-import { MaintenanceModal } from "./maintenance_modal";
+import { MaintenanceModal, MaintenanceConfirmationDetails } from "./maintenance_modal";
 
 export type MaintenanceStatus = "pending" | "in-progress" | "completed";
 
@@ -41,6 +41,7 @@ export default function PropertyMaintenancePage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MaintenanceItem | null>(null);
+  const [confirmationDetails, setConfirmationDetails] = useState<MaintenanceConfirmationDetails | null>(null);
 
   useEffect(() => {
     if (!session?.user?.id) {
@@ -173,26 +174,26 @@ export default function PropertyMaintenancePage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-green-100 text-green-800";
+        return "bg-emerald-50 text-emerald-700 border border-emerald-200";
       case "in-progress":
-        return "bg-blue-100 text-blue-800";
+        return "bg-sky-50 text-sky-700 border border-sky-200";
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-amber-50 text-amber-700 border border-amber-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 border border-gray-200";
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high":
-        return "bg-red-100 text-red-800";
+        return "bg-rose-50 text-rose-700 border border-rose-200";
       case "medium":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-amber-50 text-amber-700 border border-amber-200";
       case "low":
-        return "bg-green-100 text-green-800";
+        return "bg-emerald-50 text-emerald-700 border border-emerald-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 border border-gray-200";
     }
   };
 
@@ -206,66 +207,149 @@ export default function PropertyMaintenancePage() {
     setSelectedItem(null);
   };
 
+  const overviewStats = [
+    {
+      label: "Total Properties",
+      value: maintenanceItems.length,
+    },
+    {
+      label: "Pending Requests",
+      value: maintenanceItems.filter((item) => item.status === "pending").length,
+    },
+    {
+      label: "Resolved Logs",
+      value: repairHistory.length,
+    },
+  ];
+
+  const handleMaintenanceUpdated = async (details?: MaintenanceConfirmationDetails) => {
+    await fetchMaintenanceItems();
+    await fetchRepairHistory();
+    if (details) {
+      setConfirmationDetails(details);
+    }
+    closeMaintenanceModal();
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Back Button */}
-        <button
-          onClick={() => navigate("/user")}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Back
-        </button>
+        <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
+          <button
+            onClick={() => navigate("/user")}
+            className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back to dashboard
+          </button>
+        </div>
 
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Wrench className="w-8 h-8 text-blue-600" />
-            Property Maintenance
-          </h1>
-          <p className="text-gray-600 mt-2">Track and manage maintenance tasks for your properties</p>
+        <div className="mb-8 rounded-3xl border border-white/60 bg-white/90 px-8 py-8 shadow-2xl shadow-blue-500/5 backdrop-blur-sm">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-blue-400">Maintenance</p>
+              <h1 className="mt-3 text-3xl font-semibold text-slate-900 flex items-center gap-3">
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg">
+                  <Wrench className="w-6 h-6" />
+                </span>
+                Property Maintenance
+              </h1>
+              <p className="text-slate-500 mt-3 max-w-2xl">
+                Track open issues, submit new service requests, and stay aligned with your agent on every property you own.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              {overviewStats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="min-w-[140px] rounded-2xl border border-white/70 bg-gradient-to-br from-white to-blue-50/60 px-5 py-4 text-slate-600 shadow-inner"
+                >
+                  <p className="text-[11px] uppercase tracking-[0.25em] text-slate-400">{stat.label}</p>
+                  <p className="mt-2 text-3xl font-semibold text-slate-900">{loading ? "—" : stat.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Properties Overview */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold text-gray-900">My Properties</h2>
+        <div className="mb-12">
+          <div className="flex flex-wrap items-center gap-3 justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-semibold text-slate-900">My Properties</h2>
+              <p className="text-sm text-slate-500">Choose a property to submit or review maintenance activity.</p>
+            </div>
             {!loading && (
-              <span className="text-sm text-gray-500">{maintenanceItems.length} total</span>
+              <span className="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-blue-600 shadow-sm">
+                {maintenanceItems.length} total
+              </span>
             )}
           </div>
           {loading ? (
-            <div className="bg-white rounded-lg shadow p-6 flex items-center gap-3 text-gray-500">
-              <Loader2 className="w-5 h-5 animate-spin" />
-              Loading your properties...
+            <div className="rounded-3xl border border-white/70 bg-white/80 p-8 shadow-lg backdrop-blur">
+              <div className="flex items-center gap-3 text-slate-500">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Loading your properties...
+              </div>
+              <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, idx) => (
+                  <div key={`skeleton-${idx}`} className="animate-pulse rounded-2xl border border-slate-100 bg-slate-100/70 p-6">
+                    <div className="h-4 w-1/3 rounded bg-slate-200" />
+                    <div className="mt-3 h-5 w-2/3 rounded bg-slate-200" />
+                    <div className="mt-6 h-32 rounded-2xl bg-slate-200" />
+                  </div>
+                ))}
+              </div>
             </div>
           ) : maintenanceItems.length === 0 ? (
-            <div className="bg-white rounded-lg shadow p-6 text-gray-600">
-              No properties assigned yet. Once an agent transfers a home to you, it will appear here.
+            <div className="rounded-3xl border border-dashed border-slate-200 bg-white/80 px-6 py-10 text-center text-slate-500 shadow-inner">
+              <p className="text-lg font-semibold text-slate-700">No properties assigned yet</p>
+              <p className="mt-2 text-sm">
+                Once an agent transfers a home to you, it will appear here for maintenance tracking.
+              </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
               {maintenanceItems.map((item) => (
-                <div key={`card-${item.id}`} className="bg-white rounded-xl shadow p-5 flex flex-col gap-4 border border-gray-100">
-                  <div>
-                    <p className="text-sm uppercase text-gray-500">Property</p>
-                    <h3 className="text-lg font-semibold text-gray-900">{item.property}</h3>
-                    <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                      <MapPin className="w-4 h-4" />
-                      <span>{item.address}</span>
+                <div
+                  key={`card-${item.id}`}
+                  className="group relative overflow-hidden rounded-3xl border border-white/70 bg-white/90 p-6 shadow-xl shadow-blue-500/5 transition hover:-translate-y-1 hover:shadow-blue-500/20"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-white via-transparent to-blue-50 opacity-0 transition group-hover:opacity-100" />
+                  <div className="relative flex flex-col gap-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-400">Property</p>
+                        <h3 className="mt-2 text-lg font-semibold text-slate-900">{item.property}</h3>
+                        <p className="text-xs font-medium text-slate-500">ID #{item.propertyId}</p>
+                      </div>
+                      <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold ${getStatusColor(item.status)}`}>
+                        {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                      </span>
                     </div>
-                    <div className="text-sm text-gray-500 mt-1">
-                      Property ID : {item.propertyId}
+                    <div className="rounded-2xl bg-gradient-to-r from-blue-50/70 to-indigo-50/70 p-4 text-sm text-slate-600">
+                      <div className="flex items-center gap-2 font-medium text-slate-700">
+                        <CalendarDays className="w-4 h-4 text-blue-500" />
+                        {item.dueDate ? `Next due ${new Date(item.dueDate).toLocaleDateString()}` : "No schedule on file"}
+                      </div>
+                      <div className="mt-2 flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-indigo-400" />
+                        <span>{item.address}</span>
+                      </div>
+                      {item.notes && item.notes.trim() !== "" && (
+                        <p className="mt-2 line-clamp-2 text-xs text-slate-500">“{item.notes}”</p>
+                      )}
                     </div>
+                    <button
+                      onClick={() => openMaintenanceModal(item)}
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 transition hover:shadow-blue-600/50"
+                    >
+                      <ClipboardCheck className="w-4 h-4" />
+                      Submit Maintenance Request
+                    </button>
                   </div>
-                  <button
-                    onClick={() => openMaintenanceModal(item)}
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    <ClipboardCheck className="w-4 h-4" />
-                    Submit Maintenance Request
-                  </button>
                 </div>
               ))}
             </div>
@@ -273,81 +357,88 @@ export default function PropertyMaintenancePage() {
         </div>
 
         {/* Repair History Table */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-semibold text-gray-900">Resolved Maintenance History</h2>
+        <div className="mb-12">
+          <div className="flex flex-wrap items-center gap-3 justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-semibold text-slate-900">Resolved Maintenance History</h2>
+              <p className="text-sm text-slate-500">Completed requests and closed work orders from your agent.</p>
+            </div>
             {!repairHistoryLoading && (
-              <span className="text-sm text-gray-500">{repairHistory.length} resolved records</span>
+              <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                {repairHistory.length} resolved records
+              </span>
             )}
           </div>
-          
+
           {repairHistoryLoading ? (
-            <div className="bg-white rounded-lg shadow p-6 flex items-center gap-3 text-gray-500">
-              <Loader2 className="w-5 h-5 animate-spin" />
-              Loading resolved maintenance history...
+            <div className="rounded-3xl border border-white/70 bg-white/80 p-8 shadow-lg backdrop-blur">
+              <div className="flex items-center gap-3 text-slate-500">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Loading resolved maintenance history...
+              </div>
             </div>
           ) : repairHistory.length === 0 ? (
-            <div className="bg-white rounded-lg shadow p-6 text-gray-600">
-              No resolved maintenance history found. Completed maintenance requests will appear here.
-              <p className="mt-2 text-sm text-gray-500">
+            <div className="rounded-3xl border border-dashed border-slate-200 bg-white/80 px-6 py-10 text-center text-slate-500 shadow-inner">
+              <p className="text-lg font-semibold text-slate-700">No resolved maintenance history yet</p>
+              <p className="mt-2 text-sm">
                 Submit maintenance requests and have them marked as completed by your agent to see them here.
               </p>
             </div>
           ) : (
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="rounded-3xl border border-white/70 bg-white/90 shadow-2xl shadow-blue-500/5 overflow-hidden backdrop-blur">
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-slate-100">
+                  <thead className="bg-gradient-to-r from-blue-50 to-indigo-50">
                     <tr>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Property ID 
+                      <th scope="col" className="px-6 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.25em]">
+                        Property ID
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.25em]">
                         Type
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.25em]">
                         Status
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.25em]">
                         Priority
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.25em]">
                         Scheduled Date
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.25em]">
                         Cost
                       </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th scope="col" className="px-6 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.25em]">
                         Resolved Date
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white/70 divide-y divide-slate-100">
                     {repairHistory.map((log) => (
-                      <tr key={log.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <tr key={log.id} className="hover:bg-blue-50/60">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900">
                           {log.property_title}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                           {log.maintenance_type}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(log.maintenance_status)}`}>
+                          <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(log.maintenance_status)}`}>
                             {log.maintenance_status.charAt(0).toUpperCase() + log.maintenance_status.slice(1)}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(log.priority)}`}>
+                          <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${getPriorityColor(log.priority)}`}>
                             {log.priority.charAt(0).toUpperCase() + log.priority.slice(1)}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                           {log.scheduled_date ? new Date(log.scheduled_date).toLocaleDateString() : "Not scheduled"}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                           {log.estimated_cost ? `$${log.estimated_cost.toFixed(2)}` : "Not estimated"}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                           {new Date(log.created_at).toLocaleDateString()}
                         </td>
                       </tr>
@@ -360,7 +451,7 @@ export default function PropertyMaintenancePage() {
         </div>
 
         {errorMessage && (
-          <div className="mb-6 px-6 py-4 border border-red-100 bg-red-50 text-red-700 text-sm rounded-lg">
+          <div className="mb-6 rounded-2xl border border-rose-100 bg-rose-50/80 px-6 py-4 text-sm font-medium text-rose-700 shadow-inner">
             {errorMessage}
           </div>
         )}
@@ -371,12 +462,78 @@ export default function PropertyMaintenancePage() {
           item={selectedItem}
           properties={maintenanceItems}
           onClose={closeMaintenanceModal}
-          onUpdated={async () => {
-            await fetchMaintenanceItems();
-            await fetchRepairHistory(); // Refresh repair history after update
-            closeMaintenanceModal();
-          }}
+          onUpdated={handleMaintenanceUpdated}
         />
+
+        <MaintenanceRequestConfirmationModal
+          open={Boolean(confirmationDetails)}
+          details={confirmationDetails}
+          onClose={() => setConfirmationDetails(null)}
+        />
+      </div>
+    </div>
+  );
+}
+
+interface MaintenanceRequestConfirmationModalProps {
+  open: boolean;
+  details: MaintenanceConfirmationDetails | null;
+  onClose: () => void;
+}
+
+function MaintenanceRequestConfirmationModal({
+  open,
+  details,
+  onClose,
+}: MaintenanceRequestConfirmationModalProps) {
+  if (!open || !details) return null;
+
+  const priorityLabel = details.priority.charAt(0).toUpperCase() + details.priority.slice(1);
+
+  return (
+    <div className="fixed inset-0 z-[80] flex min-h-screen items-center justify-center px-4 py-8">
+      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="relative w-full max-w-md animate-in fade-in-0 zoom-in-95 duration-200">
+        <div className="rounded-3xl border border-white/60 bg-white/95 p-8 text-center shadow-2xl backdrop-blur">
+          <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg ring-4 ring-emerald-100">
+            <CheckCircle2 className="h-8 w-8" />
+          </div>
+          <p className="mt-4 text-xs font-semibold tracking-[0.3em] text-emerald-500">REQUEST SUBMITTED</p>
+          <h3 className="mt-3 text-2xl font-semibold text-slate-900">Maintenance request received</h3>
+          <p className="mt-2 text-sm text-slate-600">
+            We&apos;ll notify your agent so they can coordinate the next steps.
+          </p>
+
+          <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-left text-sm text-slate-600">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Property</p>
+            <p className="text-base font-semibold text-slate-900">{details.property}</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Maintenance</p>
+                <p className="text-sm text-slate-700">{details.maintenanceType}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Priority</p>
+                <p className="text-sm font-semibold text-slate-700">{priorityLabel}</p>
+              </div>
+            </div>
+            {details.scheduledDate && (
+              <div className="mt-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Requested Date</p>
+                <p className="text-sm text-slate-700">
+                  {new Date(details.scheduledDate).toLocaleDateString()}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={onClose}
+            className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 transition hover:shadow-blue-600/50"
+          >
+            Done
+          </button>
+        </div>
       </div>
     </div>
   );
