@@ -28,7 +28,6 @@ interface ListedProperty {
 const achievements = [
   { label: "Top Performer 2024", icon: TrendingUp, color: "blue" },
   { label: "Customer Choice Award", icon: Star, color: "yellow" },
-  { label: "100+ Happy Clients", icon: Users, color: "green" },
   { label: "Licensed Professional", icon: CheckCircle, color: "purple" }
 ]
 
@@ -45,10 +44,10 @@ export function AgentProfileCards() {
   
   // About Me states
   const [aboutData, setAboutData] = useState({
-    bio: "I'm a dedicated real estate professional with over 8 years of experience in the Metro Manila property market. My passion is helping families find their dream homes and investors discover lucrative opportunities.",
-    specializations: ["Residential Sales", "Property Investment", "Luxury Homes", "Commercial Properties"],
-    languages: "English, Filipino, Mandarin Chinese",
-    certifications: ["Licensed Real Estate Broker (PRC)", "Certified Property Consultant"]
+    bio: "",
+    specializations: [""],
+    languages: "",
+    certifications: [""]
   })
   
   // Temporary editing states
@@ -536,59 +535,6 @@ export function AgentProfileCards() {
                 })}
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Client Reviews Section */}
-        <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-200">
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 flex items-center gap-3">
-            <div className="p-2 bg-white/20 rounded-lg">
-              <Users className="w-5 h-5" />
-            </div>
-            <h3 className="text-lg font-semibold">Client Testimonials</h3>
-          </div>
-          <div className="p-6">
-            <div className="space-y-4">
-              <div className="border border-slate-200 rounded-xl p-4 bg-slate-50">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center text-blue-700 font-semibold">
-                    MR
-                  </div>
-                  <div>
-                    <p className="font-semibold text-slate-900">Maria Rodriguez</p>
-                    <div className="flex items-center gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <p className="text-slate-600 text-sm leading-relaxed">
-                  "John helped us find our dream home in just 2 weeks! His professionalism and market knowledge made the entire process smooth and stress-free. Highly recommended!"
-                </p>
-                <p className="text-xs text-slate-500 mt-2">October 2024</p>
-              </div>
-
-              <div className="border border-slate-200 rounded-xl p-4 bg-slate-50">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center text-green-700 font-semibold">
-                    DT
-                  </div>
-                  <div>
-                    <p className="font-semibold text-slate-900">David Tan</p>
-                    <div className="flex items-center gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <p className="text-slate-600 text-sm leading-relaxed">
-                  "Excellent service! John's expertise in commercial properties helped me make a great investment. He was always available to answer questions and provided valuable insights."
-                </p>
-                <p className="text-xs text-slate-500 mt-2">September 2024</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>

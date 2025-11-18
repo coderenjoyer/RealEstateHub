@@ -35,7 +35,6 @@ export default function EnhancedReportsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [filterStatus, setFilterStatus] = useState("all")
   const [filterPriority, setFilterPriority] = useState("all")
-  const [filterType, setFilterType] = useState("all")
   const [showFilters, setShowFilters] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [reportsData, setReportsData] = useState<Report[]>([])
@@ -248,8 +247,7 @@ export default function EnhancedReportsPage() {
                          report.type.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = filterStatus === "all" || report.status === filterStatus
     const matchesPriority = filterPriority === "all" || report.priority === filterPriority
-    const matchesType = filterType === "all" || report.type === filterType
-    return matchesSearch && matchesStatus && matchesPriority && matchesType
+    return matchesSearch && matchesStatus && matchesPriority
   })
 
   // Pagination
@@ -261,9 +259,7 @@ export default function EnhancedReportsPage() {
   const stats = {
     total: reportsData.length,
     pending: reportsData.filter(r => r.status === "Pending").length,
-    underReview: reportsData.filter(r => r.status === "Under Review").length,
-    resolved: reportsData.filter(r => r.status === "Resolved").length,
-    critical: reportsData.filter(r => r.priority === "Critical").length
+    resolved: reportsData.filter(r => r.status === "Resolved").length
   }
 
   return (
@@ -277,7 +273,7 @@ export default function EnhancedReportsPage() {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <div className="bg-white rounded-xl shadow-md p-4">
               <p className="text-sm text-gray-600 mb-1">Total Reports</p>
               <p className="text-2xl font-bold text-gray-900">{loadingReports ? "—" : stats.total}</p>
@@ -287,16 +283,8 @@ export default function EnhancedReportsPage() {
               <p className="text-2xl font-bold text-yellow-600">{loadingReports ? "—" : stats.pending}</p>
             </div>
             <div className="bg-white rounded-xl shadow-md p-4">
-              <p className="text-sm text-gray-600 mb-1">Under Review</p>
-              <p className="text-2xl font-bold text-blue-600">{loadingReports ? "—" : stats.underReview}</p>
-            </div>
-            <div className="bg-white rounded-xl shadow-md p-4">
               <p className="text-sm text-gray-600 mb-1">Resolved</p>
               <p className="text-2xl font-bold text-green-600">{loadingReports ? "—" : stats.resolved}</p>
-            </div>
-            <div className="bg-white rounded-xl shadow-md p-4">
-              <p className="text-sm text-gray-600 mb-1">Critical</p>
-              <p className="text-2xl font-bold text-red-600">{loadingReports ? "—" : stats.critical}</p>
             </div>
           </div>
 
@@ -333,7 +321,7 @@ export default function EnhancedReportsPage() {
 
               {/* Filter Options */}
               {showFilters && (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
                   <div>
                     <label className="text-sm font-semibold text-gray-900 mb-2 block">Status</label>
                     <select
@@ -362,20 +350,6 @@ export default function EnhancedReportsPage() {
                       <option value="Critical">Critical</option>
                     </select>
                   </div>
-                  <div>
-                    <label className="text-sm font-semibold text-gray-900 mb-2 block">Type</label>
-                    <select
-                      value={filterType}
-                      onChange={(e) => setFilterType(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                    >
-                      <option value="all">All Types</option>
-                      <option value="Scam Alert">Scam Alert</option>
-                      <option value="Property Issue">Property Issue</option>
-                      <option value="User Complaint">User Complaint</option>
-                      <option value="Technical Issue">Technical Issue</option>
-                    </select>
-                  </div>
                 </div>
               )}
             </div>
@@ -399,7 +373,6 @@ export default function EnhancedReportsPage() {
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Type & Category</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Owner</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Details</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Reported By</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Priority</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Scheduled</th>
@@ -436,12 +409,6 @@ export default function EnhancedReportsPage() {
                           {report.propertyTitle && (
                             <p className="text-xs text-blue-600 mt-1">Property: {report.propertyTitle}</p>
                           )}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">{report.reportedBy}</p>
-                            <p className="text-xs text-gray-600">{report.reportedByRole}</p>
-                          </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600">
                           {new Date(report.reportedDate).toLocaleDateString('en-US', { 
