@@ -232,7 +232,7 @@ export default function PropertyMaintenancePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-sky-300 via-blue-200 to-blue-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Back Button */}
         <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
@@ -246,12 +246,12 @@ export default function PropertyMaintenancePage() {
         </div>
 
         {/* Header */}
-        <div className="mb-8 rounded-3xl border border-white/60 bg-white/90 px-8 py-8 shadow-2xl shadow-blue-500/5 backdrop-blur-sm">
+        <div className="mb-8 rounded-3xl border border-white/60 bg-white/90 px-8 py-8 shadow-2xl shadow-sky-500/10 backdrop-blur-sm">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-blue-400">Maintenance</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-sky-600">Maintenance</p>
               <h1 className="mt-3 text-3xl font-semibold text-slate-900 flex items-center gap-3">
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg">
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg">
                   <Wrench className="w-6 h-6" />
                 </span>
                 Property Maintenance
@@ -264,7 +264,7 @@ export default function PropertyMaintenancePage() {
               {overviewStats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="min-w-[140px] rounded-2xl border border-white/70 bg-gradient-to-br from-white to-blue-50/60 px-5 py-4 text-slate-600 shadow-inner"
+                  className="min-w-[140px] rounded-2xl border border-white/70 bg-gradient-to-br from-white to-sky-50/70 px-5 py-4 text-slate-600 shadow-inner"
                 >
                   <p className="text-[11px] uppercase tracking-[0.25em] text-slate-400">{stat.label}</p>
                   <p className="mt-2 text-3xl font-semibold text-slate-900">{loading ? "—" : stat.value}</p>
@@ -282,7 +282,7 @@ export default function PropertyMaintenancePage() {
               <p className="text-sm text-slate-500">Choose a property to submit or review maintenance activity.</p>
             </div>
             {!loading && (
-              <span className="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-blue-600 shadow-sm">
+              <span className="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-sky-700 shadow-sm">
                 {maintenanceItems.length} total
               </span>
             )}
@@ -315,9 +315,9 @@ export default function PropertyMaintenancePage() {
               {maintenanceItems.map((item) => (
                 <div
                   key={`card-${item.id}`}
-                  className="group relative overflow-hidden rounded-3xl border border-white/70 bg-white/90 p-6 shadow-xl shadow-blue-500/5 transition hover:-translate-y-1 hover:shadow-blue-500/20"
+                  className="group relative overflow-hidden rounded-3xl border border-white/70 bg-white/90 p-6 shadow-xl shadow-sky-500/10 transition hover:-translate-y-1 hover:shadow-sky-500/30"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white via-transparent to-blue-50 opacity-0 transition group-hover:opacity-100" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white via-transparent to-sky-100 opacity-0 transition group-hover:opacity-100" />
                   <div className="relative flex flex-col gap-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -329,13 +329,13 @@ export default function PropertyMaintenancePage() {
                         {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
                       </span>
                     </div>
-                    <div className="rounded-2xl bg-gradient-to-r from-blue-50/70 to-indigo-50/70 p-4 text-sm text-slate-600">
+                    <div className="rounded-2xl bg-gradient-to-r from-sky-50/80 to-blue-50/80 p-4 text-sm text-slate-600">
                       <div className="flex items-center gap-2 font-medium text-slate-700">
-                        <CalendarDays className="w-4 h-4 text-blue-500" />
+                        <CalendarDays className="w-4 h-4 text-sky-600" />
                         {item.dueDate ? `Next due ${new Date(item.dueDate).toLocaleDateString()}` : "No schedule on file"}
                       </div>
                       <div className="mt-2 flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-indigo-400" />
+                        <MapPin className="w-4 h-4 text-blue-500" />
                         <span>{item.address}</span>
                       </div>
                       {item.notes && item.notes.trim() !== "" && (
@@ -344,7 +344,7 @@ export default function PropertyMaintenancePage() {
                     </div>
                     <button
                       onClick={() => openMaintenanceModal(item)}
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 transition hover:shadow-blue-600/50"
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-600/30 transition hover:shadow-sky-600/50"
                     >
                       <ClipboardCheck className="w-4 h-4" />
                       Submit Maintenance Request
@@ -385,10 +385,10 @@ export default function PropertyMaintenancePage() {
               </p>
             </div>
           ) : (
-            <div className="rounded-3xl border border-white/70 bg-white/90 shadow-2xl shadow-blue-500/5 overflow-hidden backdrop-blur">
+            <div className="rounded-3xl border border-white/70 bg-white/90 shadow-2xl shadow-sky-500/10 overflow-hidden backdrop-blur">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-slate-100">
-                  <thead className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                  <thead className="bg-gradient-to-r from-sky-100 to-blue-50">
                     <tr>
                       <th scope="col" className="px-6 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.25em]">
                         Property ID
@@ -436,7 +436,7 @@ export default function PropertyMaintenancePage() {
                           {log.scheduled_date ? new Date(log.scheduled_date).toLocaleDateString() : "Not scheduled"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                          {log.estimated_cost ? `$${log.estimated_cost.toFixed(2)}` : "Not estimated"}
+                          {log.estimated_cost ? `₱${log.estimated_cost.toFixed(2)}` : "Not estimated"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                           {new Date(log.created_at).toLocaleDateString()}
@@ -529,7 +529,7 @@ function MaintenanceRequestConfirmationModal({
 
           <button
             onClick={onClose}
-            className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 transition hover:shadow-blue-600/50"
+            className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-600/30 transition hover:shadow-sky-600/50"
           >
             Done
           </button>

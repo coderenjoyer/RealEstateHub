@@ -201,7 +201,30 @@ export default function ListPropertyPage() {
     if (userRole) {
       setIsAgent(userRole === "agent");
     }
-  }, [userRole, session]);
+
+    // Prefill agent contact information for the listing form
+    if (session?.user) {
+      const meta = session.user.user_metadata || {};
+
+      setFormData((prev) => ({
+        ...prev,
+        // Only prefill if the user hasn't typed anything yet
+        fullName:
+          prev.fullName ||
+          meta.full_name ||
+          meta.name ||
+          meta.username ||
+          "",
+        email: prev.email || session.user.email || "",
+        phoneNumber:
+          prev.phoneNumber ||
+          meta.phone ||
+          meta.phone_number ||
+          meta.contactNumber ||
+          "",
+      }));
+    }
+  }, [userRole, session, userId]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
