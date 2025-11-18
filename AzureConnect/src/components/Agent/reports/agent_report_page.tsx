@@ -96,6 +96,7 @@ export default function EnhancedReportsPage() {
     setLoadingReports(true)
     setFetchError(null)
     try {
+      console.log("Fetching maintenance reports for agent:", session?.user?.id);
       const { data, error } = await supabase
         .from("property_maintenance_logs")
         .select(`
@@ -118,12 +119,16 @@ export default function EnhancedReportsPage() {
             id,
             agent_id,
             owner_id,
-            owner_name
+            owner_name,
+            maintenance_status
           ),
           property_ownership_id
         `)
         .eq("ownership.agent_id", session.user.id)
         .order("created_at", { ascending: false })
+
+      console.log("Raw data from database:", data);
+      console.log("Error from database:", error);
 
       if (error) {
         throw error
@@ -150,6 +155,7 @@ export default function EnhancedReportsPage() {
         estimatedCost: log.estimated_cost ?? null
       }))
 
+      console.log("Mapped reports:", mappedReports);
       setReportsData(mappedReports)
     } catch (err: any) {
       console.error("Error fetching maintenance logs:", err)
@@ -185,49 +191,47 @@ export default function EnhancedReportsPage() {
     setResolveError(null)
 
     try {
+      console.log("Mark as Resolved clicked. Report data:", selectedReport);
+      
       // 1. Update the maintenance log status to "completed"
-      const { error: logError } = await supabase
+      console.log("Updating property_maintenance_logs table...");
+      console.log("Using ID for update:", selectedReport.id);
+      
+      const { error: logError, data: logData } = await supabase
         .from("property_maintenance_logs")
         .update({ maintenance_status: "completed" })
         .eq("id", selectedReport.id)
+        .select()
 
-      if (logError) throw logError
+      console.log("Maintenance log update result:", { error: logError, data: logData });
+      
+      if (logError) {
+        console.error("Error updating maintenance log:", logError)
+        throw new Error(`Failed to update maintenance log: ${logError.message}`)
+      }
 
       // 2. Update the property_ownerships maintenance_status to "completed"
-      const { error: ownershipError } = await supabase
+      console.log("Updating property_ownerships table...");
+      console.log("Using ID for update:", selectedReport.propertyOwnershipId);
+      
+      const { error: ownershipError, data: ownershipData } = await supabase
         .from("property_ownerships")
         .update({ maintenance_status: "completed" })
         .eq("id", selectedReport.propertyOwnershipId)
+        .select()
 
-      if (ownershipError) throw ownershipError
-
-      // 3. Create a notification for the owner
-      const propertyTitle = selectedReport.propertyTitle || "your property"
-      const propertyIdNum = selectedReport.propertyId 
-        ? parseInt(selectedReport.propertyId.replace("PROP-", ""), 10)
-        : null
+      console.log("Property ownership update result:", { error: ownershipError, data: ownershipData });
       
-      const { error: notificationError } = await supabase
-        .from("notifications")
-        .insert({
-          user_id: selectedReport.ownerId,
-          title: "Maintenance Request Resolved",
-          message: `Your maintenance request for ${propertyTitle} has been marked as resolved by your agent.`,
-          type: "system",
-          related_property_id: isNaN(propertyIdNum as number) ? null : propertyIdNum,
-          related_agent_id: session?.user?.id || null,
-          read: false,
-        })
-
-      if (notificationError) {
-        console.error("Error creating notification:", notificationError)
-        // Don't throw here - the main action succeeded, notification is secondary
+      if (ownershipError) {
+        console.error("Error updating property ownership:", ownershipError)
+        throw new Error(`Failed to update property ownership: ${ownershipError.message}`)
       }
 
-      // 4. Refresh the reports list
+      // 3. Refresh the reports list to show updated status
+      console.log("Refreshing reports...");
       await fetchMaintenanceReports()
 
-      // 5. Close the modal
+      // 4. Close the modal
       closeModal()
     } catch (err: any) {
       console.error("Error resolving report:", err)

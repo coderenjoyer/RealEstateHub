@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS notifications (
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
-    type VARCHAR(50) NOT NULL CHECK (type IN ('property', 'message', 'favorite', 'appointment', 'system')),
+    type VARCHAR(50) NOT NULL CHECK (type IN ('property', 'message', 'favorite', 'appointment', 'system', 'maintenance')),
     related_property_id BIGINT REFERENCES listed_properties(id) ON DELETE SET NULL,
     related_agent_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
     read BOOLEAN DEFAULT FALSE,
@@ -45,11 +45,19 @@ CREATE POLICY "users_delete_own_notifications" ON notifications
     TO authenticated
     USING (auth.uid() = user_id);
 
--- Admin policy: Admins can insert notifications for users
-CREATE POLICY "admins_insert_notifications" ON notifications
+-- Updated policy: Allow admins, agents, and users with proper metadata to insert notifications
+CREATE POLICY "users_insert_notifications" ON notifications
     FOR INSERT
     TO authenticated
-    WITH CHECK ((auth.jwt() ->> 'role') = 'admin' OR (auth.jwt() ->> 'role') = 'agent');
+    WITH CHECK (
+        -- Allow admins
+        (auth.jwt() ->> 'role') = 'admin'
+        -- Allow agents (check both role and user_metadata)
+        OR (auth.jwt() ->> 'role') = 'agent'
+        OR (auth.jwt() -> 'user_metadata' ->> 'role') = 'agent'
+        -- Allow users to create notifications for themselves in some cases
+        OR auth.uid() = user_id
+    );
 
 -- Grant permissions
 GRANT ALL ON notifications TO authenticated;

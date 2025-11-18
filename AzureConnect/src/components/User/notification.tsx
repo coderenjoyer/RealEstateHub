@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Bell, Check, CheckCheck, Home, Heart, MessageSquare, Calendar, AlertCircle } from "lucide-react"
+import { Bell, Check, CheckCheck, Home, Heart, MessageSquare, Calendar, AlertCircle, Wrench } from "lucide-react"
 import { useNotifications } from "../../hooks/useNotifications"
 
 interface NotificationDropdownProps {
@@ -38,6 +38,8 @@ export function NotificationDropdown({ onClose, unreadCount: propUnreadCount }: 
         return <Heart className="h-4 w-4 text-red-500" />
       case 'appointment':
         return <Calendar className="h-4 w-4 text-purple-600" />
+      case 'maintenance':
+        return <Wrench className="h-4 w-4 text-blue-600" />
       case 'system':
         return <AlertCircle className="h-4 w-4 text-orange-500" />
       default:
@@ -168,7 +170,9 @@ export function NotificationDropdown({ onClose, unreadCount: propUnreadCount }: 
                     notification.type === 'property' ? 'bg-sky-100' :
                     notification.type === 'message' ? 'bg-green-100' :
                     notification.type === 'favorite' ? 'bg-red-100' :
-                    notification.type === 'appointment' ? 'bg-purple-100' :
+                    notification.type === 'appointment' ? 'bg-purple-100' : 
+                    notification.type === 'system' ? 'bg-blue-100' :
+                    notification.type === 'maintenance' ? 'bg-blue-100' :
                     'bg-orange-100'
                   }`}>
                     {getNotificationIcon(notification.type)}

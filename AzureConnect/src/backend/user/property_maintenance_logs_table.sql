@@ -57,6 +57,27 @@ WITH CHECK (
   )
 );
 
+CREATE POLICY "Agents can update maintenance logs"
+ON property_maintenance_logs FOR UPDATE
+USING (
+  (auth.jwt() -> 'user_metadata' ->> 'role') = 'agent'
+  AND EXISTS (
+    SELECT 1
+    FROM property_ownerships po
+    WHERE po.id = property_maintenance_logs.property_ownership_id
+      AND po.agent_id = auth.uid()
+  )
+)
+WITH CHECK (
+  (auth.jwt() -> 'user_metadata' ->> 'role') = 'agent'
+  AND EXISTS (
+    SELECT 1
+    FROM property_ownerships po
+    WHERE po.id = property_maintenance_logs.property_ownership_id
+      AND po.agent_id = auth.uid()
+  )
+);
+
 CREATE POLICY "Agents can delete maintenance logs"
 ON property_maintenance_logs FOR DELETE
 USING (

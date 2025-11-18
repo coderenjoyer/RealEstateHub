@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { User, BarChart3, FileCheck, List, MessageSquare, ChevronLeft, LogOut, Home } from "lucide-react"
+import { User, BarChart3, FileCheck, ChevronLeft, LogOut, Home } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useSidebar } from "@/contexts/SidebarContext"
 import { useAuth } from "@/AuthContext"

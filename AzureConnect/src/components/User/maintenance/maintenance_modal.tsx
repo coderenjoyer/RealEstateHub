@@ -28,7 +28,6 @@ interface MaintenanceFormState {
   propertyId: string
   maintenanceType: string
   priority: "low" | "medium" | "high"
-  status: MaintenanceStatus
   description: string
   scheduledDate: string
   estimatedCost: string
@@ -78,7 +77,6 @@ const defaultForm: MaintenanceFormState = {
   propertyId: "",
   maintenanceType: "",
   priority: "medium",
-  status: "pending",
   description: "",
   scheduledDate: "",
   estimatedCost: "",
@@ -162,7 +160,7 @@ export function MaintenanceModal({
 
     try {
       const ownershipUpdatePayload: Record<string, any> = {
-        maintenance_status: formData.status,
+        maintenance_status: "pending", // Always set to pending
         next_due_date: formData.scheduledDate || null,
         notes: formData.description.trim() || null,
         priority: formData.priority,
@@ -182,7 +180,7 @@ export function MaintenanceModal({
           property_ownership_id: ownershipId,
           property_id: Number(formData.propertyId),
           owner_id: ownerId,
-          maintenance_status: formData.status,
+          maintenance_status: "pending", // Always set to pending
           maintenance_type: formData.maintenanceType || "General Maintenance",
           priority: formData.priority,
           description: formData.description.trim() || null,
@@ -279,27 +277,6 @@ export function MaintenanceModal({
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
               </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Status <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="in-progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                </select>
-                <div className="absolute right-10 top-1/2 -translate-y-1/2 pointer-events-none">
-                  {statusIcon(formData.status)}
-                </div>
-              </div>
             </div>
           </div>
 
