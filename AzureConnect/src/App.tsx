@@ -7,7 +7,7 @@ import { CTASection } from "./components/landing/cta-section";
 import { Footer } from "./components/landing/footer";
 import LoginParentContainer from "./components/login/login_parent_container";
 import { Routes, Route } from "react-router-dom";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import ErrorPage from "./components/ui/errorpage";
 import AdminPage from "./components/admin/admin-page";
 import ListingApprovalsPage from "./components/admin/listings/admin-listing";
@@ -35,6 +35,30 @@ const FavoritesPage = lazy(() => import("./components/User/favorites"));
 const PropertyMaintenancePage = lazy(() => import("./components/User/maintenance/maintenance"));
 
 function App() {
+  const [showRefreshLoader, setShowRefreshLoader] = useState(false);
+
+  // Detect page refresh and show loader
+  useEffect(() => {
+    // Check if this is a page refresh (not initial load)
+    const navigationEntries = performance.getEntriesByType('navigation');
+    if (navigationEntries.length > 0) {
+      const navigationEntry = navigationEntries[0] as PerformanceNavigationTiming;
+      if (navigationEntry.type === 'reload') {
+        // Show loader for 1 second during refresh
+        setShowRefreshLoader(true);
+        const timer = setTimeout(() => {
+          setShowRefreshLoader(false);
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, []);
+
+  // If refreshing, show the loading screen
+  if (showRefreshLoader) {
+    return <AzureRealEstateLoader />;
+  }
+
   return (
     <BookmarkProvider>
       <Suspense fallback={<AzureRealEstateLoader />}>

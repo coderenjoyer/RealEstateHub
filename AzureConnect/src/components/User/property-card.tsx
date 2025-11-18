@@ -27,14 +27,14 @@ export function PropertyCard({
   isBookmarked = false,
 }: PropertyCardProps) {
   // Default images if none provided
-  const defaultImages = [
+  const defaultImages: string[] = [
     "/how-to-design-a-house.jpg",
     "/luxury-bedroom.jpg",
     "/office space.jpg",
     "/swimming_pool.jpg",
   ];
 
-  const images = property.images || defaultImages;
+  const images = property.images && property.images.length > 0 ? property.images : defaultImages;
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const handleImageClick = (index: number, event: React.MouseEvent) => {
@@ -45,6 +45,17 @@ export function PropertyCard({
   const handleBookmarkClick = (event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent card click when clicking on bookmark
     onBookmark?.(property.id);
+  };
+
+  const formatPrice = (price: string): string => {
+    if (price.includes('₱')) {
+      return price;
+    }
+    
+    // Otherwise, parse as numeric price
+    const numericPrice = parseInt(price, 10);
+    if (isNaN(numericPrice)) return "₱0";
+    return `₱${numericPrice.toLocaleString()}`;
   };
 
   return (
@@ -111,11 +122,20 @@ export function PropertyCard({
 
       {/* Property Details */}
       <div className="p-5">
-        <div className="mb-3">
-          <h3 className="font-semibold text-gray-900 text-base mb-1">
-            {property.name}
-          </h3>
-          <p className="text-xs text-gray-500">{property.address}</p>
+        <div className="flex justify-between items-start mb-3">
+          <div>
+            <h3 className="font-semibold text-gray-900 text-base mb-1">
+              {property.name}
+            </h3>
+            <p className="text-xs text-gray-500">{property.address}</p>
+          </div>
+          
+          {/* Property Price - Right aligned */}
+          <div className="text-right">
+            <p className="text-xl font-bold text-green-600">
+              {formatPrice(property.price)}
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">

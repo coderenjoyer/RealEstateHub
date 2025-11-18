@@ -129,7 +129,7 @@ export function PropertyGrid({ activeTab, filters, onContactAgent }: PropertyGri
       id: property.id,
       name: property.property_title,
       address: `${property.street_address}, ${property.city}`,
-      price: `₱${property.price.toLocaleString()}/${property.listing_type === 'sale' ? 'total' : 'month'}`,
+      price: `₱${property.price.toLocaleString()}${property.listing_type === 'rent' ? '/month' : ''}`,
       beds: property.bedrooms,
       baths: property.bathrooms,
       sqft: property.square_feet || 0,

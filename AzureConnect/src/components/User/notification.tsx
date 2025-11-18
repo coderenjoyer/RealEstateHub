@@ -172,8 +172,7 @@ export function NotificationDropdown({ onClose, unreadCount: propUnreadCount }: 
                     notification.type === 'favorite' ? 'bg-red-100' :
                     notification.type === 'appointment' ? 'bg-purple-100' : 
                     notification.type === 'system' ? 'bg-blue-100' :
-                    notification.type === 'maintenance' ? 'bg-blue-100' :
-                    'bg-orange-100'
+                    notification.type === 'maintenance' ? 'bg-blue-100' :'bg-orange-100'
                   }`}>
                     {getNotificationIcon(notification.type)}
                   </div>
