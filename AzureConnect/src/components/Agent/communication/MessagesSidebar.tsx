@@ -49,12 +49,6 @@ export function MessagesSidebar({
               </Badge>
             )}
           </div>
-          <Button
-            size="icon"
-            className="h-9 w-9 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-600 hover:to-blue-600 text-white shadow-md hover:shadow-lg transition-all"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
         </div>
 
         {/* Search Bar */}
