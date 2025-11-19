@@ -1,6 +1,9 @@
 "use client";
 import { useState } from "react";
-import { PropertyFilters, FilterState } from "@/components/User/property-filters";
+import {
+  PropertyFilters,
+  FilterState,
+} from "@/components/User/property-filters";
 import { PropertyGrid } from "@/components/User/property-grid";
 import { TopNav } from "@/components/User/top-nav";
 
@@ -13,24 +16,31 @@ export default function HomePage() {
   const [selectedChatId, setSelectedChatId] = useState<number | undefined>(
     undefined
   );
-  const [agentToContact, setAgentToContact] = useState<{
-    id: string;
-    name: string;
-    avatar: string | null;
-  } | undefined>(undefined);
+  const [agentToContact, setAgentToContact] = useState<
+    | {
+        id: string;
+        name: string;
+        avatar: string | null;
+      }
+    | undefined
+  >(undefined);
   const [filters, setFilters] = useState<FilterState>({
     selectedTypes: [],
     selectedAmenities: [],
     priceRange: [0, 999999999], // Wide range to show all properties initially
-    listingType: null, // Don't filter by type initially
+    listingType: "sale", // Set to 'sale' since Buy tab is active by default
   });
 
   const handleFilterChange = (newFilters: FilterState) => {
-    console.log('Filter changed:', newFilters); // Debug log
+    console.log("Filter changed:", newFilters); // Debug log
     setFilters(newFilters);
   };
 
-  const handleContactAgent = (agentId: string, agentName: string, agentAvatar?: string | null) => {
+  const handleContactAgent = (
+    agentId: string,
+    agentName: string,
+    agentAvatar?: string | null
+  ) => {
     // Set agent to contact
     setAgentToContact({
       id: agentId,

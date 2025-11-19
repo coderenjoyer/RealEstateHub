@@ -19,7 +19,7 @@ export interface FilterState {
   selectedTypes: string[];
   selectedAmenities: string[];
   priceRange: number[];
-  listingType: 'rent' | 'sale' | null;
+  listingType: "rent" | "sale" | null;
 }
 
 interface PropertyFiltersProps {
@@ -50,11 +50,22 @@ export function PropertyFilters({
   // Fetch unique property types and amenities from database
   useEffect(() => {
     fetchFilterOptions();
+
+    // Initialize filters based on active tab
+    const listingType =
+      activeTab === "Buy" ? "sale" : activeTab === "Rent" ? "rent" : null;
+    onFilterChange({
+      selectedTypes: [],
+      selectedAmenities: [],
+      priceRange: [0, 999999999],
+      listingType,
+    });
   }, []);
 
   // Update filters whenever any filter state changes
   useEffect(() => {
-    const listingType = activeTab === 'Buy' ? 'sale' : activeTab === 'Rent' ? 'rent' : null;
+    const listingType =
+      activeTab === "Buy" ? "sale" : activeTab === "Rent" ? "rent" : null;
     onFilterChange({
       selectedTypes,
       selectedAmenities,
@@ -69,13 +80,13 @@ export function PropertyFilters({
 
       // Fetch all properties to extract unique types and features
       const { data, error } = await supabase
-        .from('listed_properties')
-        .select('property_type, features')
-        .eq('is_deleted', false)
-        .eq('is_public', true);
+        .from("listed_properties")
+        .select("property_type, features")
+        .eq("is_deleted", false)
+        .eq("is_public", true);
 
       if (error) {
-        console.error('Error fetching filter options:', error);
+        console.error("Error fetching filter options:", error);
         return;
       }
 
@@ -98,7 +109,7 @@ export function PropertyFilters({
       setPropertyTypes(Array.from(types).sort());
       setAmenities(Array.from(allFeatures).sort());
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     } finally {
       setLoading(false);
     }
@@ -111,9 +122,10 @@ export function PropertyFilters({
     setMaxPriceInput("");
     setPriceRange([0, 999999999]);
     setShowSlider(false);
-    
+
     // Notify parent of filter reset
-    const listingType = activeTab === 'Buy' ? 'sale' : activeTab === 'Rent' ? 'rent' : null;
+    const listingType =
+      activeTab === "Buy" ? "sale" : activeTab === "Rent" ? "rent" : null;
     onFilterChange({
       selectedTypes: [],
       selectedAmenities: [],
@@ -324,9 +336,13 @@ export function PropertyFilters({
             </div>
             <div className="space-y-1 pl-1">
               {loading ? (
-                <div className="text-xs text-gray-500 py-2">Loading types...</div>
+                <div className="text-xs text-gray-500 py-2">
+                  Loading types...
+                </div>
               ) : propertyTypes.length === 0 ? (
-                <div className="text-xs text-gray-500 py-2">No property types available</div>
+                <div className="text-xs text-gray-500 py-2">
+                  No property types available
+                </div>
               ) : (
                 propertyTypes.map((type) => (
                   <label
@@ -365,9 +381,13 @@ export function PropertyFilters({
             </div>
             <div className="flex flex-wrap gap-2">
               {loading ? (
-                <div className="text-xs text-gray-500 py-2">Loading amenities...</div>
+                <div className="text-xs text-gray-500 py-2">
+                  Loading amenities...
+                </div>
               ) : amenities.length === 0 ? (
-                <div className="text-xs text-gray-500 py-2">No amenities available</div>
+                <div className="text-xs text-gray-500 py-2">
+                  No amenities available
+                </div>
               ) : (
                 amenities.map((amenity, idx) => (
                   <button
