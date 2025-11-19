@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { AgentLayout } from "@/components/layouts/AgentLayout"
-import { Search, Filter, Download, Eye, X, AlertTriangle, CheckCircle, Clock, XCircle, Calendar, User, FileText, ChevronDown } from "lucide-react"
+import { Search, Filter, Eye, X, AlertTriangle, CheckCircle, Clock, XCircle, Calendar, User, FileText, ChevronDown } from "lucide-react"
 import { useAuth } from "@/AuthContext"
 import supabase from "@/supabaseClient"
 
@@ -311,10 +311,6 @@ export default function EnhancedReportsPage() {
                     <Filter className="w-4 h-4" />
                     Filters
                     <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? "rotate-180" : ""}`} />
-                  </button>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
-                    <Download className="w-4 h-4" />
-                    Export
                   </button>
                 </div>
               </div>

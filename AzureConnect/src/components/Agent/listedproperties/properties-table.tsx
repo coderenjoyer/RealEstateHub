@@ -477,25 +477,36 @@ export function PropertiesTable() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm">
-                    <button 
-                      onClick={() => openModal(property)}
-                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 font-medium hover:bg-blue-100 transition-colors"
-                    >
-                      Review
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
+                    {property.property_status === "sold" || property.property_status === "rented" ? (
+                      <span className={`inline-flex items-center px-3 py-1.5 rounded-lg font-medium text-sm ${
+                        property.property_status === "sold"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-purple-100 text-purple-800"
+                      }`}>
+                        {property.property_status === "sold" ? "Sold" : "Rented"}
+                      </span>
+                    ) : (
+                      <button 
+                        onClick={() => openModal(property)}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 font-medium hover:bg-blue-100 transition-colors"
+                      >
+                        Review
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-sm">
                     <div className="flex items-center gap-2 whitespace-nowrap">
                       <button 
                         onClick={() => openEditModal(property)}
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-50 text-blue-600 font-medium text-xs hover:bg-blue-100 transition-colors"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-50 text-blue-600 font-medium text-xs hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Edit Property"
+                        disabled={property.property_status === "sold" || property.property_status === "rented"}
                       >
                         <Pencil className="w-3 h-3" />
                         Edit
                       </button>
-                      {property.property_status !== "sold" && (
+                      {property.property_status !== "sold" && property.property_status !== "rented" && (
                         <button 
                           onClick={() => openTransferModal(property)}
                           className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-600 font-medium text-xs hover:bg-emerald-100 transition-colors"
