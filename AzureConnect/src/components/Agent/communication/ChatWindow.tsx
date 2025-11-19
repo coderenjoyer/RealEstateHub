@@ -326,8 +326,16 @@ export function ChatWindow({
             onChange={(e) => onMessageInputChange(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && onSendMessage()}
             placeholder="Type your message here..."
-            className="flex-1 border-0 bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-0 placeholder:text-gray-400"
+            className="flex-1 border-0 bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-0 placeholder:text-gray-400 rounded-full focus-visible:rounded-full"
           />
+          <Button
+            onClick={onSendMessage}
+            disabled={!messageInput.trim() || sendingMessage}
+            size="sm"
+            className="rounded-full bg-sky-500 hover:bg-sky-600 text-white p-2 h-8 w-8"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>
