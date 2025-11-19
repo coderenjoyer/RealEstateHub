@@ -12,9 +12,11 @@ import {
   Trash2,
   UserPlus,
   Send,
+  Pencil,
 } from "lucide-react"
 import supabase from "@/supabaseClient"
 import { useAuth } from "@/AuthContext"
+import { UpdatePropertyConfirmationModal } from "@/components/ui/update-property-confirmation-modal"
 
 interface Property {
   id: number
@@ -56,6 +58,12 @@ export function PropertiesTable() {
   const [transferError, setTransferError] = useState<string | null>(null)
   const [transferSuccess, setTransferSuccess] = useState<string | null>(null)
   const [transferLoading, setTransferLoading] = useState(false)
+  // Add edit modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [editingProperty, setEditingProperty] = useState<Property | null>(null)
+  const [editFormData, setEditFormData] = useState<Partial<Property>>({})
+  const [updateConfirmModalOpen, setUpdateConfirmModalOpen] = useState(false)
+  const [isUpdateProcessing, setIsUpdateProcessing] = useState(false)
 
   useEffect(() => {
     fetchProperties()
@@ -109,10 +117,40 @@ export function PropertiesTable() {
     setIsModalOpen(true)
   }
 
+  // Add function to open edit modal
+  const openEditModal = (property: Property) => {
+    setEditingProperty(property)
+    setEditFormData({
+      property_title: property.property_title,
+      street_address: property.street_address,
+      city: property.city,
+      state: property.state,
+      price: property.price,
+      bedrooms: property.bedrooms,
+      bathrooms: property.bathrooms,
+      property_status: property.property_status,
+      description: property.description,
+      square_feet: property.square_feet,
+      parking_spaces: property.parking_spaces,
+      year_built: property.year_built,
+      property_type: property.property_type,
+      features: property.features ? [...property.features] : [],
+      listing_type: property.listing_type,
+    })
+    setIsEditModalOpen(true)
+  }
+
   const closeModal = () => {
     setIsModalOpen(false)
     setSelectedProperty(null)
     setSelectedImageIndex(0)
+  }
+
+  // Add function to close edit modal
+  const closeEditModal = () => {
+    setIsEditModalOpen(false)
+    setEditingProperty(null)
+    setEditFormData({})
   }
 
   const handleDeactivateListing = async (propertyId: number) => {
@@ -140,6 +178,57 @@ export function PropertiesTable() {
     } catch (error) {
       console.error('Error:', error)
       alert('Failed to deactivate listing')
+    }
+  }
+
+  // Add function to handle property updates
+  const handleUpdatePropertyClick = (e: React.FormEvent) => {
+    e.preventDefault()
+    setUpdateConfirmModalOpen(true)
+  }
+
+  // Add function to confirm and execute property updates
+  const handleUpdateProperty = async () => {
+    if (!editingProperty || !session?.user?.id) return
+    
+    setIsUpdateProcessing(true)
+    try {
+      const { error } = await supabase
+        .from('listed_properties')
+        .update({
+          property_title: editFormData.property_title,
+          street_address: editFormData.street_address,
+          city: editFormData.city,
+          state: editFormData.state,
+          price: editFormData.price,
+          bedrooms: editFormData.bedrooms,
+          bathrooms: editFormData.bathrooms,
+          property_status: editFormData.property_status,
+          description: editFormData.description,
+          square_feet: editFormData.square_feet,
+          parking_spaces: editFormData.parking_spaces,
+          year_built: editFormData.year_built,
+          property_type: editFormData.property_type,
+          features: editFormData.features,
+          listing_type: editFormData.listing_type,
+        })
+        .eq('id', editingProperty.id)
+        .eq('user_id', session.user.id)
+      
+      if (error) {
+        console.error('Error updating property:', error)
+        return
+      }
+      
+      // Refresh the properties list
+      await fetchProperties()
+      setUpdateConfirmModalOpen(false)
+      closeEditModal()
+    } catch (error) {
+      console.error('Error:', error)
+      setUpdateConfirmModalOpen(false)
+    } finally {
+      setIsUpdateProcessing(false)
     }
   }
 
@@ -397,23 +486,31 @@ export function PropertiesTable() {
                     </button>
                   </td>
                   <td className="px-6 py-4 text-sm">
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex items-center gap-2 whitespace-nowrap">
+                      <button 
+                        onClick={() => openEditModal(property)}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-50 text-blue-600 font-medium text-xs hover:bg-blue-100 transition-colors"
+                        title="Edit Property"
+                      >
+                        <Pencil className="w-3 h-3" />
+                        Edit
+                      </button>
                       {property.property_status !== "sold" && (
                         <button 
                           onClick={() => openTransferModal(property)}
-                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 font-medium hover:bg-emerald-100 transition-colors"
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-600 font-medium text-xs hover:bg-emerald-100 transition-colors"
                           title="Transfer Ownership"
                         >
-                          <UserPlus className="w-4 h-4" />
+                          <UserPlus className="w-3 h-3" />
                           Transfer
                         </button>
                       )}
                       <button 
                         onClick={() => setDeactivateConfirmId(property.id)}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-50 text-red-600 font-medium hover:bg-red-100 transition-colors"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 font-medium text-xs hover:bg-red-100 transition-colors"
                         title="Deactivate Listing"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3 h-3" />
                         Deactivate
                       </button>
                     </div>
@@ -587,6 +684,15 @@ export function PropertiesTable() {
         )
       })()}
 
+      {/* Update Property Confirmation Modal */}
+      <UpdatePropertyConfirmationModal
+        open={updateConfirmModalOpen}
+        onConfirm={handleUpdateProperty}
+        onCancel={() => setUpdateConfirmModalOpen(false)}
+        isProcessing={isUpdateProcessing}
+        propertyTitle={editingProperty?.property_title}
+      />
+
       {/* Deactivate Confirmation Modal */}
       {deactivateConfirmId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setDeactivateConfirmId(null)}>
@@ -733,6 +839,181 @@ export function PropertiesTable() {
                 >
                   <Send className="w-4 h-4" />
                   {transferLoading ? "Transferring..." : "Transfer"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Property Modal */}
+      {isEditModalOpen && editingProperty && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={closeEditModal}>
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-semibold text-slate-900">Edit Property</h3>
+                <p className="text-sm text-slate-500">Update details for {editingProperty.property_title}</p>
+              </div>
+              <button
+                onClick={closeEditModal}
+                className="p-2 rounded-full hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-slate-500" />
+              </button>
+            </div>
+
+            <form className="px-6 py-6 space-y-6" onSubmit={handleUpdatePropertyClick}> 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Property Title
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.property_title || ""}
+                    onChange={(e) => setEditFormData({...editFormData, property_title: e.target.value})}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Property Type
+                  </label>
+                  <select
+                    value={editFormData.property_type || ""}
+                    onChange={(e) => setEditFormData({...editFormData, property_type: e.target.value})}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Select Type</option>
+                    <option value="House">House</option>
+                    <option value="Apartment">Apartment</option>
+                    <option value="Condo">Condo</option>
+                    <option value="Townhouse">Townhouse</option>
+                    <option value="Land">Land</option>
+                    <option value="Commercial">Commercial</option>
+                    <option value="Multi-Family">Multi-Family</option>
+                    <option value="Villa">Villa</option>
+                    <option value="Studio">Studio</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Listing Type
+                  </label>
+                  <select
+                    value={editFormData.listing_type || ""}
+                    onChange={(e) => setEditFormData({...editFormData, listing_type: e.target.value})}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Select Listing Type</option>
+                    <option value="sale">For Sale</option>
+                    <option value="rent">For Rent</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Price (₱)
+                  </label>
+                  <input
+                    type="number"
+                    value={editFormData.price || ""}
+                    onChange={(e) => setEditFormData({...editFormData, price: Number(e.target.value) || 0})
+                    }
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Bedrooms
+                  </label>
+                  <input
+                    type="number"
+                    value={editFormData.bedrooms || ""}
+                    onChange={(e) => setEditFormData({...editFormData, bedrooms: Number(e.target.value) || 0})
+                    }
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Bathrooms
+                  </label>
+                  <input
+                    type="number"
+                    value={editFormData.bathrooms || ""}
+                    onChange={(e) => setEditFormData({...editFormData, bathrooms: Number(e.target.value) || 0})
+                    }
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Square Feet
+                  </label>
+                  <input
+                    type="number"
+                    value={editFormData.square_feet || ""}
+                    onChange={(e) => setEditFormData({...editFormData, square_feet: Number(e.target.value) || null})
+                    }
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    City
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.city || ""}
+                    onChange={(e) => setEditFormData({...editFormData, city: e.target.value})}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={editFormData.description || ""}
+                  onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
+                  rows={4}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={closeEditModal}
+                  className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Update Property
                 </button>
               </div>
             </form>
