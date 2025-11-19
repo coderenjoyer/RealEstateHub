@@ -257,15 +257,15 @@ export function AgentProfileHero() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#49769F]"></div>
       </div>
     )
   }
 
   return (
-    <div className="relative bg-[#b8d4e6]" onClick={handleClickOutside}>
+    <div className="relative bg-[#BDD8E9]" onClick={handleClickOutside}>
       {/* Hero Background Section */}
-      <div className="relative h-64 w-full overflow-hidden bg-gradient-to-br from-blue-500 via-blue-400 to-sky-300">
+      <div className="relative h-64 w-full overflow-hidden bg-gradient-to-br from-[#0A4174] via-[#49769F] to-[#0A4174]">
         {coverImage && (
           <img 
             src={coverImage} 
@@ -274,20 +274,20 @@ export function AgentProfileHero() {
           />
         )}
         {/* Decorative Pattern Overlay */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-32 h-32 border-4 border-white rounded-full"></div>
-          <div className="absolute bottom-10 right-20 w-24 h-24 border-4 border-white rounded-full"></div>
-          <div className="absolute top-20 right-40 w-16 h-16 border-4 border-white rounded-full"></div>
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-10 left-10 w-32 h-32 border-4 border-[#F0FFFF] rounded-full"></div>
+          <div className="absolute bottom-10 right-20 w-24 h-24 border-4 border-[#F0FFFF] rounded-full"></div>
+          <div className="absolute top-20 right-40 w-16 h-16 border-4 border-[#F0FFFF] rounded-full"></div>
         </div>
       </div>
 
       {/* Profile Section */}
       <div className="relative max-w-11xl mx-auto px-1 -mt-20">
-        <div className="bg-white rounded-3xl shadow-xl sm:p-8 p-4 min-w-[375px]">
+        <div className="bg-[#FFFFFF] rounded-3xl shadow-xl sm:p-8 p-4 min-w-[375px] border border-[#F0FFFF]">
           <div className="flex flex-col md:flex-row gap-8 items-start">
             {/* Profile Image */}
             <div className="relative flex-shrink-0">
-              <div className="relative h-40 w-40 rounded-2xl border-4 border-white bg-white shadow-lg overflow-hidden">
+              <div className="relative h-40 w-40 rounded-2xl border-4 border-[#F0FFFF] bg-[#FFFFFF] shadow-lg overflow-hidden">
                 <img src={profileImage || "/header.jpeg"} alt="Agent profile" className="h-full w-full object-cover" />
               </div>
               {/* Pencil Edit Badge */}
@@ -295,31 +295,31 @@ export function AgentProfileHero() {
                 <div className="relative">
                   <button 
                     onClick={toggleDropdown}
-                    className="bg-blue-500 hover:bg-blue-600 rounded-full p-2 shadow-md border-2 border-white transition-colors duration-200"
+                    className="bg-[#49769F] hover:bg-[#0A4174] rounded-full p-2 shadow-md border-2 border-[#F0FFFF] transition-colors duration-200"
                     title="Edit Profile"
                   >
-                    <Pencil className="w-5 h-5 text-white" />
+                    <Pencil className="w-5 h-5 text-[#F0FFFF]" />
                   </button>
                   
                   {/* Dropdown Menu */}
                   {isDropdownOpen && (
                     <div 
-                      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50"
+                      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-[#FFFFFF] rounded-xl shadow-lg border border-[#F0FFFF] py-2 z-50"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <button
                         onClick={() => handleEditClick('profile')}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#F0FFFF] transition-colors"
                       >
-                        <User className="w-4 h-4 text-blue-500" />
-                        <span className="text-sm font-medium text-gray-700">Edit Profile Picture</span>
+                        <User className="w-4 h-4 text-[#49769F]" />
+                        <span className="text-sm font-medium text-[#0A4174]">Edit Profile Picture</span>
                       </button>
                       <button
                         onClick={() => handleEditClick('cover')}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#F0FFFF] transition-colors"
                       >
-                        <Image className="w-4 h-4 text-blue-500" />
-                        <span className="text-sm font-medium text-gray-700">Edit Cover Photo</span>
+                        <Image className="w-4 h-4 text-[#49769F]" />
+                        <span className="text-sm font-medium text-[#0A4174]">Edit Cover Photo</span>
                       </button>
                     </div>
                   )}
@@ -331,48 +331,48 @@ export function AgentProfileHero() {
             <div className="flex-1">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-slate-900 mb-2">{agentData?.name || "Agent Name"}</h1>
-                  <p className="text-lg text-slate-600 font-medium">Real Estate Agent</p>
+                  <h1 className="text-3xl font-bold text-[#0A4174] mb-2">{agentData?.name || "Agent Name"}</h1>
+                  <p className="text-lg text-[#49769F] font-medium">Real Estate Agent</p>
                 </div>
               </div>
 
               {/* Location */}
-              <div className="flex items-center gap-2 text-slate-600 mb-6">
-                <MapPin className="w-5 h-5 text-blue-500 flex-shrink-0" />
+              <div className="flex items-center gap-2 text-[#49769F] mb-6">
+                <MapPin className="w-5 h-5 text-[#0A4174] flex-shrink-0" />
                 {isLocationEditMode ? (
                   <div className="flex items-center gap-2 flex-1">
                     <input
                       type="text"
                       value={tempLocation}
                       onChange={(e) => setTempLocation(e.target.value)}
-                      className="flex-1 px-3 py-1.5 text-sm border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 px-3 py-1.5 text-sm border border-[#49769F]/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F]"
                       placeholder="Enter location"
                       autoFocus
                     />
                     <button
                       onClick={handleLocationSave}
                       disabled={savingLocation || !tempLocation.trim()}
-                      className="px-3 py-1.5 bg-blue-500 text-white text-xs font-medium rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-1.5 bg-[#49769F] text-[#F0FFFF] text-xs font-medium rounded-lg hover:bg-[#0A4174] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {savingLocation ? 'Saving...' : 'Save'}
                     </button>
                     <button
                       onClick={handleLocationCancel}
                       disabled={savingLocation}
-                      className="px-3 py-1.5 bg-gray-200 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
+                      className="px-3 py-1.5 bg-[#F0FFFF] text-[#49769F] text-xs font-medium rounded-lg hover:bg-[#FFFFFF] transition-colors disabled:opacity-50"
                     >
                       Cancel
                     </button>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2 flex-1 group">
-                    <span className="text-sm font-medium">{location}</span>
+                    <span className="text-sm font-medium text-[#0A4174]">{location}</span>
                     <button
                       onClick={handleLocationEdit}
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-blue-50 rounded transition-all"
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-[#F0FFFF] rounded transition-all"
                       title="Edit location"
                     >
-                      <Pencil className="w-4 h-4 text-blue-500" />
+                      <Pencil className="w-4 h-4 text-[#49769F]" />
                     </button>
                   </div>
                 )}
@@ -380,17 +380,17 @@ export function AgentProfileHero() {
 
               {/* Contact Info */}
               <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4">
-                <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-center sm:text-left">
-                  <Phone className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm font-medium text-slate-700">{agentData?.phone || "+63 912 345 6789"}</span>
+                <div className="flex items-center gap-2 bg-[#F0FFFF] px-3 py-2 rounded-lg border border-[#49769F]/20 text-center sm:text-left">
+                  <Phone className="w-4 h-4 text-[#0A4174] flex-shrink-0" />
+                  <span className="text-xs sm:text-sm font-medium text-[#0A4174]">{agentData?.phone || "+63 912 345 6789"}</span>
                 </div>
-                <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-center sm:text-left">
-                  <Mail className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm font-medium text-slate-700">{agentData?.email || "agent@example.com"}</span>
+                <div className="flex items-center gap-2 bg-[#F0FFFF] px-3 py-2 rounded-lg border border-[#49769F]/20 text-center sm:text-left">
+                  <Mail className="w-4 h-4 text-[#0A4174] flex-shrink-0" />
+                  <span className="text-xs sm:text-sm font-medium text-[#0A4174]">{agentData?.email || "agent@example.com"}</span>
                 </div>
-                <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-center sm:text-left">
-                  <Calendar className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm font-medium text-slate-700">Member since {memberSince}</span>
+                <div className="flex items-center gap-2 bg-[#F0FFFF] px-3 py-2 rounded-lg border border-[#49769F]/20 text-center sm:text-left">
+                  <Calendar className="w-4 h-4 text-[#0A4174] flex-shrink-0" />
+                  <span className="text-xs sm:text-sm font-medium text-[#0A4174]">Member since {memberSince}</span>
                 </div>
               </div>
             </div>
@@ -401,18 +401,18 @@ export function AgentProfileHero() {
       {/* Edit Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#FFFFFF] rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto border border-[#F0FFFF]">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-slate-900">
+                <h3 className="text-xl font-bold text-[#0A4174]">
                   {editMode === 'profile' && 'Edit Profile Picture'}
                   {editMode === 'cover' && 'Edit Cover Photo'}
                 </h3>
                 <button
                   onClick={handleCancelEdit}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 hover:bg-[#F0FFFF] rounded-lg transition-colors"
                 >
-                  <X className="w-5 h-5 text-gray-500" />
+                  <X className="w-5 h-5 text-[#49769F]" />
                 </button>
               </div>
 
@@ -420,7 +420,7 @@ export function AgentProfileHero() {
                 {/* Current Image Preview */}
                 <div className="text-center">
                   <div className="relative inline-block">
-                    <div className={`relative overflow-hidden rounded-xl border-4 border-white shadow-lg ${
+                    <div className={`relative overflow-hidden rounded-xl border-4 border-[#F0FFFF] shadow-lg ${
                       editMode === 'profile' ? 'w-32 h-32' : 'w-full h-32'
                     }`}>
                       <img 
@@ -429,17 +429,17 @@ export function AgentProfileHero() {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="absolute -bottom-2 -right-2 bg-blue-500 rounded-full p-2 shadow-md border-2 border-white">
-                      <Camera className="w-4 h-4 text-white" />
+                    <div className="absolute -bottom-2 -right-2 bg-[#49769F] rounded-full p-2 shadow-md border-2 border-[#F0FFFF]">
+                      <Camera className="w-4 h-4 text-[#F0FFFF]" />
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mt-2">Current {editMode === 'profile' ? 'Profile Picture' : 'Cover Photo'}</p>
+                  <p className="text-sm text-[#49769F] mt-2">Current {editMode === 'profile' ? 'Profile Picture' : 'Cover Photo'}</p>
                 </div>
 
                 {/* Upload Section */}
                 <div className="space-y-4">
                   <div 
-                    className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors cursor-pointer"
+                    className="border-2 border-dashed border-[#49769F]/40 rounded-xl p-6 text-center hover:border-[#49769F] transition-colors cursor-pointer"
                     onClick={triggerFileInput}
                   >
                     <input
@@ -450,16 +450,16 @@ export function AgentProfileHero() {
                       className="hidden"
                       id="image-upload"
                     />
-                    <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm font-medium text-gray-700 mb-1">Click to upload new image</p>
-                    <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                    <Upload className="w-8 h-8 text-[#49769F] mx-auto mb-2" />
+                    <p className="text-sm font-medium text-[#0A4174] mb-1">Click to upload new image</p>
+                    <p className="text-xs text-[#49769F]">PNG, JPG, GIF up to 10MB</p>
                   </div>
 
                   {/* Preview New Image */}
                   {previewImage && (
                     <div className="text-center">
                       <div className="relative inline-block">
-                        <div className={`relative overflow-hidden rounded-xl border-4 border-blue-200 shadow-lg ${
+                        <div className={`relative overflow-hidden rounded-xl border-4 border-[#49769F]/40 shadow-lg ${
                           editMode === 'profile' ? 'w-32 h-32' : 'w-full h-32'
                         }`}>
                           <img 
@@ -468,11 +468,11 @@ export function AgentProfileHero() {
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        <div className="absolute -bottom-2 -right-2 bg-green-500 rounded-full p-2 shadow-md border-2 border-white">
-                          <Camera className="w-4 h-4 text-white" />
+                        <div className="absolute -bottom-2 -right-2 bg-[#0A4174] rounded-full p-2 shadow-md border-2 border-[#F0FFFF]">
+                          <Camera className="w-4 h-4 text-[#F0FFFF]" />
                         </div>
                       </div>
-                      <p className="text-sm text-green-600 mt-2">New {editMode === 'profile' ? 'Profile Picture' : 'Cover Photo'} Preview</p>
+                      <p className="text-sm text-[#0A4174] mt-2">New {editMode === 'profile' ? 'Profile Picture' : 'Cover Photo'} Preview</p>
                     </div>
                   )}
                 </div>
@@ -481,7 +481,7 @@ export function AgentProfileHero() {
                 <div className="flex gap-3 pt-4">
                   <button
                     onClick={handleCancelEdit}
-                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex-1 px-4 py-2 border border-[#49769F]/30 text-[#49769F] rounded-lg hover:bg-[#F0FFFF] transition-colors"
                     disabled={uploading}
                   >
                     Cancel
@@ -489,7 +489,7 @@ export function AgentProfileHero() {
                   <button
                     onClick={handleSaveImage}
                     disabled={!previewImage || uploading}
-                    className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 px-4 py-2 bg-[#49769F] hover:bg-[#0A4174] text-[#F0FFFF] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {uploading ? 'Uploading...' : 'Save Changes'}
                   </button>

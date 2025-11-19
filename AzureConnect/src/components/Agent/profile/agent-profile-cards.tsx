@@ -239,15 +239,15 @@ export function AgentProfileCards() {
   }
 
   return (
-    <div className="bg-[#b8d4e6] px-4 sm:px-8 py-8">
+    <div className="bg-[#BDD8E9] px-4 sm:px-8 py-8">
       <div className="max-w-7xl min-w-[375px] mx-auto space-y-6">
         {/* Top Row - About Me and Property Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* About Me Card */}
-          <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-200">
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 flex items-center justify-between">
+          <div className="bg-[#FFFFFF] rounded-2xl shadow-md overflow-hidden border border-[#F0FFFF]">
+            <div className="bg-gradient-to-r from-[#0A4174] to-[#49769F] text-[#F0FFFF] px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 rounded-lg">
+                <div className="p-2 bg-[#FFFFFF]/20 rounded-lg">
                   <User className="w-5 h-5" />
                 </div>
                 <h3 className="text-lg font-semibold">About Me</h3>
@@ -255,26 +255,26 @@ export function AgentProfileCards() {
               {!isEditingAbout && (
                 <button
                   onClick={handleEditAbout}
-                  className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                  className="p-2 bg-[#FFFFFF]/20 hover:bg-[#FFFFFF]/40 rounded-lg transition-colors"
                   title="Edit About Me"
                 >
                   <Pencil className="w-4 h-4" />
                 </button>
               )}
             </div>
-            <div className="sm:p-6 p-4 space-y-4">
+            <div className="sm:p-6 p-4 space-y-4 text-[#0A4174]">
               {/* Bio */}
               <div>
                 {isEditingAbout ? (
                   <textarea
                     value={tempAboutData.bio}
                     onChange={(e) => setTempAboutData({ ...tempAboutData, bio: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700 leading-relaxed resize-none"
+                    className="w-full px-3 py-2 border border-[#49769F]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F] text-[#0A4174] leading-relaxed resize-none bg-[#F0FFFF]"
                     rows={4}
                     placeholder="Write your bio..."
                   />
                 ) : (
-                  <p className="text-slate-700 leading-relaxed">
+                  <p className="text-[#0A4174] leading-relaxed">
                     {aboutData.bio}
                   </p>
                 )}
@@ -282,15 +282,15 @@ export function AgentProfileCards() {
 
               {/* Specializations */}
               <div className="space-y-3">
-                <h4 className="font-semibold text-slate-900">Specializations:</h4>
+                <h4 className="font-semibold text-[#0A4174]">Specializations:</h4>
                 <div className="flex flex-wrap gap-2">
                   {(isEditingAbout ? tempAboutData.specializations : aboutData.specializations).map((spec, index) => (
-                    <span key={index} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium flex items-center gap-2">
+                    <span key={index} className="px-3 py-1 bg-[#49769F]/15 text-[#0A4174] rounded-full text-sm font-medium flex items-center gap-2">
                       {spec}
                       {isEditingAbout && (
                         <button
                           onClick={() => removeSpecialization(index)}
-                          className="hover:bg-blue-200 rounded-full p-0.5"
+                          className="hover:bg-[#49769F]/20 rounded-full p-0.5"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -305,12 +305,12 @@ export function AgentProfileCards() {
                       value={newSpecialization}
                       onChange={(e) => setNewSpecialization(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && addSpecialization()}
-                      className="flex-1 px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 px-3 py-1.5 text-sm border border-[#49769F]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F] bg-[#F0FFFF]"
                       placeholder="Add specialization..."
                     />
                     <button
                       onClick={addSpecialization}
-                      className="px-3 py-1.5 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors"
+                      className="px-3 py-1.5 bg-[#49769F] text-[#F0FFFF] text-sm font-medium rounded-lg hover:bg-[#0A4174] transition-colors"
                     >
                       Add
                     </button>
@@ -320,34 +320,34 @@ export function AgentProfileCards() {
 
               {/* Languages */}
               <div className="space-y-3">
-                <h4 className="font-semibold text-slate-900">Languages:</h4>
+                <h4 className="font-semibold text-[#0A4174]">Languages:</h4>
                 {isEditingAbout ? (
                   <input
                     type="text"
                     value={tempAboutData.languages}
                     onChange={(e) => setTempAboutData({ ...tempAboutData, languages: e.target.value })}
-                    className="w-full px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-1.5 text-sm border border-[#49769F]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F] bg-[#F0FFFF]"
                     placeholder="e.g., English, Filipino, Mandarin Chinese"
                   />
                 ) : (
-                  <p className="text-slate-600 text-sm">{aboutData.languages}</p>
+                  <p className="text-[#49769F] text-sm">{aboutData.languages}</p>
                 )}
               </div>
 
               {/* Certifications */}
               <div className="space-y-3">
-                <h4 className="font-semibold text-slate-900">Certifications:</h4>
-                <ul className="space-y-1 text-sm text-slate-600">
+                <h4 className="font-semibold text-[#0A4174]">Certifications:</h4>
+                <ul className="space-y-1 text-sm text-[#49769F]">
                   {(isEditingAbout ? tempAboutData.certifications : aboutData.certifications).map((cert, index) => (
                     <li key={index} className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-[#49769F] flex-shrink-0" />
                       <span className="flex-1">{cert}</span>
                       {isEditingAbout && (
                         <button
                           onClick={() => removeCertification(index)}
-                          className="hover:bg-slate-100 rounded p-1"
+                          className="hover:bg-[#F0FFFF] rounded p-1"
                         >
-                          <X className="w-3 h-3 text-slate-500" />
+                          <X className="w-3 h-3 text-[#49769F]" />
                         </button>
                       )}
                     </li>
@@ -360,12 +360,12 @@ export function AgentProfileCards() {
                       value={newCertification}
                       onChange={(e) => setNewCertification(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && addCertification()}
-                      className="flex-1 px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 px-3 py-1.5 text-sm border border-[#49769F]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F] bg-[#F0FFFF]"
                       placeholder="Add certification..."
                     />
                     <button
                       onClick={addCertification}
-                      className="px-3 py-1.5 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors"
+                      className="px-3 py-1.5 bg-[#49769F] text-[#F0FFFF] text-sm font-medium rounded-lg hover:bg-[#0A4174] transition-colors"
                     >
                       Add
                     </button>
@@ -375,18 +375,18 @@ export function AgentProfileCards() {
 
               {/* Edit Actions */}
               {isEditingAbout && (
-                <div className="flex gap-3 pt-4 border-t border-slate-200">
+                <div className="flex gap-3 pt-4 border-t border-[#F0FFFF]">
                   <button
                     onClick={handleCancelEdit}
                     disabled={saving}
-                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                    className="flex-1 px-4 py-2 border border-[#49769F]/30 text-[#49769F] rounded-lg hover:bg-[#F0FFFF] transition-colors disabled:opacity-50"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSaveAbout}
                     disabled={saving}
-                    className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 px-4 py-2 bg-[#49769F] hover:bg-[#0A4174] text-[#F0FFFF] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {saving ? 'Saving...' : 'Save Changes'}
                   </button>
@@ -396,30 +396,30 @@ export function AgentProfileCards() {
           </div>
 
           {/* Property Summary Card */}
-          <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-200">
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 flex items-center gap-3">
-              <div className="p-2 bg-white/20 rounded-lg">
+          <div className="bg-[#FFFFFF] rounded-2xl shadow-md overflow-hidden border border-[#F0FFFF]">
+            <div className="bg-gradient-to-r from-[#0A4174] to-[#49769F] text-[#F0FFFF] px-6 py-4 flex items-center gap-3">
+              <div className="p-2 bg-[#FFFFFF]/20 rounded-lg">
                 <Home className="w-5 h-5" />
               </div>
               <h3 className="text-lg font-semibold">Property Summary</h3>
             </div>
-            <div className="sm:p-6 p-4">
+            <div className="sm:p-6 p-4 text-[#0A4174]">
               <div className="grid grid-cols-1 gap-4 mb-6">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-                  <p className="text-sm text-blue-900 font-semibold mb-1">Active Listings</p>
-                  <p className="text-3xl font-bold text-blue-600">{loadingStats ? '...' : activeListings}</p>
+                <div className="bg-gradient-to-br from-[#F0FFFF] to-[#FFFFFF] rounded-xl p-4 border border-[#49769F]/30">
+                  <p className="text-sm text-[#0A4174] font-semibold mb-1">Active Listings</p>
+                  <p className="text-3xl font-bold text-[#49769F]">{loadingStats ? '...' : activeListings}</p>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <h4 className="font-semibold text-slate-900">Recent Activity</h4>
+                <h4 className="font-semibold text-[#0A4174]">Recent Activity</h4>
                 <div className="space-y-2">
                   {loadingRecent ? (
-                    <div className="p-4 text-center text-slate-500">
+                    <div className="p-4 text-center text-[#49769F]">
                       <p className="text-sm">Loading recent properties...</p>
                     </div>
                   ) : recentProperties.length === 0 ? (
-                    <div className="p-4 text-center text-slate-500">
+                    <div className="p-4 text-center text-[#49769F]">
                       <p className="text-sm">No recent properties found</p>
                     </div>
                   ) : (
@@ -435,24 +435,24 @@ export function AgentProfileCards() {
                         : '/cozy-suburban-house.png'
 
                       return (
-                        <div key={property.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                          <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-slate-200">
+                        <div key={property.id} className="flex items-center gap-3 p-3 bg-[#F0FFFF] rounded-lg hover:bg-[#FFFFFF] transition-colors">
+                          <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-[#49769F]/10">
                             <img src={imageUrl} alt={property.property_title} className="w-full h-full object-cover" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-slate-900 text-sm truncate">{property.property_title}</p>
-                            <p className="text-xs text-slate-500">{property.street_address}, {property.city}</p>
+                            <p className="font-medium text-[#0A4174] text-sm truncate">{property.property_title}</p>
+                            <p className="text-xs text-[#49769F]">{property.street_address}, {property.city}</p>
                           </div>
                           <div className="text-right">
-                            <p className="font-semibold text-blue-600 text-sm">₱{property.price.toLocaleString()}</p>
+                            <p className="font-semibold text-[#49769F] text-sm">₱{property.price.toLocaleString()}</p>
                             <span className={`text-xs px-2 py-0.5 rounded-full ${
                               property.property_status === "available" 
-                                ? "bg-blue-100 text-blue-700" 
+                                ? "bg-[#49769F]/15 text-[#0A4174]" 
                                 : property.property_status === "sold"
-                                ? "bg-green-100 text-green-700"
+                                ? "bg-[#0A4174]/10 text-[#0A4174]"
                                 : property.property_status === "rented"
-                                ? "bg-green-100 text-green-700"
-                                : "bg-yellow-100 text-yellow-700"
+                                ? "bg-[#49769F]/15 text-[#0A4174]"
+                                : "bg-[#FFFFFF]/40 text-[#49769F]"
                             }`}>
                               {property.property_status.charAt(0).toUpperCase() + property.property_status.slice(1)}
                             </span>
@@ -468,25 +468,25 @@ export function AgentProfileCards() {
         </div>
 
         {/* Agent Listed Properties */}
-        <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-200">
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 flex items-center justify-between">
+        <div className="bg-[#FFFFFF] rounded-2xl shadow-md overflow-hidden border border-[#F0FFFF]">
+          <div className="bg-gradient-to-r from-[#0A4174] to-[#49769F] text-[#F0FFFF] px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-white/20 rounded-lg">
+              <div className="p-2 bg-[#FFFFFF]/20 rounded-lg">
                 <Bookmark className="w-5 h-5" />
               </div>
               <h3 className="text-lg font-semibold">Agent Listed Properties</h3>
             </div>
-            <span className="text-sm bg-white/20 px-3 py-1 rounded-full">
+            <span className="text-sm bg-[#FFFFFF]/20 px-3 py-1 rounded-full">
               {loadingListed ? '...' : listedProperties.length} properties
             </span>
           </div>
           <div className="p-6">
             {loadingListed ? (
-              <div className="p-8 text-center text-slate-500">
+              <div className="p-8 text-center text-[#49769F]">
                 <p className="text-sm">Loading properties...</p>
               </div>
             ) : listedProperties.length === 0 ? (
-              <div className="p-8 text-center text-slate-500">
+              <div className="p-8 text-center text-[#49769F]">
                 <p className="text-sm">No properties listed yet</p>
               </div>
             ) : (
@@ -503,29 +503,29 @@ export function AgentProfileCards() {
                     : null
 
                   return (
-                    <div key={property.id} className="border border-slate-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow">
-                      <div className="h-40 bg-gradient-to-br from-slate-200 to-slate-300 relative">
+                    <div key={property.id} className="border border-[#F0FFFF] rounded-xl overflow-hidden hover:shadow-lg transition-shadow bg-[#FFFFFF]">
+                      <div className="h-40 bg-gradient-to-br from-[#0A4174]/20 to-[#49769F]/30 relative">
                         {imageUrl && (
                           <img src={imageUrl} alt={property.property_title} className="w-full h-full object-cover" />
                         )}
                         <div className="absolute top-3 right-3">
-                          <span className="px-3 py-1 bg-white/95 backdrop-blur-sm rounded-full text-xs font-semibold text-slate-700">
+                          <span className="px-3 py-1 bg-[#F0FFFF]/90 backdrop-blur-sm rounded-full text-xs font-semibold text-[#0A4174]">
                             {property.property_type}
                           </span>
                         </div>
                       </div>
                       <div className="p-4">
-                        <h4 className="font-semibold text-slate-900 mb-2">{property.property_title}</h4>
-                        <div className="flex items-center gap-2 text-slate-600 text-sm mb-3">
+                        <h4 className="font-semibold text-[#0A4174] mb-2">{property.property_title}</h4>
+                        <div className="flex items-center gap-2 text-[#49769F] text-sm mb-3">
                           <MapPin className="w-4 h-4" />
                           <span>{property.street_address}, {property.city}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-xl font-bold text-blue-600">₱{property.price.toLocaleString()}</p>
-                            <p className="text-xs text-slate-500">For {property.listing_type === 'sale' ? 'Sale' : 'Rent'}</p>
+                            <p className="text-xl font-bold text-[#49769F]">₱{property.price.toLocaleString()}</p>
+                            <p className="text-xs text-[#0A4174]/70">For {property.listing_type === 'sale' ? 'Sale' : 'Rent'}</p>
                           </div>
-                          <button className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors">
+                          <button className="px-4 py-2 bg-[#F0FFFF] text-[#0A4174] rounded-lg text-sm font-medium hover:bg-[#FFFFFF] transition-colors">
                             View Details
                           </button>
                         </div>

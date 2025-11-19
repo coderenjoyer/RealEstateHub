@@ -97,7 +97,7 @@ const LoginModal: React.FC = () => {
   };
 
   const inputBase =
-    "w-full rounded-[10px] border-2 border-[#a8c1d3] bg-[#b8cfdd]/60 placeholder:text-white/80 text-white/90 px-4 py-3 text-base focus:outline-none focus:border-[#4A8FB8] transition-all duration-300 hover:bg-[#a8c1d3]/70 hover:border-[#4A8FB8]";
+    "w-full rounded-[10px] border-2 border-[#a8c1d3] bg-[#b8cfdd]/60 placeholder:text-[#49769F]/60 text-[#49769F] px-4 py-3 text-base focus:outline-none focus:border-[#4A8FB8] transition-all duration-300 hover:bg-[#a8c1d3]/70 hover:border-[#4A8FB8]";
 
   const inputFont = {
     fontFamily:
@@ -234,9 +234,9 @@ const LoginModal: React.FC = () => {
     <div className="relative w-full max-w-md rounded-xl sm:rounded-2xl bg-[#cfe3ee] p-5 sm:p-6 md:p-8 shadow-2xl">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
         {activeTab !== "reset" && (
-          <div className="inline-flex items-center rounded-full bg-[#3f6f97] p-1.5 shadow gap-2 relative overflow-hidden">
+          <div className="inline-flex items-center rounded-full bg-[#49769F] p-1.5 shadow gap-2 relative overflow-hidden">
             <div
-              className={`absolute inset-y-1.5 transition-all duration-300 ease-in-out rounded-full bg-white/30 ${
+              className={`absolute inset-y-1.5 transition-all duration-300 ease-in-out rounded-full bg-[#BDD8E9]/60 ${
                 activeTab === "signup"
                   ? "left-1.5 right-1/2"
                   : "left-1/2 right-1.5"
@@ -246,8 +246,8 @@ const LoginModal: React.FC = () => {
               onClick={() => handleTabChange("signup")}
               className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-300 flex-shrink-0 overflow-hidden group ${
                 activeTab === "signup"
-                  ? "text-white"
-                  : "text-white/90 hover:text-white"
+                  ? "text-[#BDD8E9]"
+                  : "text-[#BDD8E9]/80 hover:text-[#BDD8E9]"
               }`}
               style={{
                 fontFamily:
@@ -262,8 +262,8 @@ const LoginModal: React.FC = () => {
               onClick={() => handleTabChange("signin")}
               className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-300 flex-shrink-0 overflow-hidden group ${
                 activeTab === "signin"
-                  ? "text-white"
-                  : "text-white/90 hover:text-white"
+                  ? "text-[#BDD8E9]"
+                  : "text-[#BDD8E9]/80 hover:text-[#BDD8E9]"
               }`}
               style={{
                 fontFamily:
@@ -279,7 +279,7 @@ const LoginModal: React.FC = () => {
         {activeTab === "reset" && (
           <button
             aria-label="Back to Sign in"
-            className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/30 text-[#436a86] transition-all duration-300 hover:bg-white/50 hover:shadow-md backdrop-blur-sm flex-shrink-0 overflow-hidden group"
+            className="flex items-center gap-2 px-3 py-2 rounded-full bg-[#BDD8E9]/80 text-[#49769F] transition-all duration-300 hover:bg-[#BDD8E9] hover:text-[#49769F] hover:shadow-md backdrop-blur-sm flex-shrink-0 overflow-hidden group"
             onClick={() => {
               setIsAnimating(true);
               setTimeout(() => {
@@ -327,7 +327,7 @@ const LoginModal: React.FC = () => {
         {activeTab !== "reset" && (
           <button
             aria-label="Back to Home"
-            className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/30 text-[#436a86] transition-all duration-300 hover:bg-white/50 hover:shadow-md backdrop-blur-sm flex-shrink-0 overflow-hidden group"
+            className="flex items-center gap-2 px-3 py-2 rounded-full bg-[#BDD8E9]/80 text-[#49769F] transition-all duration-300 hover:bg-[#BDD8E9] hover:text-[#49769F] hover:shadow-md backdrop-blur-sm flex-shrink-0 overflow-hidden group"
             onClick={() => navigate("/")}
           >
             <span className="flex items-center gap-2 transition-transform duration-300 transform-gpu group-hover:scale-105">
@@ -435,7 +435,7 @@ const LoginModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90 hover:text-white transition-colors p-1"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#BDD8E9]/90 hover:text-[#BDD8E9] transition-colors p-1"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
@@ -458,7 +458,7 @@ const LoginModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90 hover:text-white transition-colors p-1"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#BDD8E9]/90 hover:text-[#BDD8E9] transition-colors p-1"
                   aria-label={
                     showConfirmPassword ? "Hide password" : "Show password"
                   }
@@ -477,7 +477,7 @@ const LoginModal: React.FC = () => {
               <button
                 disabled={isSubmitting}
                 onClick={handleSignup}
-                className={`mt-6 w-full rounded-xl bg-[#5d86aa] px-6 py-3 text-base text-white shadow transition-all duration-300 hover:bg-[#52799a] hover:shadow-lg active:scale-95 font-semibold overflow-hidden group ${
+                className={`mt-6 w-full rounded-xl bg-[#49769F] px-6 py-3 text-base text-[#BDD8E9] shadow transition-all duration-300 hover:bg-[#49769F]/90 hover:shadow-lg active:scale-95 font-semibold overflow-hidden group ${
                   isSubmitting ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
@@ -535,7 +535,7 @@ const LoginModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90 hover:text-white transition-colors p-1"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#BDD8E9]/90 hover:text-[#BDD8E9] transition-colors p-1"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
@@ -551,7 +551,7 @@ const LoginModal: React.FC = () => {
               <button
                 disabled={isSubmitting}
                 onClick={handleSignin}
-                className={`mt-2 w-full rounded-xl bg-[#5d86aa] px-6 py-3 text-base text-white shadow transition-all duration-300 hover:bg-[#52799a] hover:shadow-lg active:scale-95 font-semibold overflow-hidden group ${
+                className={`mt-2 w-full rounded-xl bg-[#49769F] px-6 py-3 text-base text-[#BDD8E9] shadow transition-all duration-300 hover:bg-[#49769F]/90 hover:shadow-lg active:scale-95 font-semibold overflow-hidden group ${
                   isSubmitting ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
@@ -574,7 +574,7 @@ const LoginModal: React.FC = () => {
                     }, 50);
                   }, 200);
                 }}
-                className="mx-auto block text-sm font-medium text-[#4A8FB8] underline-offset-4 hover:underline transition-all duration-300 hover:text-[#5d8ab0] transform hover:scale-105"
+                className="mx-auto block text-sm font-medium text-[#49769F] underline-offset-4 hover:underline transition-all duration-300 hover:text-[#49769F]/80 transform hover:scale-105"
                 style={{
                   fontFamily:
                     "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
@@ -649,7 +649,7 @@ const LoginModal: React.FC = () => {
                   <button
                     disabled={isSubmitting}
                     onClick={handleRequestReset}
-                    className={`mt-2 w-full rounded-xl bg-[#5d86aa] px-6 py-3 text-base text-white shadow transition-all duration-300 hover:bg-[#52799a] hover:shadow-lg active:scale-95 font-semibold overflow-hidden group ${
+                    className={`mt-2 w-full rounded-xl bg-[#49769F] px-6 py-3 text-base text-[#BDD8E9] shadow transition-all duration-300 hover:bg-[#49769F]/90 hover:shadow-lg active:scale-95 font-semibold overflow-hidden group ${
                       isSubmitting ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >
@@ -660,7 +660,7 @@ const LoginModal: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setResetStep("password")}
-                    className="mx-auto block text-sm font-medium text-[#ffffff] underline-offset-4 hover:underline transition-all duration-300 hover:text-white/80"
+                    className="mx-auto block text-sm font-medium text-[#49769F] underline-offset-4 hover:underline transition-all duration-300 hover:text-[#49769F]/80"
                     style={{
                       fontFamily:
                         "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
@@ -687,7 +687,7 @@ const LoginModal: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowNewPassword((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90 hover:text-white transition-colors p-1"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#BDD8E9]/90 hover:text-[#BDD8E9] transition-colors p-1"
                       aria-label={
                         showNewPassword ? "Hide password" : "Show password"
                       }
@@ -716,7 +716,7 @@ const LoginModal: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowConfirmNewPassword((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/90 hover:text-white transition-colors p-1"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#BDD8E9]/90 hover:text-[#BDD8E9] transition-colors p-1"
                       aria-label={
                         showConfirmNewPassword
                           ? "Hide password"
@@ -741,7 +741,7 @@ const LoginModal: React.FC = () => {
                   <button
                     disabled={isSubmitting}
                     onClick={handleUpdatePassword}
-                    className={`mt-2 w-full rounded-xl bg-[#5d86aa] px-6 py-3 text-base text-white shadow transition-all duration-300 hover:bg-[#52799a] hover:shadow-lg active:scale-95 font-semibold overflow-hidden group ${
+                    className={`mt-2 w-full rounded-xl bg-[#49769F] px-6 py-3 text-base text-[#BDD8E9] shadow transition-all duration-300 hover:bg-[#49769F]/90 hover:shadow-lg active:scale-95 font-semibold overflow-hidden group ${
                       isSubmitting ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >
@@ -758,7 +758,7 @@ const LoginModal: React.FC = () => {
                       setErrorMessage(null);
                       setResetSuccessMessage(null);
                     }}
-                    className="mx-auto block text-sm font-medium text-[#ffffff] underline-offset-4 hover:underline transition-all duration-300 hover:text-white/80"
+                    className="mx-auto block text-sm font-medium text-[#49769F] underline-offset-4 hover:underline transition-all duration-300 hover:text-[#49769F]/80"
                     style={{
                       fontFamily:
                         "Montserrat, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter",
