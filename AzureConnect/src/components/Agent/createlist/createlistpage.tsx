@@ -22,18 +22,23 @@ import supabase from "@/supabaseClient";
 import { useAuth } from "@/AuthContext";
 
 interface SubmissionConfirmationModalProps {
-  open: boolean
-  onClose: () => void
+  open: boolean;
+  onClose: () => void;
 }
 
-const SubmissionConfirmationModal = ({ open, onClose }: SubmissionConfirmationModalProps) => {
-  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null)
+const SubmissionConfirmationModal = ({
+  open,
+  onClose,
+}: SubmissionConfirmationModalProps) => {
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(
+    null
+  );
 
   useEffect(() => {
-    setPortalContainer(document.body)
-  }, [])
+    setPortalContainer(document.body);
+  }, []);
 
-  if (!open || !portalContainer) return null
+  if (!open || !portalContainer) return null;
 
   return createPortal(
     <div className="fixed inset-0 z-[70] flex min-h-screen items-center justify-center px-4">
@@ -56,7 +61,8 @@ const SubmissionConfirmationModal = ({ open, onClose }: SubmissionConfirmationMo
               Property sent for review
             </h2>
             <p className="text-sm text-slate-600">
-              Our admin team is reviewing your property. We will notify you once it goes live on AzureConnect.
+              Our admin team is reviewing your property. We will notify you once
+              it goes live on AzureConnect.
             </p>
           </div>
 
@@ -79,9 +85,9 @@ const SubmissionConfirmationModal = ({ open, onClose }: SubmissionConfirmationMo
         </div>
       </div>
     </div>,
-    portalContainer,
-  )
-}
+    portalContainer
+  );
+};
 
 export default function ListPropertyPage() {
   const { session } = useAuth();
@@ -195,7 +201,6 @@ export default function ListPropertyPage() {
     console.log("User ID:", userId);
     console.log("User Role:", userRole);
     console.log("Full User Metadata:", session?.user?.user_metadata);
-    console.log("Is Agent?:", userRole === "agent");
     console.log("===============================");
 
     if (userRole) {
@@ -206,15 +211,12 @@ export default function ListPropertyPage() {
     if (session?.user) {
       const meta = session.user.user_metadata || {};
 
+      // Set initial form data with metadata values
       setFormData((prev) => ({
         ...prev,
         // Only prefill if the user hasn't typed anything yet
         fullName:
-          prev.fullName ||
-          meta.full_name ||
-          meta.name ||
-          meta.username ||
-          "",
+          prev.fullName || meta.full_name || meta.name || meta.username || "",
         email: prev.email || session.user.email || "",
         phoneNumber:
           prev.phoneNumber ||
@@ -223,8 +225,43 @@ export default function ListPropertyPage() {
           meta.contactNumber ||
           "",
       }));
+
+      // Fetch full name from profiles table in database
+      fetchFullNameFromDatabase();
     }
   }, [userRole, session, userId]);
+
+  // Function to fetch full name from database profiles table
+  const fetchFullNameFromDatabase = async () => {
+    if (!userId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("first_name, last_name")
+        .eq("user_id", userId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching profile data:", error);
+        return;
+      }
+
+      if (data) {
+        const fullNameFromDb = `${data.first_name || ""} ${
+          data.last_name || ""
+        }`.trim();
+        if (fullNameFromDb) {
+          setFormData((prev) => ({
+            ...prev,
+            fullName: prev.fullName || fullNameFromDb,
+          }));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching full name from database:", error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -459,13 +496,13 @@ export default function ListPropertyPage() {
       petPolicy: "",
       utilities: [],
       nearby: [],
-    })
+    });
     // Reset images to initial state (2 empty boxes)
-    setUploadedImagePreviews([null, null])
-    setUploadedImages([null, null])
-    setSubmitError(null)
-    setSubmitSuccess(false)
-    setShowConfirmationModal(false)
+    setUploadedImagePreviews([null, null]);
+    setUploadedImages([null, null]);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+    setShowConfirmationModal(false);
   };
 
   const addFeature = (feature: string) => {
@@ -684,7 +721,8 @@ export default function ListPropertyPage() {
               List New Property
             </h1>
             <p className="text-slate-600 mt-2">
-              Fill in the details below to list your property
+              Fill in the details below to list your property. If a field is
+              non-applicable, please put N/A.
             </p>
           </div>
 
@@ -725,7 +763,7 @@ export default function ListPropertyPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      Property Title *
+                      Property Title <span className="text-red-500">*</span>
                     </label>
                     <input
                       placeholder="Modern Family Home with Garden"
@@ -743,7 +781,7 @@ export default function ListPropertyPage() {
 
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      Property Type *
+                      Property Type <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <button
@@ -792,7 +830,7 @@ export default function ListPropertyPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      Listing Type *
+                      Listing Type <span className="text-red-500">*</span>
                     </label>
                     <div className="flex gap-4">
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -857,9 +895,16 @@ export default function ListPropertyPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      {formData.listingType === "sale"
-                        ? "Sale Price (₱) *"
-                        : "Monthly Rent (₱) *"}
+                      {formData.listingType === "sale" ? (
+                        <>
+                          Sale Price (₱) <span className="text-red-500">*</span>
+                        </>
+                      ) : (
+                        <>
+                          Monthly Rent (₱){" "}
+                          <span className="text-red-500">*</span>
+                        </>
+                      )}
                     </label>
                     <input
                       placeholder="₱50,000"
@@ -874,7 +919,7 @@ export default function ListPropertyPage() {
 
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      Bedrooms *
+                      Bedrooms <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
@@ -890,7 +935,7 @@ export default function ListPropertyPage() {
 
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      Bathrooms *
+                      Bathrooms <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
@@ -908,7 +953,7 @@ export default function ListPropertyPage() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      Square Feet
+                      Square Feet <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
@@ -923,7 +968,7 @@ export default function ListPropertyPage() {
 
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      Lot Size (sqm)
+                      Lot Size (sqm) <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
@@ -938,7 +983,7 @@ export default function ListPropertyPage() {
 
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      Year Built
+                      Year Built <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
@@ -953,7 +998,7 @@ export default function ListPropertyPage() {
 
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      Parking Spaces
+                      Parking Spaces <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
@@ -1051,7 +1096,7 @@ export default function ListPropertyPage() {
                 <div className="grid grid-cols-1 gap-6">
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      Street Address *
+                      Street Address <span className="text-red-500">*</span>
                     </label>
                     <input
                       placeholder="123 Main Street"
@@ -1071,7 +1116,7 @@ export default function ListPropertyPage() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      City *
+                      City <span className="text-red-500">*</span>
                     </label>
                     <input
                       placeholder="Manila"
@@ -1086,7 +1131,7 @@ export default function ListPropertyPage() {
 
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      State/Province
+                      State/Province <span className="text-red-500">*</span>
                     </label>
                     <input
                       placeholder="Metro Manila"
@@ -1100,7 +1145,7 @@ export default function ListPropertyPage() {
 
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      ZIP/Postal *
+                      ZIP/Postal <span className="text-red-500">*</span>
                     </label>
                     <input
                       placeholder="1006"
@@ -1115,7 +1160,7 @@ export default function ListPropertyPage() {
 
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      Country
+                      Country <span className="text-red-500">*</span>
                     </label>
                     <input
                       placeholder="Philippines"
@@ -1142,7 +1187,7 @@ export default function ListPropertyPage() {
 
                 <div>
                   <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                    Description *
+                    Description <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     placeholder="Describe your property in detail. Include information about the neighborhood, nearby amenities, recent renovations, and what makes this property special..."
@@ -1221,7 +1266,7 @@ export default function ListPropertyPage() {
                   </div>
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      Distance (km) *
+                      Distance (km)
                     </label>
                     <input
                       type="number"
@@ -1289,7 +1334,7 @@ export default function ListPropertyPage() {
 
                 <div>
                   <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                    Add Features
+                    Add Features <span className="text-red-500">*</span>
                   </label>
                   <div className="flex gap-2 mb-3">
                     <input
@@ -1431,7 +1476,7 @@ export default function ListPropertyPage() {
                 </h2>
                 <p className="text-sm text-slate-600">
                   Upload high-quality images of your property (2-4 images
-                  required) *
+                  required) <span className="text-red-500">*</span>
                 </p>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1518,49 +1563,30 @@ export default function ListPropertyPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      Full Name *
+                      Full Name
                     </label>
-                    <input
-                      placeholder="John Doe"
-                      value={formData.fullName}
-                      onChange={(e) =>
-                        setFormData({ ...formData, fullName: e.target.value })
-                      }
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required
-                    />
+                    <div className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-700">
+                      {formData.fullName || "Not provided"}
+                    </div>
                   </div>
 
                   <div>
                     <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                      Email *
+                      Email
                     </label>
-                    <input
-                      type="email"
-                      placeholder="john.doe@example.com"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required
-                    />
+                    <div className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-700">
+                      {formData.email || "Not provided"}
+                    </div>
                   </div>
                 </div>
 
                 <div>
                   <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                    Phone Number *
+                    Phone Number
                   </label>
-                  <input
-                    placeholder="+63 912 345 6789"
-                    value={formData.phoneNumber}
-                    onChange={(e) =>
-                      setFormData({ ...formData, phoneNumber: e.target.value })
-                    }
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
+                  <div className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-700">
+                    {formData.phoneNumber || "Not provided"}
+                  </div>
                 </div>
               </div>
 
@@ -1568,7 +1594,9 @@ export default function ListPropertyPage() {
 
               {/* Form Actions */}
               <div className="flex justify-between items-center pt-4">
-                <p className="text-sm text-slate-600">* Required fields</p>
+                <p className="text-sm text-slate-600">
+                  <span className="text-red-500">*</span> Required fields
+                </p>
                 <div className="flex gap-3">
                   <button
                     type="button"
