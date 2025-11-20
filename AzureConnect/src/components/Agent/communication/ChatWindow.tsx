@@ -264,14 +264,14 @@ export function ChatWindow({
               <div
                 className={`max-w-xs md:max-w-md lg:max-w-lg ${
                   message.sender === "user"
-                    ? "bg-gradient-to-r from-sky-500 to-blue-500 text-white shadow-lg shadow-sky-200"
-                    : "bg-white text-gray-800 shadow-md border border-sky-100"
+                    ? "bg-[#49769F] text-white shadow-lg shadow-[#49769F]/30"
+                    : "bg-white text-gray-800 shadow-md border border-[#BDD8E9]"
                 } rounded-2xl p-3 relative transition-all hover:shadow-lg`}
               >
                 <div className="flex items-center justify-between mb-1">
                   <p
                     className={`text-xs font-semibold ${
-                      message.sender === "user" ? "text-sky-50" : "text-sky-700"
+                      message.sender === "user" ? "text-[#F0FFFF]" : "text-[#49769F]"
                     }`}
                   >
                     {message.sender === "user"
@@ -281,8 +281,8 @@ export function ChatWindow({
                   <p
                     className={`text-xs ${
                       message.sender === "user"
-                        ? "text-sky-100"
-                        : "text-sky-600"
+                        ? "text-[#F0FFFF]"
+                        : "text-[#49769F]"
                     } font-medium ml-2`}
                   >
                     {message.timestamp}
@@ -310,7 +310,7 @@ export function ChatWindow({
       </div>
 
       {/* Message Input */}
-      <div className="p-4 bg-white/70 backdrop-blur-xl border-t border-sky-200/50 shadow-lg">
+      <div className="p-4 bg-white/70 backdrop-blur-xl border-t border-[#BDD8E9]/50 shadow-lg">
         <input
           ref={fileInputRef}
           type="file"
@@ -320,19 +320,19 @@ export function ChatWindow({
           className="hidden"
         />
 
-        <div className="flex gap-2 items-center bg-white rounded-full p-2 shadow-md border border-sky-200">
+        <div className="flex gap-2 items-center bg-white rounded-full p-2 shadow-md border border-[#BDD8E9]">
           <Input
             value={messageInput}
             onChange={(e) => onMessageInputChange(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && onSendMessage()}
             placeholder="Type your message here..."
-            className="flex-1 border-0 bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-0 placeholder:text-gray-400 rounded-full focus-visible:rounded-full"
+            className="flex-1 border-0 bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#49769F] focus-visible:ring-offset-0 placeholder:text-gray-400 rounded-full focus-visible:rounded-full"
           />
           <Button
             onClick={onSendMessage}
             disabled={!messageInput.trim() || sendingMessage}
             size="sm"
-            className="rounded-full bg-sky-500 hover:bg-sky-600 text-white p-2 h-8 w-8"
+            className="rounded-full bg-[#49769F] hover:bg-[#3a5d7f] text-white p-2 h-8 w-8"
           >
             <Send className="h-4 w-4" />
           </Button>

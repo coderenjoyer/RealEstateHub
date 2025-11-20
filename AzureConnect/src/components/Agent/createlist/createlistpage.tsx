@@ -719,7 +719,7 @@ export default function ListPropertyPage() {
                 </p>
                 <button
                   onClick={() => window.history.back()}
-                  className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
+                  className="px-6 py-2 bg-[#49769F] hover:bg-[#3a5d7f] text-white rounded-lg font-medium transition-colors"
                 >
                   Go Back
                 </button>
@@ -791,7 +791,7 @@ export default function ListPropertyPage() {
               {/* Basic Information Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <Home className="w-5 h-5 text-blue-500" />
+                  <Home className="w-5 h-5 text-[#49769F]" />
                   <h2 className="text-xl font-bold text-slate-900">
                     Basic Information
                   </h2>
@@ -856,7 +856,7 @@ export default function ListPropertyPage() {
                             >
                               <span className="text-slate-700">{type}</span>
                               {formData.propertyType === type && (
-                                <Check className="w-4 h-4 text-blue-500" />
+                                <Check className="w-4 h-4 text-[#49769F]" />
                               )}
                             </button>
                           ))}
@@ -884,7 +884,7 @@ export default function ListPropertyPage() {
                             })
                           }
                           disabled={propertyListingsDisabled}
-                          className="w-4 h-4 text-blue-500"
+                          className="w-4 h-4 text-[#49769F]"
                         />
                         <span className="text-slate-700">For Sale</span>
                       </label>
@@ -900,7 +900,7 @@ export default function ListPropertyPage() {
                             })
                           }
                           disabled={propertyListingsDisabled}
-                          className="w-4 h-4 text-blue-500"
+                          className="w-4 h-4 text-[#49769F]"
                         />
                         <span className="text-slate-700">For Rent</span>
                       </label>
@@ -927,7 +927,7 @@ export default function ListPropertyPage() {
               {/* Pricing & Details Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <DollarSign className="w-5 h-5 text-blue-500" />
+                  <DollarSign className="w-5 h-5 text-[#49769F]" />
                   <h2 className="text-xl font-bold text-slate-900">
                     Pricing & Property Details
                   </h2>
@@ -1122,7 +1122,7 @@ export default function ListPropertyPage() {
                               >
                                 <span className="text-slate-700">{option}</span>
                                 {formData.furnished === option && (
-                                  <Check className="w-4 h-4 text-blue-500" />
+                                  <Check className="w-4 h-4 text-[#49769F]" />
                                 )}
                               </button>
                             ))}
@@ -1139,7 +1139,7 @@ export default function ListPropertyPage() {
               {/* Location Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <MapPin className="w-5 h-5 text-blue-500" />
+                  <MapPin className="w-5 h-5 text-[#49769F]" />
                   <h2 className="text-xl font-bold text-slate-900">Location</h2>
                 </div>
 
@@ -1234,7 +1234,7 @@ export default function ListPropertyPage() {
               {/* Description Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <FileText className="w-5 h-5 text-blue-500" />
+                  <FileText className="w-5 h-5 text-[#49769F]" />
                   <h2 className="text-xl font-bold text-slate-900">
                     Property Description
                   </h2>
@@ -1263,7 +1263,7 @@ export default function ListPropertyPage() {
               {/* About This Property Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <FileText className="w-5 h-5 text-blue-500" />
+                  <FileText className="w-5 h-5 text-[#49769F]" />
                   <h2 className="text-xl font-bold text-slate-900">
                     About This Property
                   </h2>
@@ -1294,7 +1294,7 @@ export default function ListPropertyPage() {
               {/* Nearby Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <MapPin className="w-5 h-5 text-blue-500" />
+                  <MapPin className="w-5 h-5 text-[#49769F]" />
                   <h2 className="text-xl font-bold text-slate-900">Nearby</h2>
                 </div>
 
@@ -1342,7 +1342,7 @@ export default function ListPropertyPage() {
                     type="button"
                     onClick={addNearby}
                     disabled={propertyListingsDisabled}
-                    className={`px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2 ${propertyListingsDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`px-4 py-2 bg-[#49769F] text-white rounded-lg hover:bg-[#3a5d7f] flex items-center gap-2 ${propertyListingsDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <Plus className="w-4 h-4" /> Add Nearby
                   </button>
@@ -1413,7 +1413,7 @@ export default function ListPropertyPage() {
                       type="button"
                       onClick={() => addFeature(currentFeature)}
                       disabled={propertyListingsDisabled}
-                      className={`px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2 ${propertyListingsDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`px-4 py-2 bg-[#49769F] text-white rounded-lg hover:bg-[#3a5d7f] flex items-center gap-2 ${propertyListingsDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <Plus className="w-4 h-4" /> Add
                     </button>
@@ -1446,7 +1446,7 @@ export default function ListPropertyPage() {
                         {formData.features.map((feature) => (
                           <span
                             key={feature}
-                            className="px-3 py-1 bg-blue-500 text-white rounded-full text-sm flex items-center gap-2"
+                            className="px-3 py-1 bg-[#49769F] text-white rounded-full text-sm flex items-center gap-2"
                           >
                             {feature}
                             <button
@@ -1477,7 +1477,7 @@ export default function ListPropertyPage() {
                           type="checkbox"
                           checked={formData.utilities.includes(utility)}
                           onChange={() => toggleUtility(utility)}
-                          className="w-4 h-4 text-blue-500 rounded"
+                          className="w-4 h-4 text-[#49769F] rounded"
                         />
                         <span className="text-slate-700">{utility}</span>
                       </label>
@@ -1520,7 +1520,7 @@ export default function ListPropertyPage() {
                             >
                               <span className="text-slate-700">{option}</span>
                               {formData.petPolicy === option && (
-                                <Check className="w-4 h-4 text-blue-500" />
+                                <Check className="w-4 h-4 text-[#49769F]" />
                               )}
                             </button>
                           ))}
@@ -1564,7 +1564,7 @@ export default function ListPropertyPage() {
                                 e.stopPropagation();
                                 viewImage(preview);
                               }}
-                              className="bg-blue-500 text-white p-1 rounded hover:bg-blue-600"
+                              className="bg-[#49769F] text-white p-1 rounded hover:bg-[#3a5d7f]"
                               title="View"
                             >
                               <Eye className="w-4 h-4" />
@@ -1618,7 +1618,7 @@ export default function ListPropertyPage() {
               {/* Contact Information Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <User className="w-5 h-5 text-blue-500" />
+                  <User className="w-5 h-5 text-[#49769F]" />
                   <h2 className="text-xl font-bold text-slate-900">
                     Contact Information
                   </h2>
@@ -1672,7 +1672,7 @@ export default function ListPropertyPage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+                    className="px-6 py-2 bg-[#49769F] hover:bg-[#3a5d7f] text-white rounded-lg font-medium transition-colors disabled:opacity-50"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? "Submitting..." : "Submit Property"}

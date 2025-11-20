@@ -235,7 +235,7 @@ export default function ChatPage() {
   if (loading && conversations.length === 0) {
     return (
       <AgentCommunicationLayout>
-        <div className="flex h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50">
+        <div className="flex h-screen items-center justify-center bg-[#BDD8E9]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading conversations...</p>
@@ -249,7 +249,7 @@ export default function ChatPage() {
   if (conversations.length === 0) {
     return (
       <AgentCommunicationLayout>
-        <div className="flex h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50">
+        <div className="flex h-screen items-center justify-center bg-[#BDD8E9]">
           <div className="text-center max-w-md">
             <div className="text-6xl mb-4">💬</div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
@@ -266,7 +266,7 @@ export default function ChatPage() {
 
   return (
     <AgentCommunicationLayout>
-      <div className="flex h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50">
+      <div className="flex h-screen bg-[#BDD8E9]">
         <MessagesSidebar
           conversations={conversations}
           selectedConversation={selectedConversation || undefined}
