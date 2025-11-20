@@ -27,7 +27,8 @@ interface Property {
   price: number
   bedrooms: number
   bathrooms: number
-  property_status: string
+  property_status?: string // For listed_properties
+  approval_status?: string // For listing_approvals
   description: string
   square_feet: number | null
   parking_spaces: number | null
@@ -36,6 +37,7 @@ interface Property {
   features: string[] | null
   listing_type: string
   media?: any
+  is_pending?: boolean // Helper flag to identify pending properties
 }
 
 export function PropertiesTable() {
@@ -79,19 +81,51 @@ export function PropertiesTable() {
       }
 
       // Fetch from listed_properties (approved listings)
-      const { data, error } = await supabase
+      const { data: listedData, error: listedError } = await supabase
         .from('listed_properties')
         .select('*')
         .eq('user_id', session.user.id)
         .eq('is_deleted', false)
         .order('created_at', { ascending: false })
 
-      if (error) {
-        console.error('Error fetching properties:', error)
-        return
+      if (listedError) {
+        console.error('Error fetching listed properties:', listedError)
       }
 
-      setProperties(data || [])
+      // Fetch from listing_approvals (pending submissions)
+      const { data: pendingData, error: pendingError } = await supabase
+        .from('listing_approvals')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .eq('approval_status', 'pending')
+        .order('submitted_at', { ascending: false })
+
+      if (pendingError) {
+        console.error('Error fetching pending properties:', pendingError)
+      }
+
+      // Normalize pending properties to match Property interface
+      const normalizedPending = (pendingData || []).map((item: any) => ({
+        ...item,
+        property_status: 'pending', // Set property_status for consistency
+        approval_status: item.approval_status,
+        is_pending: true,
+        // Ensure features is an array
+        features: Array.isArray(item.features) ? item.features : (item.features ? [item.features] : null),
+      }))
+
+      // Combine both arrays
+      const allProperties = [
+        ...normalizedPending,
+        ...(listedData || []).map((item: any) => ({
+          ...item,
+          is_pending: false,
+          // Ensure features is an array
+          features: Array.isArray(item.features) ? item.features : (item.features ? [item.features] : null),
+        }))
+      ]
+
+      setProperties(allProperties)
     } catch (error) {
       console.error('Error:', error)
     } finally {
@@ -105,7 +139,7 @@ export function PropertiesTable() {
     
     const matchesFilter = selectedFilter === "all" ? true :
                          selectedFilter === "vacant" ? property.property_status === "available" :
-                         selectedFilter === "pending" ? property.property_status === "pending" :
+                         selectedFilter === "pending" ? (property.is_pending === true || property.approval_status === "pending") :
                          true
     
     return matchesSearch && matchesFilter
@@ -467,17 +501,25 @@ export function PropertiesTable() {
                   </td>
                   <td className="px-6 py-4 text-sm">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      property.property_status === "available" 
-                        ? "bg-green-100 text-green-800" 
-                        : property.property_status === "pending"
+                      property.is_pending || property.approval_status === "pending"
                         ? "bg-yellow-100 text-yellow-800"
+                        : property.property_status === "available" 
+                        ? "bg-green-100 text-green-800" 
                         : "bg-gray-100 text-gray-800"
                     }`}>
-                      {property.property_status.charAt(0).toUpperCase() + property.property_status.slice(1)}
+                      {property.is_pending || property.approval_status === "pending"
+                        ? "Pending"
+                        : property.property_status 
+                        ? property.property_status.charAt(0).toUpperCase() + property.property_status.slice(1)
+                        : "Unknown"}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm">
-                    {property.property_status === "sold" || property.property_status === "rented" ? (
+                    {property.is_pending || property.approval_status === "pending" ? (
+                      <span className="inline-flex items-center px-3 py-1.5 rounded-lg font-medium text-sm bg-yellow-100 text-yellow-800">
+                        Awaiting Approval
+                      </span>
+                    ) : property.property_status === "sold" || property.property_status === "rented" ? (
                       <span className={`inline-flex items-center px-3 py-1.5 rounded-lg font-medium text-sm ${
                         property.property_status === "sold"
                           ? "bg-red-100 text-red-800"
@@ -501,12 +543,12 @@ export function PropertiesTable() {
                         onClick={() => openEditModal(property)}
                         className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-[#49769F]/10 text-[#49769F] font-medium text-xs hover:bg-[#49769F]/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Edit Property"
-                        disabled={property.property_status === "sold" || property.property_status === "rented"}
+                        disabled={property.is_pending || property.approval_status === "pending" || property.property_status === "sold" || property.property_status === "rented"}
                       >
                         <Pencil className="w-3 h-3" />
                         Edit
                       </button>
-                      {property.property_status !== "sold" && property.property_status !== "rented" && (
+                      {!property.is_pending && property.approval_status !== "pending" && property.property_status !== "sold" && property.property_status !== "rented" && (
                         <button 
                           onClick={() => openTransferModal(property)}
                           className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-600 font-medium text-xs hover:bg-emerald-100 transition-colors"
@@ -516,14 +558,16 @@ export function PropertiesTable() {
                           Transfer
                         </button>
                       )}
-                      <button 
-                        onClick={() => setDeactivateConfirmId(property.id)}
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 font-medium text-xs hover:bg-red-100 transition-colors"
-                        title="Deactivate Listing"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                        Deactivate
-                      </button>
+                      {!property.is_pending && property.approval_status !== "pending" && (
+                        <button 
+                          onClick={() => setDeactivateConfirmId(property.id)}
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 font-medium text-xs hover:bg-red-100 transition-colors"
+                          title="Deactivate Listing"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          Deactivate
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
