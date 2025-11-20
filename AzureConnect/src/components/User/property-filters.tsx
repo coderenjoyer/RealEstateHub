@@ -188,7 +188,7 @@ export function PropertyFilters({
         className={`
           fixed top-0 left-0 h-full z-50
           w-[340px] flex flex-col 
-          bg-gradient-to-b from-sky-50 via-sky-50 to-blue-50
+          bg-[#BDD8E9]
           rounded-tr-3xl rounded-br-3xl
           shadow-2xl border-r border-white/40
           transform transition-transform duration-300 ease-out
@@ -200,8 +200,8 @@ export function PropertyFilters({
           <div className="flex items-center justify-between">
             {/* Title with icon */}
             <div className="flex items-center gap-2.5">
-              <div className="p-1.5 bg-sky-100/50 backdrop-blur-sm rounded-lg shadow-sm border border-sky-200/30">
-                <SlidersHorizontal className="h-4.5 w-4.5 text-sky-700" />
+              <div className="p-1.5 bg-white/50 backdrop-blur-sm rounded-lg shadow-sm border border-[#49769F]/30">
+                <SlidersHorizontal className="h-4.5 w-4.5 text-[#49769F]" />
               </div>
               <h2 className="text-base font-bold text-gray-800">Filters</h2>
             </div>
@@ -210,7 +210,7 @@ export function PropertyFilters({
             <div className="flex items-center gap-2">
               <button
                 onClick={handleClearAll}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-all duration-150"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:text-[#49769F] hover:bg-white/50 rounded-lg transition-all duration-150"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 Clear
@@ -236,13 +236,13 @@ export function PropertyFilters({
                   onClick={() => setActiveTab(tab.name)}
                   className={`flex items-center gap-2.5 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
                     activeTab === tab.name
-                      ? "bg-sky-600 text-white border-2 border-sky-600"
-                      : "bg-white text-gray-700 border-2 border-gray-200 hover:border-sky-400 hover:bg-sky-50"
+                      ? "bg-[#49769F] text-white border-2 border-[#49769F]"
+                      : "bg-white text-gray-700 border-2 border-gray-200 hover:border-[#49769F] hover:bg-white/70"
                   }`}
                 >
                   <Icon
                     className={`h-4.5 w-4.5 transition-colors duration-200 ${
-                      activeTab === tab.name ? "text-white" : "text-sky-600"
+                      activeTab === tab.name ? "text-white" : "text-[#49769F]"
                     }`}
                   />
                   {tab.name}
@@ -255,8 +255,8 @@ export function PropertyFilters({
 
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-gradient-to-br from-sky-100 to-sky-50 rounded-xl shadow-sm">
-                <DollarSign className="h-4 w-4 text-sky-600" />
+              <div className="p-2 bg-white/50 rounded-xl shadow-sm">
+                <DollarSign className="h-4 w-4 text-[#49769F]" />
               </div>
               <h3 className="font-bold text-gray-800 text-sm">Price Range</h3>
             </div>
@@ -272,7 +272,7 @@ export function PropertyFilters({
                   value={minPriceInput}
                   onChange={handleMinPriceChange}
                   placeholder="e.g., 15000"
-                  className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none transition-all bg-white"
+                  className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-[#49769F] focus:ring-2 focus:ring-[#49769F]/20 outline-none transition-all bg-white"
                 />
               </div>
 
@@ -285,7 +285,7 @@ export function PropertyFilters({
                   value={maxPriceInput}
                   onChange={handleMaxPriceChange}
                   placeholder="e.g., 55000"
-                  className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none transition-all bg-white"
+                  className="w-full px-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:border-[#49769F] focus:ring-2 focus:ring-[#49769F]/20 outline-none transition-all bg-white"
                 />
               </div>
             </div>
@@ -303,21 +303,21 @@ export function PropertyFilters({
                     step={1000}
                     valueLabelFormat={(value) => `₱${value.toLocaleString()}`}
                     sx={{
-                      color: "#0ea5e9",
+                      color: "#49769F",
                       "& .MuiSlider-thumb": {
-                        backgroundColor: "#0ea5e9",
+                        backgroundColor: "#49769F",
                         "&:hover": {
-                          boxShadow: "0 0 0 8px rgba(14, 165, 233, 0.16)",
+                          boxShadow: "0 0 0 8px rgba(73, 118, 159, 0.16)",
                         },
                       },
                       "& .MuiSlider-valueLabel": {
-                        backgroundColor: "#0ea5e9",
+                        backgroundColor: "#49769F",
                         color: "#fff",
                       },
                     }}
                   />
                 </div>
-                <div className="text-center text-xs font-semibold text-sky-700 bg-sky-50 py-2 px-3 rounded-lg">
+                <div className="text-center text-xs font-semibold text-[#49769F] bg-white/50 py-2 px-3 rounded-lg">
                   ₱{priceRange[0].toLocaleString()} - ₱
                   {priceRange[1].toLocaleString()}
                 </div>
@@ -329,8 +329,8 @@ export function PropertyFilters({
 
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-gradient-to-br from-sky-100 to-sky-50 rounded-xl shadow-sm">
-                <Home className="h-4 w-4 text-sky-600" />
+              <div className="p-2 bg-white/50 rounded-xl shadow-sm">
+                <Home className="h-4 w-4 text-[#49769F]" />
               </div>
               <h3 className="font-bold text-gray-800 text-sm">Type of place</h3>
             </div>
@@ -351,7 +351,7 @@ export function PropertyFilters({
                   >
                     <input
                       type="checkbox"
-                      className="w-4.5 h-4.5 rounded border-2 border-gray-300 text-sky-600 focus:ring-2 focus:ring-sky-500 focus:ring-offset-0 cursor-pointer transition-all"
+                      className="w-4.5 h-4.5 rounded border-2 border-gray-300 text-[#49769F] focus:ring-2 focus:ring-[#49769F] focus:ring-offset-0 cursor-pointer transition-all"
                       checked={selectedTypes.includes(type)}
                       onChange={() => {
                         setSelectedTypes((prev) =>
@@ -374,8 +374,8 @@ export function PropertyFilters({
 
           <div className="space-y-2 mb-2">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-gradient-to-br from-sky-100 to-sky-50 rounded-xl shadow-sm">
-                <Sparkles className="h-4 w-4 text-sky-600" />
+              <div className="p-2 bg-white/50 rounded-xl shadow-sm">
+                <Sparkles className="h-4 w-4 text-[#49769F]" />
               </div>
               <h3 className="font-bold text-gray-800 text-sm">Amenities</h3>
             </div>
@@ -401,8 +401,8 @@ export function PropertyFilters({
                     }}
                     className={`px-3 py-1.5 text-sm font-medium rounded-full border-2 transition-all duration-200 ${
                       selectedAmenities.includes(amenity)
-                        ? "bg-sky-500 border-sky-500 text-white shadow-md"
-                        : "bg-white border-gray-200 text-gray-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700"
+                        ? "bg-[#49769F] border-[#49769F] text-white shadow-md"
+                        : "bg-white border-gray-200 text-gray-700 hover:border-[#49769F] hover:bg-white/70 hover:text-[#49769F]"
                     }`}
                   >
                     {amenity}

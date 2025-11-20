@@ -40,7 +40,7 @@ export function MessagesSidebar({
       <div className="p-4 border-b border-sky-200/50 bg-gradient-to-r from-sky-400/10 to-blue-400/10">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold bg-gradient-to-r from-sky-600 to-blue-600 bg-clip-text text-transparent">
+            <h2 className="text-xl font-bold text-[#49769F]">
               Messages
             </h2>
             {totalUnreadCount > 0 && (
@@ -53,12 +53,12 @@ export function MessagesSidebar({
 
         {/* Search Bar */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sky-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#49769F]" />
           <Input
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search conversations..."
-            className="pl-10 bg-white/80 border-sky-200 focus:border-sky-400 focus:ring-sky-400/20 rounded-full text-sm"
+            className="pl-10 bg-white/80 border-sky-200 focus:border-[#49769F] focus:ring-[#49769F]/20 rounded-full text-sm"
           />
         </div>
       </div>
@@ -82,7 +82,7 @@ export function MessagesSidebar({
                   <p className="font-semibold text-gray-800 truncate">
                     {conversation.name}
                   </p>
-                  <span className="text-xs text-sky-600 font-medium">
+                  <span className="text-xs text-[#49769F] font-medium">
                     {conversation.time}
                   </span>
                 </div>

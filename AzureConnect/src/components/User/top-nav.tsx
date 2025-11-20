@@ -329,14 +329,14 @@ export function TopNav({
   }, []);
 
   return (
-    <div className="flex items-center justify-between px-4 lg:px-8 py-3 lg:py-5 bg-gradient-to-br from-sky-300/95 via-blue-200/95 to-blue-300/95 backdrop-blur-md border-b border-white/20">
+    <div className="flex items-center justify-between px-4 lg:px-8 py-3 lg:py-5 bg-[#E8F6F8]/95 backdrop-blur-md border-b border-white/20">
       {/* Left Side - Hamburger + Location Search */}
       <div className="flex items-center gap-2 lg:gap-3 flex-1">
         <Button
           size="icon"
           variant="ghost"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="lg:hidden p-2 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-all duration-300 shadow-md"
+          className="lg:hidden p-2 bg-white/20 hover:bg-white/30 text-gray-700 rounded-xl transition-all duration-300 shadow-md"
         >
           <Menu className="h-5 w-5" />
         </Button>
@@ -351,14 +351,14 @@ export function TopNav({
           <form onSubmit={handleSearchSubmit}>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-2.5 sm:pl-3 flex items-center pointer-events-none z-10">
-                <Search className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                <Search className="h-4 w-4 sm:h-5 sm:w-5 text-[#49769F]" />
               </div>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={handleSearchChange}
                 placeholder="Search location..."
-                className="w-full pl-8 sm:pl-10 pr-8 sm:pr-10 py-1.5 sm:py-2 lg:py-2.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg sm:rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all text-xs sm:text-sm lg:text-base"
+                className="w-full pl-8 sm:pl-10 pr-8 sm:pr-10 py-1.5 sm:py-2 lg:py-2.5 bg-white/50 backdrop-blur-sm border border-[#49769F]/30 rounded-lg sm:rounded-xl text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#49769F]/50 focus:border-[#49769F] transition-all text-xs sm:text-sm lg:text-base"
                 onFocus={() => setShowSuggestions(true)}
               />
               {searchQuery && (
@@ -367,7 +367,7 @@ export function TopNav({
                   onClick={handleClearSearch}
                   className="absolute inset-y-0 right-0 pr-2.5 sm:pr-3 flex items-center hover:bg-white/10 rounded-r-lg sm:rounded-r-xl transition-colors z-10"
                 >
-                  <X className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white hover:text-white" />
+                  <X className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#49769F] hover:text-[#49769F]/80" />
                 </button>
               )}
             </div>
@@ -380,10 +380,10 @@ export function TopNav({
                     key={idx}
                     type="button"
                     onClick={() => handleSelectLocation(location)}
-                    className="w-full px-4 py-3 text-left hover:bg-sky-100 transition-colors border-b border-gray-100 last:border-b-0 cursor-pointer"
+                    className="w-full px-4 py-3 text-left hover:bg-[#BDD8E9]/30 transition-colors border-b border-gray-100 last:border-b-0 cursor-pointer"
                   >
                     <div className="flex items-start gap-3">
-                      <MapPin className="h-5 w-5 text-sky-600 mt-0.5 flex-shrink-0" />
+                      <MapPin className="h-5 w-5 text-[#49769F] mt-0.5 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">
                           {location}
@@ -405,9 +405,9 @@ export function TopNav({
           size="icon"
           variant="ghost"
           onClick={handleChatsClick}
-          className={`p-2 lg:p-2.5 bg-sky-500/20 hover:bg-sky-500/30 text-white rounded-xl transition-all duration-200 shadow-md relative ${
+          className={`p-2 lg:p-2.5 bg-white/50 border border-[#49769F]/30 hover:bg-white/70 text-[#49769F] rounded-xl transition-all duration-200 shadow-md relative ${
             activeDropdown === "chats"
-              ? "ring-2 ring-green-400 ring-opacity-50 scale-105"
+              ? "ring-2 ring-[#49769F] ring-opacity-50 scale-105"
               : ""
           }`}
         >
@@ -422,9 +422,9 @@ export function TopNav({
           size="icon"
           variant="ghost"
           onClick={handleNotificationsClick}
-          className={`p-2 lg:p-2.5 bg-sky-500/20 hover:bg-sky-500/30 text-white rounded-xl transition-all duration-200 shadow-md relative ${
+          className={`p-2 lg:p-2.5 bg-white/50 border border-[#49769F]/30 hover:bg-white/70 text-[#49769F] rounded-xl transition-all duration-200 shadow-md relative ${
             activeDropdown === "notifications"
-              ? "ring-2 ring-orange-400 ring-opacity-50 scale-105"
+              ? "ring-2 ring-[#49769F] ring-opacity-50 scale-105"
               : ""
           }`}
         >
@@ -438,9 +438,9 @@ export function TopNav({
         <div className="relative">
           <div
             onClick={handleProfileClick}
-            className={`flex items-center gap-2 lg:gap-3 ml-1 lg:ml-2 bg-sky-500/20 backdrop-blur-sm rounded-full pl-3 lg:pl-4 pr-1 lg:pr-2 py-1.5 lg:py-2 cursor-pointer hover:bg-sky-500/30 transition-all duration-200 ${
+            className={`flex items-center gap-2 lg:gap-3 ml-1 lg:ml-2 bg-white/50 border border-[#49769F]/30 backdrop-blur-sm rounded-full pl-3 lg:pl-4 pr-1 lg:pr-2 py-1.5 lg:py-2 cursor-pointer hover:bg-white/70 transition-all duration-200 ${
               activeDropdown === "profile"
-                ? "ring-2 ring-sky-400 ring-opacity-50 scale-105"
+                ? "ring-2 ring-[#49769F] ring-opacity-50 scale-105"
                 : ""
             }`}
           >
@@ -452,7 +452,7 @@ export function TopNav({
               />
             </Avatar>
             <ChevronDown
-              className={`h-3 w-3 lg:h-4 lg:w-4 text-white/80 transition-transform duration-200 ${
+              className={`h-3 w-3 lg:h-4 lg:w-4 text-[#49769F] transition-transform duration-200 ${
                 activeDropdown === "profile" ? "rotate-180" : ""
               }`}
             />
