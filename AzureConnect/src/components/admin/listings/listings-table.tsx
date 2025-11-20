@@ -20,11 +20,12 @@ interface Listing {
   full_name: string
   email: string
   submitted_at: string
-  approval_status: "pending" | "approved" | "rejected"
+  approval_status: "pending" | "approved" | "rejected" | "deactivated"
   media?: Array<{ public_url: string }>
   description?: string
   phone_number?: string
   rejection_reason?: string
+  is_deleted?: boolean
 }
 
 export function PendingListingsTable() {
@@ -32,7 +33,7 @@ export function PendingListingsTable() {
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null)
-  const [filter, setFilter] = useState<"All" | "Pending" | "Approved" | "Rejected">("Pending")
+  const [filter, setFilter] = useState<"All" | "Pending" | "Approved" | "Rejected" | "Deactivated">("Pending")
   const [loading, setLoading] = useState(true)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [deleteSource, setDeleteSource] = useState<"listing_approvals" | "listed_properties" | null>(null)
@@ -77,7 +78,7 @@ export function PendingListingsTable() {
         ...(approvalsData || []),
         ...(listedData || []).map(item => ({
           ...item,
-          approval_status: 'approved' as const,
+          approval_status: item.is_deleted ? "deactivated" : "approved",
           submitted_at: item.created_at
         }))
       ]
@@ -101,7 +102,8 @@ export function PendingListingsTable() {
       filter === "All" ||
       (filter === "Pending" && listing.approval_status === "pending") ||
       (filter === "Approved" && listing.approval_status === "approved") ||
-      (filter === "Rejected" && listing.approval_status === "rejected")
+      (filter === "Rejected" && listing.approval_status === "rejected") ||
+      (filter === "Deactivated" && listing.approval_status === "deactivated")
     
     return matchesSearch && matchesFilter
   })
@@ -277,7 +279,7 @@ export function PendingListingsTable() {
                 
                 {/* Filter Tabs */}
                 <div className="flex gap-2">
-                  {(["All", "Pending", "Approved", "Rejected"] as const).map(status => (
+                  {(["All", "Pending", "Approved", "Rejected", "Deactivated"] as const).map(status => (
                     <button
                       key={status}
                       onClick={() => {
@@ -386,12 +388,21 @@ export function PendingListingsTable() {
                     </td>
                     <td className="py-4 px-6">
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                        listing.approval_status === "pending" ? "bg-yellow-100 text-yellow-800" :
-                        listing.approval_status === "approved" ? "bg-green-100 text-green-800" :
-                        "bg-red-100 text-red-800"
+                        listing.approval_status === "pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : listing.approval_status === "approved"
+                          ? "bg-green-100 text-green-800"
+                          : listing.approval_status === "rejected"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-gray-200 text-gray-800"
                       }`}>
-                        {listing.approval_status === "pending" ? "Pending" :
-                         listing.approval_status === "approved" ? "Approved" : "Rejected"}
+                        {listing.approval_status === "pending"
+                          ? "Pending"
+                          : listing.approval_status === "approved"
+                          ? "Approved"
+                          : listing.approval_status === "rejected"
+                          ? "Rejected"
+                          : "Deactivated"}
                       </span>
                     </td>
                     <td className="py-4 px-6">
@@ -434,6 +445,18 @@ export function PendingListingsTable() {
                           </button>
                         )}
                         {listing.approval_status === "approved" && (
+                          <button
+                            onClick={() => {
+                              setDeleteConfirmId(listing.id)
+                              setDeleteSource('listed_properties')
+                            }}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                        {listing.approval_status === "deactivated" && (
                           <button
                             onClick={() => {
                               setDeleteConfirmId(listing.id)
