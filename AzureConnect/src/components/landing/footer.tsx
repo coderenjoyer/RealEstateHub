@@ -43,9 +43,6 @@ export function Footer() {
               <a href="#" className="text-[#F0FFFF]/70 hover:text-[#FFFFFF] transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="text-[#F0FFFF]/70 hover:text-[#FFFFFF] transition-colors">
-                <Youtube className="w-5 h-5" />
-              </a>
             </div>
           </div>
 

@@ -12,11 +12,6 @@ const services = [
     description: "All our brokers are verified and certified professionals",
   },
   {
-    icon: Shield,
-    title: "Secure Deals",
-    description: "Protected transactions with comprehensive legal support",
-  },
-  {
     icon: Wrench,
     title: "Maintenance Request",
     description: "24/7 maintenance support for all your property needs",
