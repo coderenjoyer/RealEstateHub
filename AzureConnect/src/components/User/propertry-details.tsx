@@ -204,7 +204,7 @@ export function PropertyDetailsPanel({
                 onClick={() => handleImageClick(index)}
                 className={`w-24 h-20 rounded-xl overflow-hidden flex-shrink-0 transition-all duration-200 ${
                   selectedImageIndex === index
-                    ? "border-2 border-sky-500 opacity-100"
+                    ? "border-2 border-[#49769F] opacity-100"
                     : "opacity-60 hover:opacity-100 border-2 border-transparent"
                 }`}
               >
@@ -230,11 +230,11 @@ export function PropertyDetailsPanel({
 
           {/* Agent Information Display */}
           {agentInfo && (
-            <div className="mt-4 bg-gradient-to-r from-sky-50 to-blue-50 rounded-2xl p-4 border border-sky-100">
+            <div className="mt-4 bg-[#49769F]/5 rounded-2xl p-4 border border-[#49769F]/20">
               <div className="flex items-center gap-3">
                 {/* Agent Avatar */}
                 <div className="relative flex-shrink-0">
-                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center text-white font-semibold text-base overflow-hidden border-2 border-white shadow-md">
+                  <div className="h-12 w-12 rounded-full bg-[#49769F] flex items-center justify-center text-white font-semibold text-base overflow-hidden border-2 border-white shadow-md">
                     {agentInfo.avatar ? (
                       <img 
                         src={agentInfo.avatar} 
@@ -269,7 +269,7 @@ export function PropertyDetailsPanel({
             onClick={handleContactAgentClick}
             className={`w-full mt-4 rounded-full py-6 font-medium text-sm transition-all duration-200 ${
               agentInfo
-                ? "bg-sky-500 hover:bg-sky-600 text-white shadow-lg shadow-sky-500/30 cursor-pointer hover:scale-[1.02]"
+                ? "bg-[#49769F] hover:bg-[#49769F]/90 text-white shadow-lg shadow-[#49769F]/30 cursor-pointer hover:scale-[1.02]"
                 : "bg-gray-200 text-gray-400 cursor-not-allowed"
             }`}
             disabled={!agentInfo || loading}
@@ -284,7 +284,7 @@ export function PropertyDetailsPanel({
             onClick={() => setActiveTab("overview")}
             className={`pb-3 font-semibold text-sm transition-all ${
               activeTab === "overview"
-                ? "text-gray-900 border-b-2 border-sky-500"
+                ? "text-gray-900 border-b-2 border-[#49769F]"
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
@@ -294,7 +294,7 @@ export function PropertyDetailsPanel({
             onClick={() => setActiveTab("about")}
             className={`pb-3 font-semibold text-sm transition-all ${
               activeTab === "about"
-                ? "text-gray-900 border-b-2 border-sky-500"
+                ? "text-gray-900 border-b-2 border-[#49769F]"
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
@@ -312,7 +312,7 @@ export function PropertyDetailsPanel({
                 </h3>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="flex flex-col items-center gap-2 p-3 bg-white rounded-xl">
-                    <Bed className="h-5 w-5 text-sky-600" />
+                    <Bed className="h-5 w-5 text-[#49769F]" />
                     <span className="text-sm font-medium text-gray-600">
                       Bedrooms
                     </span>
@@ -321,7 +321,7 @@ export function PropertyDetailsPanel({
                     </span>
                   </div>
                   <div className="flex flex-col items-center gap-2 p-3 bg-white rounded-xl">
-                    <Bath className="h-5 w-5 text-sky-600" />
+                    <Bath className="h-5 w-5 text-[#49769F]" />
                     <span className="text-sm font-medium text-gray-600">
                       Bathrooms
                     </span>
@@ -330,7 +330,7 @@ export function PropertyDetailsPanel({
                     </span>
                   </div>
                   <div className="flex flex-col items-center gap-2 p-3 bg-white rounded-xl">
-                    <Maximize className="h-5 w-5 text-sky-600" />
+                    <Maximize className="h-5 w-5 text-[#49769F]" />
                     <span className="text-sm font-medium text-gray-600">
                       Sq Ft
                     </span>
@@ -343,7 +343,7 @@ export function PropertyDetailsPanel({
 
               <div className="bg-gray-50 rounded-2xl p-4">
                 <h3 className="font-semibold text-gray-900 mb-2">Price</h3>
-                <p className="text-2xl font-bold text-sky-600">
+                <p className="text-2xl font-bold text-[#49769F]">
                   {property.price}
                 </p>
                 {propertyDetails && (
@@ -369,7 +369,7 @@ export function PropertyDetailsPanel({
                     {propertyDetails.features.map((feature) => (
                       <span
                         key={feature}
-                        className="px-3 py-1.5 bg-sky-100 text-sky-700 rounded-full text-xs font-medium"
+                        className="px-3 py-1.5 bg-[#49769F]/10 text-[#49769F] rounded-full text-xs font-medium"
                       >
                         {feature}
                       </span>
