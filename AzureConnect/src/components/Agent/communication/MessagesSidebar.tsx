@@ -70,10 +70,10 @@ export function MessagesSidebar({
             <button
               key={conversation.id}
               onClick={() => onSelectConversation(conversation)}
-              className={`w-full p-4 flex items-center gap-3 hover:bg-sky-100/50 transition-colors border-b border-sky-100/50 ${
+              className={`w-full p-4 flex items-center gap-3 hover:bg-[#49769F]/10 transition-colors border-b border-[#BDD8E9]/50 ${
                 selectedConversation &&
                 selectedConversation.id === conversation.id
-                  ? "bg-gradient-to-r from-sky-100 to-blue-100 border-l-4 border-l-sky-500"
+                  ? "bg-[#49769F]/10 border-l-4 border-l-[#49769F]"
                   : ""
               }`}
             >

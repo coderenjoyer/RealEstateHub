@@ -150,7 +150,7 @@ const SystemConfig: React.FC<SystemConfigProps> = ({
               type="text"
               value={config.appName}
               onChange={(e) => handleInputChange('appName', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49769F] focus:border-transparent"
               placeholder="Enter application name"
             />
           </div>
@@ -163,7 +163,7 @@ const SystemConfig: React.FC<SystemConfigProps> = ({
               type="email"
               value={config.supportEmail}
               onChange={(e) => handleInputChange('supportEmail', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49769F] focus:border-transparent"
               placeholder="support@example.com"
             />
           </div>
@@ -175,7 +175,7 @@ const SystemConfig: React.FC<SystemConfigProps> = ({
             <select
               value={config.timezone}
               onChange={(e) => handleInputChange('timezone', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49769F] focus:border-transparent"
             >
               {timezones.map((tz) => (
                 <option key={tz} value={tz}>

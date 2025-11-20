@@ -39,7 +39,7 @@ export function UpdatePropertyConfirmationModal({
       <div className="relative w-full max-w-md animate-in fade-in-0 zoom-in-95 duration-200">
         <div className="rounded-3xl border border-white/60 bg-white/95 shadow-2xl backdrop-blur p-8">
           <div className="flex flex-col items-center text-center space-y-3">
-            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-lg ring-4 ring-blue-100">
+            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-lg ring-4 ring-[#49769F]/30">
               <Pencil className="h-7 w-7" />
             </div>
             <p className="text-sm font-semibold tracking-[0.2em] text-blue-500">

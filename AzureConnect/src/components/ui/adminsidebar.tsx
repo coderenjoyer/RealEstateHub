@@ -75,7 +75,7 @@ export function Sidebar() {
         )}>
           <Link
             to="/admin"
-            className="w-10 h-10 bg-gradient-to-br from-sky-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2"
+            className="w-10 h-10 bg-gradient-to-br from-sky-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#49769F] focus:ring-offset-2"
             style={{ '--tw-ring-offset-color': '#b8d4e3' } as React.CSSProperties}
             aria-label="Admin Dashboard"
           >
@@ -110,7 +110,7 @@ export function Sidebar() {
                   className={cn(
                     "flex items-center gap-3 py-3.5 rounded-xl text-gray-800 transition-all duration-200 group relative overflow-hidden",
                     "hover:text-gray-950",
-                    "focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2",
+                    "focus:outline-none focus:ring-2 focus:ring-[#49769F] focus:ring-offset-2",
                     active 
                       ? "bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/30" 
                       : "hover:bg-[#a8c5d6]",
@@ -195,7 +195,7 @@ export function Sidebar() {
           "w-8 h-16 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700",
           "text-white rounded-r-xl shadow-lg hover:shadow-xl",
           "flex items-center justify-center",
-          "focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2",
+          "focus:outline-none focus:ring-2 focus:ring-[#49769F] focus:ring-offset-2",
           "group opacity-30 hover:opacity-100",
           isCollapsed ? "left-16 -translate-x-5 hover:translate-x-0" : "left-64 -translate-x-5 hover:translate-x-0"
         )}

@@ -216,11 +216,11 @@ function UserProfilePage() {
 
   return (
     <div 
-      className="min-h-screen bg-gradient-to-br from-sky-200 via-blue-100 to-cyan-100"
+      className="min-h-screen bg-[#E8F6F8]"
       onClick={handleClickOutside}
     >
       {/* Hero Background Section */}
-      <div className="relative h-48 sm:h-56 md:h-64 w-full overflow-hidden bg-gradient-to-br from-blue-500 via-blue-400 to-sky-300">
+      <div className="relative h-48 sm:h-56 md:h-64 w-full overflow-hidden bg-[#49769F]">
         {coverImage && (
           <img 
             src={coverImage} 
@@ -268,7 +268,7 @@ function UserProfilePage() {
                 <div className="relative">
                   <button 
                     onClick={toggleDropdown}
-                    className="bg-blue-500 hover:bg-blue-600 rounded-full p-1.5 sm:p-2 shadow-md border-2 border-white transition-colors duration-200"
+                    className="bg-[#49769F] hover:bg-[#49769F]/90 rounded-full p-1.5 sm:p-2 shadow-md border-2 border-white transition-colors duration-200"
                     title="Edit Profile"
                   >
                     <Edit3 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
@@ -284,14 +284,14 @@ function UserProfilePage() {
                         onClick={() => handleEditClick('profile')}
                         className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
                       >
-                        <User className="w-4 h-4 text-blue-500" />
+                        <User className="w-4 h-4 text-[#49769F]" />
                         <span className="text-sm font-medium text-gray-700">Edit Profile Picture</span>
                       </button>
                       <button
                         onClick={() => handleEditClick('cover')}
                         className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
                       >
-                        <Image className="w-4 h-4 text-blue-500" />
+                        <Image className="w-4 h-4 text-[#49769F]" />
                         <span className="text-sm font-medium text-gray-700">Edit Cover Photo</span>
                       </button>
                     </div>
@@ -309,22 +309,22 @@ function UserProfilePage() {
 
               {/* Location */}
               <div className="flex items-center justify-center sm:justify-start gap-2 text-slate-600 mb-4 sm:mb-6">
-                <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+                <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-[#49769F]" />
                 <span className="text-sm font-medium">Makati City, Metro Manila</span>
               </div>
 
               {/* Contact Info */}
               <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4">
                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-center sm:text-left">
-                  <Phone className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                  <Phone className="w-4 h-4 text-[#49769F] flex-shrink-0" />
                   <span className="text-xs sm:text-sm font-medium text-slate-700">{userPhone || 'Not provided'}</span>
                 </div>
                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-center sm:text-left">
-                  <Mail className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                  <Mail className="w-4 h-4 text-[#49769F] flex-shrink-0" />
                   <span className="text-xs sm:text-sm font-medium text-slate-700">{userEmail || 'Not provided'}</span>
                 </div>
                 <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-center sm:text-left">
-                  <Calendar className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                  <Calendar className="w-4 h-4 text-[#49769F] flex-shrink-0" />
                   <span className="text-xs sm:text-sm font-medium text-slate-700">Member since {memberSince}</span>
                 </div>
               </div>
@@ -371,34 +371,34 @@ function UserProfilePage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 text-left">
               <div className="space-y-4">
-                <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
-                  <Home className="w-5 h-5 text-blue-600" />
+                <div className="flex items-center gap-3 p-4 bg-[#49769F]/10 rounded-xl border border-[#49769F]/20">
+                  <Home className="w-5 h-5 text-[#49769F]" />
                   <div>
-                    <p className="font-semibold text-blue-900">Property Type</p>
-                    <p className="text-sm text-blue-700">{propertyType || 'Not set'}</p>
+                    <p className="font-semibold text-[#49769F]">Property Type</p>
+                    <p className="text-sm text-gray-700">{propertyType || 'Not set'}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl border border-green-200">
-                  <MapPin className="w-5 h-5 text-green-600" />
+                <div className="flex items-center gap-3 p-4 bg-[#49769F]/10 rounded-xl border border-[#49769F]/20">
+                  <MapPin className="w-5 h-5 text-[#49769F]" />
                   <div>
-                    <p className="font-semibold text-green-900">Preferred Location</p>
-                    <p className="text-sm text-green-700">{preferredLocation || 'Not set'}</p>
+                    <p className="font-semibold text-[#49769F]">Preferred Location</p>
+                    <p className="text-sm text-gray-700">{preferredLocation || 'Not set'}</p>
                   </div>
                 </div>
               </div>
               <div className="space-y-4">
-                <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-xl border border-purple-200">
-                  <Briefcase className="w-5 h-5 text-purple-600" />
+                <div className="flex items-center gap-3 p-4 bg-[#49769F]/10 rounded-xl border border-[#49769F]/20">
+                  <Briefcase className="w-5 h-5 text-[#49769F]" />
                   <div>
-                    <p className="font-semibold text-purple-900">Budget Range</p>
-                    <p className="text-sm text-purple-700">{budgetRange || 'Not set'}</p>
+                    <p className="font-semibold text-[#49769F]">Budget Range</p>
+                    <p className="text-sm text-gray-700">{budgetRange || 'Not set'}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-xl border border-orange-200">
-                  <Award className="w-5 h-5 text-orange-600" />
+                <div className="flex items-center gap-3 p-4 bg-[#49769F]/10 rounded-xl border border-[#49769F]/20">
+                  <Award className="w-5 h-5 text-[#49769F]" />
                   <div>
-                    <p className="font-semibold text-orange-900">Investment Goal</p>
-                    <p className="text-sm text-orange-700">{investmentGoal || 'Not set'}</p>
+                    <p className="font-semibold text-[#49769F]">Investment Goal</p>
+                    <p className="text-sm text-gray-700">{investmentGoal || 'Not set'}</p>
                   </div>
                 </div>
               </div>
@@ -445,7 +445,7 @@ function UserProfilePage() {
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        <div className="absolute -bottom-2 -right-2 bg-blue-500 rounded-full p-2 shadow-md border-2 border-white">
+                        <div className="absolute -bottom-2 -right-2 bg-[#49769F] rounded-full p-2 shadow-md border-2 border-white">
                           <Camera className="w-4 h-4 text-white" />
                         </div>
                       </div>
@@ -454,7 +454,7 @@ function UserProfilePage() {
 
                     {/* Upload Section */}
                     <div className="space-y-4">
-                      <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors">
+                      <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-[#49769F] transition-colors">
                         <input
                           type="file"
                           accept="image/*"
@@ -473,7 +473,7 @@ function UserProfilePage() {
                       {previewImage && (
                         <div className="text-center">
                           <div className="relative inline-block">
-                            <div className={`relative overflow-hidden rounded-xl border-4 border-blue-200 shadow-lg ${
+                            <div className={`relative overflow-hidden rounded-xl border-4 border-[#49769F]/30 shadow-lg ${
                               editMode === 'profile' ? 'w-32 h-32' : 'w-full h-32'
                             }`}>
                               <img 
@@ -505,7 +505,7 @@ function UserProfilePage() {
                         value={bio ?? ''}
                         onChange={(e) => setBio(e.target.value)}
                         rows={8}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49769F] focus:border-[#49769F] resize-none"
                         placeholder="Tell us about yourself..."
                       />
                     </div>
@@ -528,7 +528,7 @@ function UserProfilePage() {
                           id="propertyType"
                           value={propertyType ?? ''}
                           onChange={(e) => setPropertyType(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49769F] focus:border-[#49769F]"
                           placeholder="e.g., Condominium, Townhouse"
                         />
                       </div>
@@ -541,7 +541,7 @@ function UserProfilePage() {
                           id="preferredLocation"
                           value={preferredLocation ?? ''}
                           onChange={(e) => setPreferredLocation(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49769F] focus:border-[#49769F]"
                           placeholder="e.g., Makati, BGC, Ortigas"
                         />
                       </div>
@@ -554,7 +554,7 @@ function UserProfilePage() {
                           id="budgetRange"
                           value={budgetRange ?? ''}
                           onChange={(e) => setBudgetRange(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49769F] focus:border-[#49769F]"
                           placeholder="e.g., ₱3M - ₱8M"
                         />
                       </div>
@@ -567,7 +567,7 @@ function UserProfilePage() {
                           id="investmentGoal"
                           value={investmentGoal ?? ''}
                           onChange={(e) => setInvestmentGoal(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49769F] focus:border-[#49769F]"
                           placeholder="e.g., Long-term rental income"
                         />
                       </div>
@@ -594,7 +594,7 @@ function UserProfilePage() {
                       handleSaveImage
                     }
                     disabled={((editMode === 'profile' || editMode === 'cover') && !previewImage) || isSaving}
-                    className="flex-1 bg-blue-500 hover:bg-blue-600"
+                    className="flex-1 bg-[#49769F] hover:bg-[#49769F]/90"
                   >
                     {isSaving ? 'Saving...' : 'Save Changes'}
                   </Button>

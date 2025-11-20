@@ -387,7 +387,7 @@ export function PropertiesTable() {
               placeholder="Search unit..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#49769F] focus:border-transparent"
             />
           </div>
         </div>
@@ -397,7 +397,7 @@ export function PropertiesTable() {
           <select
             value={selectedFilter}
             onChange={(e) => setSelectedFilter(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-slate-300 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-slate-400 transition"
+            className="px-4 py-2 rounded-lg border border-slate-300 bg-white text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-[#49769F] hover:border-slate-400 transition"
           >
             <option value="all">All Properties</option>
             <option value="vacant">Approved</option>
@@ -488,7 +488,7 @@ export function PropertiesTable() {
                     ) : (
                       <button 
                         onClick={() => openModal(property)}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 font-medium hover:bg-blue-100 transition-colors"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#49769F]/10 text-[#49769F] font-medium hover:bg-[#49769F]/20 transition-colors"
                       >
                         Review
                         <ChevronRight className="w-4 h-4" />
@@ -499,7 +499,7 @@ export function PropertiesTable() {
                     <div className="flex items-center gap-2 whitespace-nowrap">
                       <button 
                         onClick={() => openEditModal(property)}
-                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-blue-50 text-blue-600 font-medium text-xs hover:bg-blue-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-[#49769F]/10 text-[#49769F] font-medium text-xs hover:bg-[#49769F]/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Edit Property"
                         disabled={property.property_status === "sold" || property.property_status === "rented"}
                       >
@@ -604,7 +604,7 @@ export function PropertiesTable() {
                       onClick={() => setSelectedImageIndex(index)}
                       className={`w-24 h-20 rounded-xl overflow-hidden flex-shrink-0 cursor-pointer transition-all ${
                         index === selectedImageIndex 
-                          ? 'border-2 border-sky-500 opacity-100' 
+                          ? 'border-2 border-[#49769F] opacity-100' 
                           : 'opacity-60 hover:opacity-100'
                       }`}
                     >
@@ -616,9 +616,9 @@ export function PropertiesTable() {
                     </div>
                   ))
                 ) : (
-                  <div className="w-24 h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 border-sky-500">
+                  <div className="w-24 h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 border-[#49769F]">
                     <div className="w-full h-full bg-slate-200 flex items-center justify-center">
-                      <Home className="w-6 h-6 text-slate-400" />
+                      <Home className="w-6 h-6 text-[#49769F]" />
                     </div>
                   </div>
                 )}
@@ -629,7 +629,7 @@ export function PropertiesTable() {
             <div className="px-6 pb-4">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedProperty.property_title}</h2>
               <div className="flex items-center gap-2 text-gray-600">
-                <MapPin className="h-4 w-4" />
+                <MapPin className="h-4 w-4 text-[#49769F]" />
                 <p className="text-sm">{selectedProperty.street_address}, {selectedProperty.city}</p>
               </div>
               
@@ -643,17 +643,17 @@ export function PropertiesTable() {
                   <h3 className="font-semibold text-gray-900 mb-3">Property Details</h3>
                   <div className="grid grid-cols-3 gap-4">
                     <div className="flex flex-col items-center gap-2 p-3 bg-white rounded-xl">
-                      <Bed className="h-5 w-5 text-sky-600" />
+                      <Bed className="h-5 w-5 text-[#49769F]" />
                       <span className="text-sm font-medium text-gray-600">Bedrooms</span>
                       <span className="text-lg font-bold text-gray-900">{selectedProperty.bedrooms}</span>
                     </div>
                     <div className="flex flex-col items-center gap-2 p-3 bg-white rounded-xl">
-                      <Bath className="h-5 w-5 text-sky-600" />
+                      <Bath className="h-5 w-5 text-[#49769F]" />
                       <span className="text-sm font-medium text-gray-600">Bathrooms</span>
                       <span className="text-lg font-bold text-gray-900">{selectedProperty.bathrooms}</span>
                     </div>
                     <div className="flex flex-col items-center gap-2 p-3 bg-white rounded-xl">
-                      <Home className="h-5 w-5 text-sky-600" />
+                      <Home className="h-5 w-5 text-[#49769F]" />
                       <span className="text-sm font-medium text-gray-600">Sq Ft</span>
                       <span className="text-lg font-bold text-gray-900">{selectedProperty.square_feet || 'N/A'}</span>
                     </div>
@@ -662,7 +662,7 @@ export function PropertiesTable() {
 
                 <div className="bg-gray-50 rounded-2xl p-4">
                   <h3 className="font-semibold text-gray-900 mb-2">Price</h3>
-                  <p className="text-2xl font-bold text-sky-600">₱{selectedProperty.price?.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-[#49769F]">₱{selectedProperty.price?.toLocaleString()}</p>
                   <p className="text-sm text-gray-600 mt-1">For {selectedProperty.listing_type === 'sale' ? 'Sale' : 'Rent'}</p>
                 </div>
 
@@ -678,7 +678,7 @@ export function PropertiesTable() {
                   <div className="flex flex-wrap gap-2">
                     {selectedProperty.features && selectedProperty.features.length > 0 ? (
                       selectedProperty.features.map((feature: string, index: number) => (
-                        <span key={index} className="px-3 py-1.5 bg-sky-100 text-sky-700 rounded-full text-xs font-medium">
+                        <span key={index} className="px-3 py-1.5 bg-[#49769F]/20 text-[#49769F] rounded-full text-xs font-medium">
                           {feature}
                         </span>
                       ))
@@ -887,7 +887,7 @@ export function PropertiesTable() {
                     type="text"
                     value={editFormData.property_title || ""}
                     onChange={(e) => setEditFormData({...editFormData, property_title: e.target.value})}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F]"
                     required
                   />
                 </div>
@@ -899,7 +899,7 @@ export function PropertiesTable() {
                   <select
                     value={editFormData.property_type || ""}
                     onChange={(e) => setEditFormData({...editFormData, property_type: e.target.value})}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F]"
                     required
                   >
                     <option value="">Select Type</option>
@@ -922,7 +922,7 @@ export function PropertiesTable() {
                   <select
                     value={editFormData.listing_type || ""}
                     onChange={(e) => setEditFormData({...editFormData, listing_type: e.target.value})}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F]"
                     required
                   >
                     <option value="">Select Listing Type</option>
@@ -940,7 +940,7 @@ export function PropertiesTable() {
                     value={editFormData.price || ""}
                     onChange={(e) => setEditFormData({...editFormData, price: Number(e.target.value) || 0})
                     }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F]"
                     required
                   />
                 </div>
@@ -954,7 +954,7 @@ export function PropertiesTable() {
                     value={editFormData.bedrooms || ""}
                     onChange={(e) => setEditFormData({...editFormData, bedrooms: Number(e.target.value) || 0})
                     }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F]"
                     required
                   />
                 </div>
@@ -968,7 +968,7 @@ export function PropertiesTable() {
                     value={editFormData.bathrooms || ""}
                     onChange={(e) => setEditFormData({...editFormData, bathrooms: Number(e.target.value) || 0})
                     }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F]"
                     required
                   />
                 </div>
@@ -982,7 +982,7 @@ export function PropertiesTable() {
                     value={editFormData.square_feet || ""}
                     onChange={(e) => setEditFormData({...editFormData, square_feet: Number(e.target.value) || null})
                     }
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F]"
                   />
                 </div>
 
@@ -994,7 +994,7 @@ export function PropertiesTable() {
                     type="text"
                     value={editFormData.city || ""}
                     onChange={(e) => setEditFormData({...editFormData, city: e.target.value})}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F]"
                     required
                   />
                 </div>
@@ -1008,7 +1008,7 @@ export function PropertiesTable() {
                   value={editFormData.description || ""}
                   onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
                   rows={4}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F]"
                 />
               </div>
 
@@ -1022,7 +1022,7 @@ export function PropertiesTable() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex-1 px-4 py-2 bg-[#49769F] text-white rounded-lg hover:bg-[#49769F]/90 transition-colors"
                 >
                   Update Property
                 </button>
