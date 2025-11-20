@@ -93,16 +93,13 @@ export function PropertyDetailsPanel({
         .single();
 
       if (propertyError) {
-        console.error('Error fetching property details:', propertyError);
         return;
       }
 
-      console.log('Property data:', propertyData);
       setPropertyDetails(propertyData);
 
       // Fetch agent information using the contact info from the property
       if (propertyData?.user_id) {
-        console.log('Agent user_id:', propertyData.user_id);
         
         // Use the contact information already in the property listing
         const agentName = propertyData.full_name || 'Property Agent';
@@ -121,16 +118,9 @@ export function PropertyDetailsPanel({
           phone: agentPhone,
           avatar: avatarData?.publicUrl || null,
         });
-        
-        console.log('Agent info set:', {
-          id: propertyData.user_id,
-          name: agentName,
-          email: agentEmail,
-          phone: agentPhone,
-        });
       }
     } catch (error) {
-      console.error('Error:', error);
+      // Error fetching property details
     } finally {
       setLoading(false);
     }

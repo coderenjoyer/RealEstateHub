@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Mail, Phone, MoreVertical, X, Building2, Briefcase, Trash2, Shield, ShieldOff } from "lucide-react"
+import { Mail, Phone, MoreVertical, X, Building2, Briefcase, Trash2, Shield, ShieldOff, CheckCircle } from "lucide-react"
 import supabase from "@/supabaseClient"
 import { useAuth } from "@/AuthContext"
 import { deleteUserAccount, updateAccountStatus } from "@/services/adminService"
@@ -12,7 +12,8 @@ interface Account {
   email: string
   phone: string
   properties: number
-  status?: "Active" | "Inactive"
+  status?: "Active" | "Inactive" | "Pending"
+  email_confirmed_at?: string | null
 }
 
 interface AccountCardProps {
@@ -28,9 +29,10 @@ export function AccountCard({ account, showStatus, isAgent = true, onAccountUpda
   const [showMenu, setShowMenu] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showStatusConfirm, setShowStatusConfirm] = useState(false)
-  const [accountStatus, setAccountStatus] = useState<"Active" | "Inactive">(account.status || "Active")
+  const [accountStatus, setAccountStatus] = useState<"Active" | "Inactive" | "Pending">(account.status || "Active")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showDeleteSuccess, setShowDeleteSuccess] = useState(false)
 
   // Check if current user is admin
   const isAdminUser = session?.user?.user_metadata?.role === "admin"
@@ -77,8 +79,8 @@ export function AccountCard({ account, showStatus, isAgent = true, onAccountUpda
 
       setShowMenu(false)
       setShowDeleteConfirm(false)
+      setShowDeleteSuccess(true)
       if (onAccountUpdate) onAccountUpdate()
-      alert(`${account.name}'s account has been deleted successfully.`)
     } catch (err) {
       console.error("Error deleting account:", err)
       const errorMsg = err instanceof Error ? err.message : "Failed to delete account. Please ensure you have added SUPABASE_SERVICE_ROLE_KEY to your .env file."
@@ -96,10 +98,10 @@ export function AccountCard({ account, showStatus, isAgent = true, onAccountUpda
           {showStatus && (
             <span
               className={`inline-block px-2 py-0.5 text-xs font-medium rounded mt-1 ${
-                accountStatus === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                accountStatus === "Active" ? "bg-green-100 text-green-700" : accountStatus === "Pending" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"
               }`}
             >
-              {accountStatus === "Active" ? "Active" : "Deactivated"}
+              {accountStatus === "Active" ? "Active" : accountStatus === "Pending" ? "Pending" : "Deactivated"}
             </span>
           )}
         </div>
@@ -122,8 +124,9 @@ export function AccountCard({ account, showStatus, isAgent = true, onAccountUpda
               )}
               <button
                 onClick={() => setShowStatusConfirm(true)}
-                disabled={isLoading}
+                disabled={isLoading || accountStatus === "Pending"}
                 className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title={accountStatus === "Pending" ? "Cannot modify pending accounts until email is confirmed" : ""}
               >
                 {accountStatus === "Active" ? (
                   <>
@@ -161,11 +164,12 @@ export function AccountCard({ account, showStatus, isAgent = true, onAccountUpda
           <Phone className="w-4 h-4 flex-shrink-0" />
           <span>{account.phone}</span>
         </div>
-        <div className="text-sm text-gray-600">
-          <span className="font-medium">Properties:</span> {account.properties}
-        </div>
-        {/* Only show properties section for agents */}
-        {!isAgent && null}
+        {/* Only show properties count for agents */}
+        {isAgent && (
+          <div className="text-sm text-gray-600">
+            <span className="font-medium">Properties:</span> {account.properties}
+          </div>
+        )}
       </div>
 
       <button 
@@ -212,10 +216,10 @@ export function AccountCard({ account, showStatus, isAgent = true, onAccountUpda
                 {showStatus && (
                   <span
                     className={`inline-block px-3 py-1 text-xs font-medium rounded-full mt-2 ${
-                      accountStatus === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                      accountStatus === "Active" ? "bg-green-100 text-green-700" : accountStatus === "Pending" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"
                     }`}
                   >
-                    {accountStatus === "Active" ? "Active" : "Deactivated"}
+                    {accountStatus === "Active" ? "Active" : accountStatus === "Pending" ? "Pending" : "Deactivated"}
                   </span>
                 )}
               </div>
@@ -398,6 +402,37 @@ export function AccountCard({ account, showStatus, isAgent = true, onAccountUpda
                 className="flex-1 py-2 px-4 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showDeleteSuccess && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowDeleteSuccess(false)
+            }
+          }}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl max-w-sm w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6 text-center space-y-4">
+              <div className="flex justify-center">
+                <CheckCircle className="w-12 h-12 text-red-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900">Account Deleted</h2>
+              <p className="text-sm text-gray-600">
+                {account.name}'s account has been successfully deleted. This action cannot be undone.
+              </p>
+              <button
+                onClick={() => setShowDeleteSuccess(false)}
+                className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              >
+                Done
               </button>
             </div>
           </div>

@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
+                  AlertCircle,
   ImagePlus,
   Check,
   ChevronDown,
@@ -144,6 +145,7 @@ export default function ListPropertyPage() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [isAgent, setIsAgent] = useState<boolean | null>(null);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [propertyListingsDisabled, setPropertyListingsDisabled] = useState(false);
 
   const propertyTypes = [
     "House",
@@ -196,13 +198,36 @@ export default function ListPropertyPage() {
   ];
 
   useEffect(() => {
-    // Check if user has agent role
-    console.log("=== Role Verification Debug ===");
-    console.log("User ID:", userId);
-    console.log("User Role:", userRole);
-    console.log("Full User Metadata:", session?.user?.user_metadata);
-    console.log("===============================");
+    // Check if property listings are disabled
+    const checkPropertyListingsStatus = async () => {
+      try {
+        const { data: settings, error } = await supabase
+          .from('admin_settings')
+          .select('property_listings_enabled')
+          .limit(1);
+        
+        if (error) {
+          // Default to enabled if there's an error
+          setPropertyListingsDisabled(false);
+          return;
+        }
+        
+        if (settings && settings.length > 0 && settings[0].property_listings_enabled === false) {
+          setPropertyListingsDisabled(true);
+        } else {
+          setPropertyListingsDisabled(false);
+        }
+      } catch (error) {
+        // Default to enabled if there's an error
+        setPropertyListingsDisabled(false);
+      }
+    };
+    
+    checkPropertyListingsStatus();
+  }, []);
 
+  useEffect(() => {
+    // Check if user has agent role
     if (userRole) {
       setIsAgent(userRole === "agent");
     }
@@ -243,7 +268,6 @@ export default function ListPropertyPage() {
         .single();
 
       if (error) {
-        console.error("Error fetching profile data:", error);
         return;
       }
 
@@ -259,18 +283,12 @@ export default function ListPropertyPage() {
         }
       }
     } catch (error) {
-      console.error("Error fetching full name from database:", error);
+      // Error fetching full name from database
     }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    console.log("=== Submit Handler Debug ===");
-    console.log("User ID:", userId);
-    console.log("User Role:", userRole);
-    console.log("Is Agent Check:", userRole === "agent");
-    console.log("===========================");
 
     if (!userId) {
       setSubmitError("You must be logged in to list a property");
@@ -279,8 +297,13 @@ export default function ListPropertyPage() {
 
     // Check if user has agent role
     if (userRole !== "agent") {
-      console.error("Role check failed. Current role:", userRole);
       setSubmitError("Only users with agent role can list properties");
+      return;
+    }
+
+    // Check if property listings are disabled
+    if (propertyListingsDisabled) {
+      setSubmitError("Property listings are currently disabled. Please try again later.");
       return;
     }
 
@@ -361,7 +384,6 @@ export default function ListPropertyPage() {
         .from("listing_approvals")
         .insert(propertyData);
       if (error) {
-        console.error("Supabase insert error:", error);
         throw error;
       }
       setSubmitSuccess(true);
@@ -408,7 +430,6 @@ export default function ListPropertyPage() {
       setUploadedImagePreviews([null, null]);
       setUploadedImages([null, null]);
     } catch (error: any) {
-      console.error("Error submitting property:", error);
       setSubmitError(
         error.message || "Failed to submit property. Please try again."
       );
@@ -440,7 +461,6 @@ export default function ListPropertyPage() {
           });
 
         if (uploadError) {
-          console.error("Upload error:", uploadError);
           throw uploadError;
         }
 
@@ -458,7 +478,6 @@ export default function ListPropertyPage() {
           public_url: imageData.publicUrl,
         });
       } catch (error) {
-        console.error(`Error uploading image ${i}:`, error);
         throw error;
       }
     }
@@ -712,6 +731,8 @@ export default function ListPropertyPage() {
     );
   }
 
+  const formInputClassName = propertyListingsDisabled ? "opacity-50 cursor-not-allowed" : "";
+
   return (
     <AgentLayout>
       <div className="p-8">
@@ -749,6 +770,22 @@ export default function ListPropertyPage() {
             </div>
           )}
 
+          {propertyListingsDisabled && (
+            <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-orange-600" />
+                <div>
+                  <p className="font-semibold text-orange-800">
+                    Property Listings Currently Disabled
+                  </p>
+                  <p className="text-sm text-orange-700 mt-1">
+                    Property listings are disabled. All fields are read-only. Please try again later.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="bg-white rounded-3xl shadow-lg sm:p-8 p-4">
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* Basic Information Section */}
@@ -774,7 +811,8 @@ export default function ListPropertyPage() {
                           propertyTitle: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                       required
                     />
                   </div>
@@ -789,7 +827,8 @@ export default function ListPropertyPage() {
                         onClick={() =>
                           setShowPropertyDropdown(!showPropertyDropdown)
                         }
-                        className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-white text-left focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between"
+                        disabled={propertyListingsDisabled}
+                        className={`w-full px-4 py-2 border border-slate-200 rounded-lg bg-white text-left focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between ${formInputClassName}`}
                       >
                         <span className="text-slate-700">
                           {formData.propertyType || "Select property type"}
@@ -844,6 +883,7 @@ export default function ListPropertyPage() {
                               listingType: e.target.value,
                             })
                           }
+                          disabled={propertyListingsDisabled}
                           className="w-4 h-4 text-blue-500"
                         />
                         <span className="text-slate-700">For Sale</span>
@@ -859,6 +899,7 @@ export default function ListPropertyPage() {
                               listingType: e.target.value,
                             })
                           }
+                          disabled={propertyListingsDisabled}
                           className="w-4 h-4 text-blue-500"
                         />
                         <span className="text-slate-700">For Rent</span>
@@ -912,7 +953,8 @@ export default function ListPropertyPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, price: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                       required
                     />
                   </div>
@@ -928,7 +970,8 @@ export default function ListPropertyPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, bedrooms: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                       required
                     />
                   </div>
@@ -944,7 +987,8 @@ export default function ListPropertyPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, bathrooms: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                       required
                     />
                   </div>
@@ -962,7 +1006,8 @@ export default function ListPropertyPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, squareFeet: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                     />
                   </div>
 
@@ -977,7 +1022,8 @@ export default function ListPropertyPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, lotSize: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                     />
                   </div>
 
@@ -992,7 +1038,8 @@ export default function ListPropertyPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, yearBuilt: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                     />
                   </div>
 
@@ -1010,7 +1057,8 @@ export default function ListPropertyPage() {
                           parkingSpaces: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                     />
                   </div>
                 </div>
@@ -1030,7 +1078,8 @@ export default function ListPropertyPage() {
                             availableFrom: e.target.value,
                           })
                         }
-                        className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                        disabled={propertyListingsDisabled}
                       />
                     </div>
 
@@ -1044,7 +1093,8 @@ export default function ListPropertyPage() {
                           onClick={() =>
                             setShowFurnishedDropdown(!showFurnishedDropdown)
                           }
-                          className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-white text-left focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between"
+                          disabled={propertyListingsDisabled}
+                          className={`w-full px-4 py-2 border border-slate-200 rounded-lg bg-white text-left focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between ${formInputClassName}`}
                         >
                           <span className="text-slate-700">
                             {formData.furnished || "Select status"}
@@ -1107,7 +1157,8 @@ export default function ListPropertyPage() {
                           streetAddress: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                       required
                     />
                   </div>
@@ -1124,7 +1175,8 @@ export default function ListPropertyPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, city: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                       required
                     />
                   </div>
@@ -1139,7 +1191,8 @@ export default function ListPropertyPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, state: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                     />
                   </div>
 
@@ -1153,7 +1206,8 @@ export default function ListPropertyPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, zipPostal: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                       required
                     />
                   </div>
@@ -1168,7 +1222,8 @@ export default function ListPropertyPage() {
                       onChange={(e) =>
                         setFormData({ ...formData, country: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                     />
                   </div>
                 </div>
@@ -1196,7 +1251,8 @@ export default function ListPropertyPage() {
                       setFormData({ ...formData, description: e.target.value })
                     }
                     rows={6}
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${formInputClassName}`}
+                    disabled={propertyListingsDisabled}
                     required
                   />
                 </div>
@@ -1227,7 +1283,8 @@ export default function ListPropertyPage() {
                       })
                     }
                     rows={5}
-                    className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${formInputClassName}`}
+                    disabled={propertyListingsDisabled}
                   />
                 </div>
               </div>
@@ -1250,7 +1307,8 @@ export default function ListPropertyPage() {
                       placeholder="School, mall, park..."
                       value={nearbyName}
                       onChange={(e) => setNearbyName(e.target.value)}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                     />
                   </div>
                   <div>
@@ -1261,7 +1319,8 @@ export default function ListPropertyPage() {
                       placeholder="Brief details about this place"
                       value={nearbyDescription}
                       onChange={(e) => setNearbyDescription(e.target.value)}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                     />
                   </div>
                   <div>
@@ -1273,7 +1332,8 @@ export default function ListPropertyPage() {
                       placeholder="1.2"
                       value={nearbyDistanceKm}
                       onChange={(e) => setNearbyDistanceKm(e.target.value)}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                     />
                   </div>
                 </div>
@@ -1281,7 +1341,8 @@ export default function ListPropertyPage() {
                   <button
                     type="button"
                     onClick={addNearby}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2"
+                    disabled={propertyListingsDisabled}
+                    className={`px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2 ${propertyListingsDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <Plus className="w-4 h-4" /> Add Nearby
                   </button>
@@ -1345,12 +1406,14 @@ export default function ListPropertyPage() {
                         e.key === "Enter" &&
                         (e.preventDefault(), addFeature(currentFeature))
                       }
-                      className="flex-1 px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`flex-1 px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${formInputClassName}`}
+                      disabled={propertyListingsDisabled}
                     />
                     <button
                       type="button"
                       onClick={() => addFeature(currentFeature)}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2"
+                      disabled={propertyListingsDisabled}
+                      className={`px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2 ${propertyListingsDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <Plus className="w-4 h-4" /> Add
                     </button>
@@ -1431,7 +1494,8 @@ export default function ListPropertyPage() {
                       <button
                         type="button"
                         onClick={() => setShowPetDropdown(!showPetDropdown)}
-                        className="w-full px-4 py-2 border border-slate-200 rounded-lg bg-white text-left focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between"
+                        disabled={propertyListingsDisabled}
+                        className={`w-full px-4 py-2 border border-slate-200 rounded-lg bg-white text-left focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between ${formInputClassName}`}
                       >
                         <span className="text-slate-700">
                           {formData.petPolicy || "Select pet policy"}

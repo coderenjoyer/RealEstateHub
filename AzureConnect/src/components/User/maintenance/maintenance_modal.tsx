@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { X, Calendar, AlertCircle, CheckCircle2, Clock } from "lucide-react"
 import supabase from "../../../supabaseClient"
 import { MaintenanceStatus } from "./maintenance"
+import { MessengerDropdown } from "../messenger-dropdown"
 
 interface MaintenanceModalProps {
   open: boolean
@@ -22,6 +23,8 @@ interface MaintenanceModalProps {
   }>
   onClose: () => void
   onUpdated: (details?: MaintenanceConfirmationDetails) => void | Promise<void>
+  agentId?: string | null
+  agentName?: string | null
 }
 
 export interface MaintenanceConfirmationDetails {
@@ -109,10 +112,14 @@ export function MaintenanceModal({
   properties,
   onClose,
   onUpdated,
+  agentId,
+  agentName,
 }: MaintenanceModalProps) {
   const [formData, setFormData] = useState<MaintenanceFormState>(defaultForm)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [showChatConfirm, setShowChatConfirm] = useState(false)
+  const [showMessenger, setShowMessenger] = useState(false)
 
   const propertyOptions = useMemo(() => {
     return properties.map((prop) => ({
@@ -137,6 +144,16 @@ export function MaintenanceModal({
 
   if (!open) {
     return null
+  }
+
+  const handleChatWithAgent = () => {
+    if (!agentId) {
+      setError('Agent information not available for this property.')
+      return
+    }
+    
+    // Open the messenger modal with the agent
+    setShowMessenger(true)
   }
 
   const handleChange = (
@@ -229,7 +246,8 @@ export function MaintenanceModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[70] flex min-h-screen items-center justify-center px-4 py-6">
+    <>
+      <div className="fixed inset-0 z-[40] flex min-h-screen items-center justify-center px-4 py-6">
       <div
         className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
         onClick={() => {
@@ -402,6 +420,16 @@ export function MaintenanceModal({
               >
                 Cancel
               </button>
+              {agentId && (
+                <button
+                  type="button"
+                  onClick={handleChatWithAgent}
+                  className="flex-1 rounded-2xl border border-blue-300 bg-blue-50/70 px-4 py-3 text-sm font-semibold text-blue-600 shadow-sm transition hover:bg-blue-50"
+                  disabled={loading}
+                >
+                  Chat with Agent
+                </button>
+              )}
               <button
                 type="submit"
                 className="flex-1 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:shadow-sky-500/40 disabled:opacity-70"
@@ -414,5 +442,19 @@ export function MaintenanceModal({
         </div>
       </div>
     </div>
+
+      {/* Messenger Modal */}
+      {showMessenger && (
+        <MessengerDropdown
+          onClose={() => setShowMessenger(false)}
+          unreadCount={0}
+          agentToContact={{
+            id: agentId || '',
+            name: agentName || 'Agent',
+            avatar: null,
+          }}
+        />
+      )}
+    </>
   )
 }

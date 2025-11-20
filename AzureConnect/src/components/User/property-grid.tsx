@@ -44,8 +44,6 @@ export function PropertyGrid({ activeTab, filters, onContactAgent }: PropertyGri
     try {
       setLoading(true)
 
-      console.log('Fetching properties with filters:', filters) // Debug log
-
       // Build query
       let query = supabase
         .from('listed_properties')
@@ -77,11 +75,8 @@ export function PropertyGrid({ activeTab, filters, onContactAgent }: PropertyGri
       const { data, error } = await query
 
       if (error) {
-        console.error('Error fetching properties:', error)
         return
       }
-
-      console.log('Fetched properties:', data?.length || 0) // Debug log
 
       // Apply amenities filter (client-side since it's JSONB array)
       let filteredData = data || []
@@ -95,10 +90,9 @@ export function PropertyGrid({ activeTab, filters, onContactAgent }: PropertyGri
         })
       }
 
-      console.log('After amenities filter:', filteredData.length) // Debug log
       setProperties(filteredData)
     } catch (error) {
-      console.error('Error:', error)
+      // Error fetching properties
     } finally {
       setLoading(false)
     }

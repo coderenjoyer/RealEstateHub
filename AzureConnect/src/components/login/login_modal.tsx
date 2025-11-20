@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
 import { Eye, EyeOff } from "lucide-react";
+import supabaseClient from "../../supabaseClient";
 
 type TabKey = "signup" | "signin" | "reset";
 
@@ -21,6 +22,7 @@ const LoginModal: React.FC = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [registrationDisabled, setRegistrationDisabled] = useState(false);
 
   // signin form state
   const [signinEmail, setSigninEmail] = useState("");
@@ -44,6 +46,29 @@ const LoginModal: React.FC = () => {
   const [resetSuccessMessage, setResetSuccessMessage] = useState<string | null>(
     null
   );
+
+  // Check registration status on mount
+  useEffect(() => {
+    const checkRegistrationStatus = async () => {
+      try {
+        const { data: settings } = await supabaseClient
+          .from('admin_settings')
+          .select('user_registration_enabled')
+          .single();
+        
+        console.log('Admin settings:', settings);
+        if (settings && settings.user_registration_enabled === false) {
+          setRegistrationDisabled(true);
+        } else {
+          setRegistrationDisabled(false);
+        }
+      } catch (error) {
+        console.error('Error checking registration status:', error);
+      }
+    };
+    
+    checkRegistrationStatus();
+  }, []);
 
   // Check if we're on the reset route or have a password recovery session
   useEffect(() => {
@@ -107,6 +132,10 @@ const LoginModal: React.FC = () => {
 
   const handleSignup = async () => {
     setErrorMessage(null);
+    if (registrationDisabled) {
+      setErrorMessage("User registration is currently disabled.");
+      return;
+    }
     if (
       !firstName ||
       !lastName ||
@@ -374,20 +403,29 @@ const LoginModal: React.FC = () => {
                 Create an account
               </h2>
 
+              {registrationDisabled && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-800 text-sm font-semibold">Registration Currently Unavailable</p>
+                  <p className="text-red-700 text-xs mt-1">User registration is temporarily disabled. Please try again later or contact support.</p>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <input
                   style={inputFont}
-                  className={inputBase}
+                  className={`${inputBase} ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
                   placeholder="First name"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
+                  disabled={registrationDisabled}
                 />
                 <input
                   style={inputFont}
-                  className={inputBase}
+                  className={`${inputBase} ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
                   placeholder="Last name"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
+                  disabled={registrationDisabled}
                 />
               </div>
 
@@ -407,30 +445,33 @@ const LoginModal: React.FC = () => {
                 </span>
                 <input
                   style={inputFont}
-                  className={`${inputBase} pl-10`}
+                  className={`${inputBase} pl-10 ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
                   placeholder="Enter your email"
                   type="email"
                   value={signupEmail}
                   onChange={(e) => setSignupEmail(e.target.value)}
+                  disabled={registrationDisabled}
                 />
               </div>
 
               <input
                 style={inputFont}
-                className={inputBase}
+                className={`${inputBase} ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
                 placeholder="Mobile Number"
                 value={mobileNumber}
                 onChange={(e) => setMobileNumber(e.target.value)}
+                disabled={registrationDisabled}
               />
 
               <div className="relative">
                 <input
                   style={inputFont}
-                  className={`${inputBase} pr-12`}
+                  className={`${inputBase} pr-12 ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
                   placeholder="Password"
                   type={showPassword ? "text" : "password"}
                   value={signupPassword}
                   onChange={(e) => setSignupPassword(e.target.value)}
+                  disabled={registrationDisabled}
                 />
                 <button
                   type="button"
@@ -449,11 +490,12 @@ const LoginModal: React.FC = () => {
               <div className="relative">
                 <input
                   style={inputFont}
-                  className={`${inputBase} pr-12`}
+                  className={`${inputBase} pr-12 ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
                   placeholder="Confirm Password"
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  disabled={registrationDisabled}
                 />
                 <button
                   type="button"
@@ -475,14 +517,14 @@ const LoginModal: React.FC = () => {
                 <div className="text-red-700 text-sm">{errorMessage}</div>
               )}
               <button
-                disabled={isSubmitting}
+                disabled={isSubmitting || registrationDisabled}
                 onClick={handleSignup}
                 className={`mt-6 w-full rounded-xl bg-[#49769F] px-6 py-3 text-base text-[#BDD8E9] shadow transition-all duration-300 hover:bg-[#49769F]/90 hover:shadow-lg active:scale-95 font-semibold overflow-hidden group ${
-                  isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                  isSubmitting || registrationDisabled ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
                 <span className="inline-block transition-transform duration-300 transform-gpu group-hover:scale-105">
-                  {isSubmitting ? "Creating account..." : "Create an account"}
+                  {isSubmitting ? "Creating account..." : registrationDisabled ? "Registration Disabled" : "Create an account"}
                 </span>
               </button>
             </div>

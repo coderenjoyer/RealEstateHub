@@ -24,6 +24,7 @@ const AdminControls: React.FC = () => {
   });
 
   const [loadingFeature, setLoadingFeature] = useState<string | null>(null);
+  const [registrationDisabledNotice, setRegistrationDisabledNotice] = useState(false);
 
   const [security, setSecurity] = useState({
     twoFactorAuth: true,
@@ -114,6 +115,11 @@ const AdminControls: React.FC = () => {
         .select('*')
         .single();
 
+      if (error) {
+        console.warn('Error loading feature settings (non-critical):', error);
+        return;
+      }
+
       if (data) {
         setFeatures({
           userRegistration: data.user_registration_enabled ?? true,
@@ -124,7 +130,7 @@ const AdminControls: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Error loading feature settings:', error);
+      console.warn('Error loading feature settings (non-critical):', error);
     }
   };
 
@@ -161,11 +167,20 @@ const AdminControls: React.FC = () => {
 
       if (error) {
         console.error('Error updating feature:', error);
+        // Revert UI change if update fails
+        setFeatures(prev => ({ ...prev, [feature]: !newValue }));
         return;
       }
 
       // Update local state
       setFeatures(prev => ({ ...prev, [feature]: newValue }));
+      
+      // Show notice if registration is being disabled
+      if (feature === 'userRegistration' && newValue === false) {
+        setRegistrationDisabledNotice(true);
+      } else if (feature === 'userRegistration' && newValue === true) {
+        setRegistrationDisabledNotice(false);
+      }
     } catch (error) {
       console.error('Error toggling feature:', error);
     } finally {
@@ -182,22 +197,25 @@ const AdminControls: React.FC = () => {
   const fetchSystemHealth = async () => {
     try {
       // Get total user count
-      const { count: totalUsers } = await supabase
+      const { count: totalUsers, error: usersError } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true });
 
       // Get total property listings count
-      const { count: totalListings } = await supabase
+      const { count: totalListings, error: listingsError } = await supabase
         .from('listed_properties')
         .select('*', { count: 'exact', head: true })
         .eq('is_deleted', false);
 
       // Get pending approvals count
-      const { count: pendingApprovals } = await supabase
+      const { count: pendingApprovals, error: approvalsError } = await supabase
         .from('listing_approvals')
         .select('*', { count: 'exact', head: true })
         .eq('approval_status', 'pending');
 
+      if (usersError || listingsError || approvalsError) {
+        console.warn('Some system health queries failed (non-critical):', { usersError, listingsError, approvalsError });
+      }
 
       setSystemHealth(prev => ({
         ...prev,
@@ -205,13 +223,34 @@ const AdminControls: React.FC = () => {
         totalListings: totalListings || 0,
         pendingApprovals: pendingApprovals || 0,
       }));
+      
+      // Set registration disabled notice based on current feature status
+      if (!features.userRegistration) {
+        setRegistrationDisabledNotice(true);
+      }
     } catch (error) {
-      console.error('Error fetching system health:', error);
+      console.warn('Error fetching system health (non-critical):', error);
     }
   };
 
   return (
     <div className="space-y-6">
+      {/* Registration Disabled Alert */}
+      {registrationDisabledNotice && !features.userRegistration && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="text-red-600 flex-shrink-0" size={24} />
+            <div>
+              <h3 className="font-semibold text-red-800">User Registration Currently Disabled</h3>
+              <p className="text-sm text-red-700 mt-1">
+                Sign-up is not currently available. Users will see a notice that registration is disabled. 
+                Enable user registration in Feature Management below to allow new sign-ups.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* System Health Overview */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">

@@ -83,9 +83,9 @@ export function useAdminDashboard() {
 
       if (approvalsError) throw approvalsError;
 
-      // Estimate active tenants (properties that are rented)
+      // Estimate active tenants (properties that are rented or sold)
       const activeTenants = propertiesData?.filter(
-        (p: Property) => p.property_status === 'rented'
+        (p: Property) => p.property_status === 'rented' || p.property_status === 'sold'
       ).length || 0;
 
       setStats({

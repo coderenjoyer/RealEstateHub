@@ -40,6 +40,7 @@ interface TopNavProps {
     name: string;
     avatar: string | null;
   };
+  onSearch?: (query: string) => void;
 }
 
 export function TopNav({
@@ -50,6 +51,7 @@ export function TopNav({
   selectedChatId,
   onCloseDropdown,
   agentToContact,
+  onSearch,
 }: TopNavProps) {
   const navigate = useNavigate();
   const { signOut } = useAuth();
@@ -167,10 +169,9 @@ export function TopNav({
   }, [session?.user?.id]);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
-  const GEOAPIFY_KEY = "72903e1463b146169ffcf808147da823";
 
   const handleChatsClick = () => {
     if (activeDropdown === "chats") {
@@ -240,44 +241,74 @@ export function TopNav({
     }
   };
 
-  // Fetch location suggestions from Geoapify
-  const fetchSuggestions = async (query: string) => {
-    if (!query || query.length < 2) {
-      setSuggestions([]);
-      return;
-    }
-
-    try {
-      const res = await fetch(
-        `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(
-          query
-        )}&filter=countrycode:ph&limit=5&apiKey=${GEOAPIFY_KEY}`
-      );
-      const data = await res.json();
-      setSuggestions(data.features || []);
-    } catch (err) {
-      console.error("Error fetching Geoapify:", err);
-    }
-  };
+  // ... existing code ...
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
-    fetchSuggestions(query);
-    setShowSuggestions(true);
+    
+    // Generate local suggestions from common locations
+    if (query.length > 0) {
+      const commonLocations = [
+        "Manila",
+        "Quezon City",
+        "Makati",
+        "Pasig",
+        "Caloocan",
+        "Cebu",
+        "Davao",
+        "Bacolod",
+        "Iloilo",
+        "Las Piñas",
+        "Parañaque",
+        "Marikina",
+        "Antipolo",
+        "Cavite",
+        "Laguna",
+      ];
+      
+      const filtered = commonLocations.filter((loc) =>
+        loc.toLowerCase().includes(query.toLowerCase())
+      );
+      setSuggestions(filtered);
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
   };
 
-  const handleSelectLocation = (place: any) => {
-    const name = place.properties.formatted || place.properties.name;
-    setSearchQuery(name);
+  const handleSelectLocation = (location: string) => {
+    setSearchQuery(location);
     setSuggestions([]);
     setShowSuggestions(false);
+    
+    // Call parent callback to filter properties
+    if (onSearch) {
+      onSearch(location);
+    }
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Call parent callback to filter properties
+      if (onSearch) {
+        onSearch(searchQuery.trim());
+      }
+      setShowSuggestions(false);
+    }
   };
 
   const handleClearSearch = () => {
     setSearchQuery("");
     setSuggestions([]);
     setShowSuggestions(false);
+    
+    // Reset filter
+    if (onSearch) {
+      onSearch("");
+    }
   };
 
   // Close suggestions when clicking outside
@@ -317,52 +348,53 @@ export function TopNav({
             isSidebarOpen ? "opacity-0 pointer-events-none" : "opacity-100"
           }`}
         >
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-2.5 sm:pl-3 flex items-center pointer-events-none z-10">
-              <Search className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+          <form onSubmit={handleSearchSubmit}>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-2.5 sm:pl-3 flex items-center pointer-events-none z-10">
+                <Search className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                placeholder="Search location..."
+                className="w-full pl-8 sm:pl-10 pr-8 sm:pr-10 py-1.5 sm:py-2 lg:py-2.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg sm:rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all text-xs sm:text-sm lg:text-base"
+                onFocus={() => setShowSuggestions(true)}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="absolute inset-y-0 right-0 pr-2.5 sm:pr-3 flex items-center hover:bg-white/10 rounded-r-lg sm:rounded-r-xl transition-colors z-10"
+                >
+                  <X className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white hover:text-white" />
+                </button>
+              )}
             </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              placeholder="Search location..."
-              className="w-full pl-8 sm:pl-10 pr-8 sm:pr-10 py-1.5 sm:py-2 lg:py-2.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg sm:rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all text-xs sm:text-sm lg:text-base"
-              onFocus={() => setShowSuggestions(true)}
-            />
-            {searchQuery && (
-              <button
-                onClick={handleClearSearch}
-                className="absolute inset-y-0 right-0 pr-2.5 sm:pr-3 flex items-center hover:bg-white/10 rounded-r-lg sm:rounded-r-xl transition-colors z-10"
-              >
-                <X className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white hover:text-white" />
-              </button>
-            )}
-          </div>
 
           {/* Suggestions Dropdown */}
-          {showSuggestions && suggestions.length > 0 && (
-            <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-2xl max-h-64 overflow-y-auto">
-              {suggestions.map((place) => (
-                <button
-                  key={place.properties.place_id}
-                  onClick={() => handleSelectLocation(place)}
-                  className="w-full px-4 py-3 text-left hover:bg-sky-100 transition-colors border-b border-gray-100 last:border-b-0"
-                >
-                  <div className="flex items-start gap-3">
-                    <MapPin className="h-5 w-5 text-sky-600 mt-0.5 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {place.properties.name || place.properties.formatted}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {place.properties.formatted}
-                      </p>
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-2xl max-h-64 overflow-y-auto">
+                {suggestions.map((location, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleSelectLocation(location)}
+                    className="w-full px-4 py-3 text-left hover:bg-sky-100 transition-colors border-b border-gray-100 last:border-b-0 cursor-pointer"
+                  >
+                    <div className="flex items-start gap-3">
+                      <MapPin className="h-5 w-5 text-sky-600 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {location}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </form>
         </div>
       </div>
 

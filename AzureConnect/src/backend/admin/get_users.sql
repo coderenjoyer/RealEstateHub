@@ -16,7 +16,8 @@ RETURNS TABLE (
   role TEXT,
   properties_count BIGINT,
   status TEXT,
-  created_at TIMESTAMPTZ
+  created_at TIMESTAMPTZ,
+  email_confirmed_at TIMESTAMPTZ
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -31,16 +32,19 @@ BEGIN
     (au.raw_user_meta_data->>'mobile_number')::TEXT as mobile_number,
     (au.raw_user_meta_data->>'mobile_number')::TEXT as phone,
     (au.raw_user_meta_data->>'role')::TEXT as role,
-    0::BIGINT as properties_count,
+    COALESCE(COUNT(lp.id), 0)::BIGINT as properties_count,
     CASE 
       WHEN (au.raw_user_meta_data->>'status')::TEXT = 'Inactive' THEN 'Inactive'::TEXT
       ELSE 'Active'::TEXT
     END as status,
-    au.created_at
+    au.created_at,
+    au.email_confirmed_at
   FROM auth.users au
+  LEFT JOIN listed_properties lp ON au.id = lp.user_id AND lp.is_deleted = FALSE
   WHERE 
     (user_role IS NULL OR (au.raw_user_meta_data->>'role')::TEXT = user_role)
     AND au.deleted_at IS NULL
+  GROUP BY au.id, au.email, au.raw_user_meta_data, au.created_at, au.email_confirmed_at
   ORDER BY au.created_at DESC;
 END;
 $$;

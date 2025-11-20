@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { AdminLayout } from "@/components/layouts/AdminLayout"
-import { Plus, Search } from "lucide-react"
+import { Plus, Search, CheckCircle, X } from "lucide-react"
 import { AccountCard } from "./user-card"
 import supabase from "@/supabaseClient"
 import LoadingAnimation from "@/components/ui/loadingui"
@@ -15,7 +15,8 @@ interface Account {
   email: string
   phone: string
   properties: number
-  status?: "Active" | "Inactive"
+  status?: "Active" | "Inactive" | "Pending"
+  email_confirmed_at?: string | null
 }
 
 export default function UserManagementPage() {
@@ -35,6 +36,8 @@ export default function UserManagementPage() {
   const [formError, setFormError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [hasError, setHasError] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [successMessage, setSuccessMessage] = useState("")
 
   // Fetch accounts from database
   const fetchAccounts = useCallback(async () => {
@@ -63,14 +66,25 @@ export default function UserManagementPage() {
 
       // Format the user data from auth.users
       if (usersData && Array.isArray(usersData)) {
-        const formattedAccounts: Account[] = usersData.map((user: any) => ({
-          id: user.id || user.user_id,
-          name: `${user.first_name || ""}${user.last_name ? " " + user.last_name : ""}`.trim() || user.email?.split("@")[0] || "Unknown User",
-          email: user.email || "",
-          phone: user.mobile_number || user.phone || "Not provided",
-          properties: user.properties_count || 0,
-          status: user.status === "Inactive" ? "Inactive" : "Active",
-        }))
+        const formattedAccounts: Account[] = usersData.map((user: any) => {
+          // Determine status: Pending if email not confirmed, otherwise Active/Inactive
+          let status: "Active" | "Inactive" | "Pending" = "Active"
+          if (!user.email_confirmed_at) {
+            status = "Pending"
+          } else if (user.status === "Inactive") {
+            status = "Inactive"
+          }
+          
+          return {
+            id: user.id || user.user_id,
+            name: `${user.first_name || ""}${user.last_name ? " " + user.last_name : ""}`.trim() || user.email?.split("@")[0] || "Unknown User",
+            email: user.email || "",
+            phone: user.mobile_number || user.phone || "Not provided",
+            properties: user.properties_count || 0,
+            status: status,
+            email_confirmed_at: user.email_confirmed_at
+          }
+        })
         
         setAccounts(formattedAccounts)
         setLoading(false)
@@ -194,8 +208,9 @@ export default function UserManagementPage() {
       setFormError(null)
       setShowAddAgentModal(false)
 
-      // Show success message
-      alert(`Agent account created successfully!\nEmail: ${createdEmail}\nRole: agent`)
+      // Show success modal instead of alert
+      setSuccessMessage(`Agent account created successfully!\nEmail: ${createdEmail}\nRole: agent`)
+      setShowSuccessModal(true)
 
       // Refresh accounts list to show the new agent
       // Wait a moment for the database to update, then refetch
@@ -347,10 +362,41 @@ export default function UserManagementPage() {
         </div>
       </div>
 
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowSuccessModal(false)
+            }
+          }}
+        >
+          <div 
+            className="bg-white rounded-lg shadow-xl max-w-sm w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6 text-center space-y-4">
+              <div className="flex justify-center">
+                <CheckCircle className="w-12 h-12 text-green-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900">Success!</h2>
+              <p className="text-gray-600 whitespace-pre-line">{successMessage}</p>
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Add Agent Modal */}
       {showAddAgentModal && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black bg-opacity-10 backdrop-blur-md flex items-center justify-center z-50 p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget && !isSubmitting) {
               setShowAddAgentModal(false)

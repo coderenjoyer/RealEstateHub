@@ -90,13 +90,13 @@ USING (auth.uid() = user_id);
 CREATE POLICY "Admins can view all properties"
 ON listed_properties FOR SELECT
 TO authenticated
-USING ((auth.jwt() ->> 'role') = 'admin');
+USING (auth.jwt() ->> 'email' = 'admin@example.com');
 
 -- Admins can insert approved listings
 CREATE POLICY "Admins can insert approved listings"
 ON listed_properties FOR INSERT
 TO authenticated
-WITH CHECK ((auth.jwt() ->> 'role') = 'admin');
+WITH CHECK (auth.jwt() ->> 'email' = 'admin@example.com');
 
 -- Agents can update their own properties
 CREATE POLICY "Agents can update own properties"
@@ -109,8 +109,8 @@ WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Admins can update any property"
 ON listed_properties FOR UPDATE
 TO authenticated
-USING ((auth.jwt() ->> 'role') = 'admin')
-WITH CHECK ((auth.jwt() ->> 'role') = 'admin');
+USING (auth.jwt() ->> 'email' = 'admin@example.com')
+WITH CHECK (auth.jwt() ->> 'email' = 'admin@example.com');
 
 -- Agents can soft-delete their own properties
 CREATE POLICY "Agents can delete own properties"
@@ -123,4 +123,4 @@ WITH CHECK (auth.uid() = user_id AND is_deleted = true);
 CREATE POLICY "Admins can delete properties"
 ON listed_properties FOR DELETE
 TO authenticated
-USING ((auth.jwt() ->> 'role') = 'admin');
+USING (auth.jwt() ->> 'email' = 'admin@example.com');

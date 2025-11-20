@@ -83,14 +83,9 @@ export function useChat() {
               participantName = profileData.email.split('@')[0];
             }
           } else {
-            console.log('No profile found for user:', otherParticipantId);
             // If profiles table doesn't work, we'll keep it as Unknown User
             // The user ID will still work for messaging
           }
-          
-          console.log('Other participant ID:', otherParticipantId);
-          console.log('Found user profile:', otherUser);
-          console.log('Participant name:', participantName);
 
           // Get last message
           const { data: lastMsg } = await supabase
@@ -304,7 +299,6 @@ export function useChat() {
           
           // Only add message if current user is sender or receiver
           if (newMessage.sender_id === session.user.id || newMessage.receiver_id === session.user.id) {
-            console.log('New message received:', payload);
             setMessages((prev) => ({
               ...prev,
               [conversationId]: [...(prev[conversationId] || []), newMessage],
@@ -325,7 +319,6 @@ export function useChat() {
           
           // Only process update if current user is sender or receiver
           if (updatedMessage.sender_id === session.user.id || updatedMessage.receiver_id === session.user.id) {
-            console.log('Message updated:', payload);
             setMessages((prev) => ({
               ...prev,
               [conversationId]: (prev[conversationId] || []).map((msg) =>
@@ -348,7 +341,6 @@ export function useChat() {
           
           // Only process delete if current user is sender or receiver
           if (deletedMessage.sender_id === session.user.id || deletedMessage.receiver_id === session.user.id) {
-            console.log('Message deleted:', payload);
             setMessages((prev) => ({
               ...prev,
               [conversationId]: (prev[conversationId] || []).filter(
@@ -398,7 +390,6 @@ export function useChat() {
               table: 'conversations',
             },
             (payload) => {
-              console.log('New conversation:', payload);
               fetchConversations(); // Refresh all conversations
             }
           )
@@ -410,7 +401,6 @@ export function useChat() {
               table: 'messages',
             },
             (payload) => {
-              console.log('New message:', payload);
               fetchConversations(); // Refresh all conversations to update unread counts
             }
           )
@@ -422,7 +412,6 @@ export function useChat() {
               table: 'messages',
             },
             (payload) => {
-              console.log('Message updated:', payload);
               fetchConversations(); // Refresh all conversations to update unread counts
             }
           )
@@ -434,7 +423,6 @@ export function useChat() {
               table: 'messages',
             },
             (payload) => {
-              console.log('Message deleted:', payload);
               fetchConversations(); // Refresh all conversations to update unread counts
             }
           )
@@ -446,13 +434,12 @@ export function useChat() {
               table: 'conversations',
             },
             (payload) => {
-              console.log('Conversation deleted:', payload);
               fetchConversations(); // Refresh all conversations
             }
           )
           .subscribe();
       } catch (err) {
-        console.error('Error setting up realtime:', err);
+        // Error setting up realtime
       }
     };
 

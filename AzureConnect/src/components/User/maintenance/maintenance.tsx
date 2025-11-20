@@ -16,6 +16,8 @@ interface MaintenanceItem {
   dueDate: string | null;
   address: string;
   notes?: string | null;
+  agentId?: string | null;
+  agentName?: string | null;
 }
 
 interface MaintenanceLog {
@@ -70,7 +72,8 @@ export default function PropertyMaintenancePage() {
           property_title,
           property_type,
           street_address,
-          city
+          city,
+          agent_id
         `)
         .eq("owner_id", session.user.id)
         .order("transferred_at", { ascending: false });
@@ -91,6 +94,10 @@ export default function PropertyMaintenancePage() {
             record.street_address && record.city
               ? `${record.street_address}, ${record.city}`
               : "No address available";
+          
+          // Get agent ID from the property ownership record
+          const agentId = record.agent_id;
+          
           return {
             id: record.id,
             propertyId: record.property_id,
@@ -100,6 +107,8 @@ export default function PropertyMaintenancePage() {
             dueDate: record.next_due_date ?? record.transferred_at,
             address: propertyAddress,
             notes: record.notes ?? "",
+            agentId,
+            agentName: null, // Will fetch separately if needed
           };
         }) ?? [];
 
@@ -463,6 +472,8 @@ export default function PropertyMaintenancePage() {
           properties={maintenanceItems}
           onClose={closeMaintenanceModal}
           onUpdated={handleMaintenanceUpdated}
+          agentId={selectedItem?.agentId}
+          agentName={selectedItem?.agentName}
         />
 
         <MaintenanceRequestConfirmationModal

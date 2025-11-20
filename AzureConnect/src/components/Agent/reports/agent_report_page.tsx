@@ -95,7 +95,6 @@ export default function EnhancedReportsPage() {
     setLoadingReports(true)
     setFetchError(null)
     try {
-      console.log("Fetching maintenance reports for agent:", session?.user?.id);
       const { data, error } = await supabase
         .from("property_maintenance_logs")
         .select(`
@@ -126,9 +125,6 @@ export default function EnhancedReportsPage() {
         .eq("ownership.agent_id", session.user.id)
         .order("created_at", { ascending: false })
 
-      console.log("Raw data from database:", data);
-      console.log("Error from database:", error);
-
       if (error) {
         throw error
       }
@@ -154,10 +150,8 @@ export default function EnhancedReportsPage() {
         estimatedCost: log.estimated_cost ?? null
       }))
 
-      console.log("Mapped reports:", mappedReports);
       setReportsData(mappedReports)
     } catch (err: any) {
-      console.error("Error fetching maintenance logs:", err)
       setFetchError(err.message || "Unable to load maintenance reports.")
       setReportsData([])
     } finally {
@@ -190,50 +184,34 @@ export default function EnhancedReportsPage() {
     setResolveError(null)
 
     try {
-      console.log("Mark as Resolved clicked. Report data:", selectedReport);
-      
       // 1. Update the maintenance log status to "completed"
-      console.log("Updating property_maintenance_logs table...");
-      console.log("Using ID for update:", selectedReport.id);
-      
       const { error: logError, data: logData } = await supabase
         .from("property_maintenance_logs")
         .update({ maintenance_status: "completed" })
         .eq("id", selectedReport.id)
         .select()
 
-      console.log("Maintenance log update result:", { error: logError, data: logData });
-      
       if (logError) {
-        console.error("Error updating maintenance log:", logError)
         throw new Error(`Failed to update maintenance log: ${logError.message}`)
       }
 
       // 2. Update the property_ownerships maintenance_status to "completed"
-      console.log("Updating property_ownerships table...");
-      console.log("Using ID for update:", selectedReport.propertyOwnershipId);
-      
       const { error: ownershipError, data: ownershipData } = await supabase
         .from("property_ownerships")
         .update({ maintenance_status: "completed" })
         .eq("id", selectedReport.propertyOwnershipId)
         .select()
 
-      console.log("Property ownership update result:", { error: ownershipError, data: ownershipData });
-      
       if (ownershipError) {
-        console.error("Error updating property ownership:", ownershipError)
         throw new Error(`Failed to update property ownership: ${ownershipError.message}`)
       }
 
       // 3. Refresh the reports list to show updated status
-      console.log("Refreshing reports...");
       await fetchMaintenanceReports()
 
       // 4. Close the modal
       closeModal()
     } catch (err: any) {
-      console.error("Error resolving report:", err)
       setResolveError(err.message || "Failed to mark report as resolved. Please try again.")
     } finally {
       setResolvingReport(false)

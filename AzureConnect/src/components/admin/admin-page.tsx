@@ -7,7 +7,7 @@ import { FileText, Building2, Calendar } from "lucide-react"
 import { useAdminDashboard } from "@/hooks/useAdminDashboard"
 
 export default function DashboardPage() {
-  const { stats, properties, loading, error } = useAdminDashboard();
+  const { stats, properties, loading, error, refetch } = useAdminDashboard();
 
   if (error) {
     return (
@@ -45,7 +45,11 @@ export default function DashboardPage() {
         </div>
 
         {/* Properties Section */}
-        <PropertiesTable properties={properties} loading={loading} />
+        <PropertiesTable 
+          properties={properties} 
+          loading={loading}
+          onPropertyChange={() => refetch()}
+        />
       </div>
     </AdminLayout>
   )
