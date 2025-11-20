@@ -297,7 +297,7 @@ export function MaintenanceModal({
                 onChange={handleChange}
                 required
                 disabled={!!item}
-                className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-sky-400 focus:ring-2 focus:ring-sky-300 disabled:bg-slate-50"
+                className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-[#49769F] focus:ring-2 focus:ring-[#49769F]/50 disabled:bg-slate-50"
               >
                 <option value="">Select a property</option>
                 {propertyOptions.map((prop) => (
@@ -317,7 +317,7 @@ export function MaintenanceModal({
                 value={formData.maintenanceType}
                 onChange={handleChange}
                 required
-                className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-sky-400 focus:ring-2 focus:ring-sky-300"
+                className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-[#49769F] focus:ring-2 focus:ring-[#49769F]/50"
               >
                 <option value="">Select maintenance type</option>
                 {maintenanceTypes.map((type) => (
@@ -338,7 +338,7 @@ export function MaintenanceModal({
                   value={formData.priority}
                   onChange={handleChange}
                   required
-                  className={`w-full rounded-2xl border px-4 py-3 text-sm font-semibold shadow-inner focus:border-sky-400 focus:ring-2 focus:ring-sky-300 ${priorityColor(formData.priority)}`}
+                  className={`w-full rounded-2xl border px-4 py-3 text-sm font-semibold shadow-inner focus:border-[#49769F] focus:ring-2 focus:ring-[#49769F]/50 ${priorityColor(formData.priority)}`}
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -353,7 +353,7 @@ export function MaintenanceModal({
                   value={formData.assignedTo}
                   onChange={handleChange}
                   placeholder="Contractor or technician name"
-                  className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-sky-400 focus:ring-2 focus:ring-sky-300"
+                  className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-[#49769F] focus:ring-2 focus:ring-[#49769F]/50"
                 />
               </div>
             </div>
@@ -369,7 +369,7 @@ export function MaintenanceModal({
                 required
                 rows={4}
                 placeholder="Describe the maintenance issue or work needed..."
-                className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-sky-400 focus:ring-2 focus:ring-sky-300"
+                className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-[#49769F] focus:ring-2 focus:ring-[#49769F]/50"
               />
             </div>
 
@@ -382,7 +382,7 @@ export function MaintenanceModal({
                     name="scheduledDate"
                     value={formData.scheduledDate}
                     onChange={handleChange}
-                    className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-sky-400 focus:ring-2 focus:ring-sky-300"
+                    className="w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-inner focus:border-[#49769F] focus:ring-2 focus:ring-[#49769F]/50"
                   />
                   <Calendar className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
                 </div>
@@ -399,7 +399,7 @@ export function MaintenanceModal({
                     placeholder="0.00"
                     step="0.01"
                     min="0"
-                    className="w-full rounded-2xl border border-slate-200 bg-white/80 pl-8 pr-4 py-3 text-sm text-slate-700 shadow-inner focus:border-sky-400 focus:ring-2 focus:ring-sky-300"
+                    className="w-full rounded-2xl border border-slate-200 bg-white/80 pl-8 pr-4 py-3 text-sm text-slate-700 shadow-inner focus:border-[#49769F] focus:ring-2 focus:ring-[#49769F]/50"
                   />
                 </div>
               </div>

@@ -46,7 +46,7 @@ export default function EnhancedReportsPage() {
 
   const statusColors = {
     Pending: "bg-yellow-100 text-yellow-800",
-    "Under Review": "bg-blue-100 text-blue-800",
+    "Under Review": "bg-[#49769F]/20 text-[#49769F]",
     Resolved: "bg-green-100 text-green-800",
     Rejected: "bg-red-100 text-red-800"
   }
@@ -278,7 +278,7 @@ export default function EnhancedReportsPage() {
                     placeholder="Search reports..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#49769F] focus:border-transparent"
                   />
                 </div>
                 <div className="flex gap-2">
@@ -301,7 +301,7 @@ export default function EnhancedReportsPage() {
                     <select
                       value={filterStatus}
                       onChange={(e) => setFilterStatus(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F] bg-white"
                     >
                       <option value="all">All Statuses</option>
                       <option value="Pending">Pending</option>
@@ -315,7 +315,7 @@ export default function EnhancedReportsPage() {
                     <select
                       value={filterPriority}
                       onChange={(e) => setFilterPriority(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F] bg-white"
                     >
                       <option value="all">All Priorities</option>
                       <option value="Low">Low</option>
@@ -381,7 +381,7 @@ export default function EnhancedReportsPage() {
                         <td className="px-6 py-4">
                           <p className="text-sm text-gray-700 line-clamp-2 max-w-xs">{report.details}</p>
                           {report.propertyTitle && (
-                            <p className="text-xs text-blue-600 mt-1">Property: {report.propertyTitle}</p>
+                            <p className="text-xs text-[#49769F] mt-1">Property: {report.propertyTitle}</p>
                           )}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600">
@@ -423,7 +423,7 @@ export default function EnhancedReportsPage() {
                         <td className="px-6 py-4">
                           <button
                             onClick={() => openModal(report)}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 font-medium hover:bg-blue-100 transition-colors text-sm"
+                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#49769F]/10 text-[#49769F] font-medium hover:bg-[#49769F]/20 transition-colors text-sm"
                           >
                             <Eye className="w-4 h-4" />
                             View
@@ -538,7 +538,7 @@ export default function EnhancedReportsPage() {
                     <>
                       <div>
                         <label className="text-sm font-semibold text-gray-700 mb-1 block">Property ID</label>
-                        <p className="text-blue-600 font-mono">{selectedReport.propertyId}</p>
+                        <p className="text-[#49769F] font-mono">{selectedReport.propertyId}</p>
                       </div>
                       <div>
                         <label className="text-sm font-semibold text-gray-700 mb-1 block">Property Title</label>
@@ -612,7 +612,7 @@ export default function EnhancedReportsPage() {
                   {selectedReport.attachments && (
                     <div>
                       <label className="text-sm font-semibold text-gray-700 mb-1 block">Attachments</label>
-                      <p className="text-blue-600">{selectedReport.attachments} file(s)</p>
+                      <p className="text-[#49769F]">{selectedReport.attachments} file(s)</p>
                     </div>
                   )}
                 </div>

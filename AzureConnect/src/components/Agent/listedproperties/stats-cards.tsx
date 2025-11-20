@@ -101,8 +101,8 @@ export function StatsCards() {
                   {loading ? "..." : stat.value}
                 </p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-lg">
-                <IconComponent className="w-6 h-6 text-blue-600" />
+              <div className="p-3 bg-[#49769F]/10 rounded-lg">
+                <IconComponent className="w-6 h-6 text-[#49769F]" />
               </div>
             </div>
           </div>

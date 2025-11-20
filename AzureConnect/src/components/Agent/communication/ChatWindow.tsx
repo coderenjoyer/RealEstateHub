@@ -211,17 +211,16 @@ export function ChatWindow({
             <h3 className="font-bold text-gray-800 text-lg">
               {selectedConversation.name}
             </h3>
-            <p className="text-xs text-sky-600 font-medium">Active now</p>
           </div>
         </div>
         <div className="relative" ref={optionsMenuRef}>
           <Button
             size="icon"
             variant="ghost"
-            className="h-9 w-9 rounded-full hover:bg-sky-100"
+            className="h-9 w-9 rounded-full hover:bg-[#49769F]/10"
             onClick={() => setShowOptionsMenu(!showOptionsMenu)}
           >
-            <MoreVertical className="h-5 w-5 text-sky-600" />
+            <MoreVertical className="h-5 w-5 text-[#49769F]" />
           </Button>
 
           {/* Options Dropdown Menu */}
@@ -230,7 +229,7 @@ export function ChatWindow({
               {onDeleteConversation && (
                 <button
                   onClick={handleDeleteConversation}
-                  className="w-full px-4 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+                  className="w-full px-4 py-2.5 text-left text-sm font-medium text-[#49769F] hover:bg-[#49769F]/10 transition-colors flex items-center gap-2"
                 >
                   <Trash2 className="h-4 w-4" />
                   Delete Conversation

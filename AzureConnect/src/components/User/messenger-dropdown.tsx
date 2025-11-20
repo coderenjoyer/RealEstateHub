@@ -283,7 +283,7 @@ export function MessengerDropdown({
               <input
                 type="text"
                 placeholder="Search Messages"
-                className="w-full pl-10 pr-3 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="w-full pl-10 pr-3 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#49769F]"
               />
             </div>
           </div>
@@ -293,7 +293,7 @@ export function MessengerDropdown({
             <button
               className={`px-3.5 py-1.5 text-sm font-semibold rounded-full transition-colors ${
                 activeFilter === "all"
-                  ? "text-sky-600 bg-sky-50"
+                  ? "text-[#49769F] bg-[#49769F]/10"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
               onClick={() => setActiveFilter("all")}
@@ -303,7 +303,7 @@ export function MessengerDropdown({
             <button
               className={`px-3.5 py-1.5 text-sm font-semibold rounded-full transition-colors ${
                 activeFilter === "unread"
-                  ? "text-sky-600 bg-sky-50"
+                  ? "text-[#49769F] bg-[#49769F]/10"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
               onClick={() => setActiveFilter("unread")}
@@ -336,7 +336,7 @@ export function MessengerDropdown({
                 >
                   {/* Avatar */}
                   <div className="relative flex-shrink-0">
-                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center text-white font-semibold text-base">
+                    <div className="h-12 w-12 rounded-full bg-[#49769F] flex items-center justify-center text-white font-semibold text-base">
                       {conv.other_participant_name
                         ?.substring(0, 2)
                         .toUpperCase() || "??"}
@@ -369,7 +369,7 @@ export function MessengerDropdown({
                         {conv.last_message || "No messages yet"}
                       </p>
                       {(conv.unread_count || 0) > 0 && (
-                        <div className="h-2.5 w-2.5 bg-sky-500 rounded-full flex-shrink-0 ml-2" />
+                        <div className="h-2.5 w-2.5 bg-[#49769F] rounded-full flex-shrink-0 ml-2" />
                       )}
                     </div>
                   </div>
@@ -396,10 +396,10 @@ export function MessengerDropdown({
           />
 
           {/* Chat Header */}
-          <div className="bg-gradient-to-r from-sky-500 via-sky-600 to-blue-700 p-3 flex items-center justify-between shadow-md border-b border-white/20">
+          <div className="bg-[#49769F] p-3 flex items-center justify-between shadow-md border-b border-white/20">
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="relative flex-shrink-0">
-                <div className="h-9 w-9 rounded-full bg-white flex items-center justify-center text-sky-700 font-semibold text-xs shadow-inner">
+                <div className="h-9 w-9 rounded-full bg-white flex items-center justify-center text-[#49769F] font-semibold text-xs shadow-inner">
                   {otherParticipant?.name?.substring(0, 2).toUpperCase() ||
                     "??"}
                 </div>
@@ -409,7 +409,7 @@ export function MessengerDropdown({
                 <h3 className="font-semibold text-white text-sm truncate tracking-wide">
                   {otherParticipant?.name || "Unknown User"}
                 </h3>
-                <p className="text-xs text-sky-100">Active now</p>
+                <p className="text-xs text-white/80">Active now</p>
               </div>
             </div>
 
@@ -441,7 +441,7 @@ export function MessengerDropdown({
                   }`}
                 >
                   {!isSender && (
-                    <div className="h-6 w-6 rounded-full bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center text-white font-semibold text-[10px] mr-2 flex-shrink-0">
+                    <div className="h-6 w-6 rounded-full bg-[#49769F] flex items-center justify-center text-white font-semibold text-[10px] mr-2 flex-shrink-0">
                       {otherParticipant?.name?.substring(0, 2).toUpperCase() ||
                         "??"}
                     </div>
@@ -476,7 +476,7 @@ export function MessengerDropdown({
                       <div
                         className={`px-3 py-1.5 rounded-2xl transition-colors relative break-words ${
                           isSender
-                            ? "bg-gradient-to-br from-sky-400 to-blue-500 text-white"
+                            ? "bg-[#49769F] text-white"
                             : "bg-gray-100 text-gray-900"
                         }`}
                       >
@@ -509,12 +509,12 @@ export function MessengerDropdown({
                 onKeyPress={handleKeyPress}
                 placeholder="Aa"
                 disabled={sendingMessage}
-                className="flex-1 px-3 py-1.5 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="flex-1 px-3 py-1.5 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#49769F]"
               />
               <button
                 onClick={handleSendMessage}
                 disabled={!messageInput.trim() || sendingMessage}
-                className="p-1 bg-sky-500 hover:bg-sky-600 rounded-full transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-1 bg-[#49769F] hover:bg-[#49769F]/90 rounded-full transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send className="h-4 w-4 text-white" />
               </button>

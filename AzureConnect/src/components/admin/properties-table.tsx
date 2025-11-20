@@ -253,7 +253,7 @@ export function PropertiesTable({ properties, loading, onPropertyChange }: Prope
                   type="text"
                   value={editForm.property_title}
                   onChange={(e) => setEditForm({ ...editForm, property_title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#49769F]"
                   disabled={isLoading}
                 />
               </div>
@@ -266,7 +266,7 @@ export function PropertiesTable({ properties, loading, onPropertyChange }: Prope
                   type="number"
                   value={editForm.price}
                   onChange={(e) => setEditForm({ ...editForm, price: parseFloat(e.target.value) })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#49769F]"
                   disabled={isLoading}
                 />
               </div>
@@ -278,7 +278,7 @@ export function PropertiesTable({ properties, loading, onPropertyChange }: Prope
                 <select
                   value={editForm.property_status}
                   onChange={(e) => setEditForm({ ...editForm, property_status: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#49769F]"
                   disabled={isLoading}
                 >
                   <option value="available">Available</option>

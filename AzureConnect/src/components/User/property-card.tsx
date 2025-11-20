@@ -106,7 +106,7 @@ export function PropertyCard({
             onClick={(e) => handleImageClick(index, e)}
             className={`flex-1 h-16 rounded-lg overflow-hidden transition-all duration-200 ${
               selectedImageIndex === index
-                ? "ring-2 ring-blue-500 ring-offset-2"
+                ? "ring-2 ring-[#49769F] ring-offset-2"
                 : "hover:opacity-80"
             }`}
           >

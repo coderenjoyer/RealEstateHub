@@ -37,10 +37,10 @@ export function LogoutConfirmationModal({
       <div className="relative w-full max-w-md animate-in fade-in-0 zoom-in-95 duration-200">
         <div className="rounded-3xl border border-white/60 bg-white/95 shadow-2xl backdrop-blur p-8">
           <div className="flex flex-col items-center text-center space-y-3">
-            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg ring-4 ring-sky-100">
+            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg ring-4 ring-[#49769F]/30">
               <LogOut className="h-7 w-7" />
             </div>
-            <p className="text-sm font-semibold tracking-[0.2em] text-sky-500">
+            <p className="text-sm font-semibold tracking-[0.2em] text-[#49769F]">
               SIGN OUT
             </p>
             <h2 className="text-2xl font-semibold text-slate-900">
