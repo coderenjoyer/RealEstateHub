@@ -363,7 +363,7 @@ export function TopNav({
   }, []);
 
   return (
-    <div className="flex items-center justify-between px-4 lg:px-8 py-3 lg:py-5 bg-[#F0FFFF] border-b border-white/20">
+    <div className="flex items-center justify-between px-4 lg:px-8 py-3 lg:py-5 bg-[#BDD8E9] border-b border-white/20">
       {/* Left Side - Hamburger + Location Search */}
       <div className="flex items-center gap-2 lg:gap-3 flex-1">
         <Button
