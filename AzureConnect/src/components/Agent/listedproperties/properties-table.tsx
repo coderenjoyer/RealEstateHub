@@ -758,7 +758,7 @@ export function PropertiesTable() {
                 <h3 className="text-xl font-bold text-gray-900">Deactivate Listing</h3>
               </div>
               <p className="text-gray-600 mb-6">
-                Are you sure you want to deactivate this listing? It will be removed from public view and your listings table. You can contact an admin to reactivate it later.
+                Are you sure you want to deactivate this listing? It will be removed from public view and your listings table.
               </p>
               <div className="flex gap-3">
                 <button

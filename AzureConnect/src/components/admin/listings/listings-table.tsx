@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, CheckCircle, XCircle, Eye, MapPin, Home, DollarSign, Calendar, Trash2 } from "lucide-react"
+import { Search, CheckCircle, XCircle, Eye, MapPin, Home, Calendar, Trash2 } from "lucide-react"
 import supabase from "@/supabaseClient"
 
 interface Listing {
@@ -366,7 +366,6 @@ export function PendingListingsTable() {
                     <td className="py-4 px-6">
                       <div className="space-y-1 text-sm">
                         <div className="flex items-center gap-1 text-gray-700 font-semibold">
-                          <DollarSign className="w-4 h-4 text-green-600" />
                           ₱{listing.price.toLocaleString()}
                         </div>
                         <div className="text-gray-600">
