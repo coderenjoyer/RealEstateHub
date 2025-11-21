@@ -58,7 +58,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-sky-300 via-blue-200 to-blue-300 flex flex-col lg:flex-row overflow-hidden">
+    <div className="h-screen bg-[#F0FFFF] flex flex-col lg:flex-row overflow-hidden">
       {/* Sidebar with smooth animations */}
       <PropertyFilters
         isOpen={isSidebarOpen}
