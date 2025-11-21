@@ -1661,7 +1661,7 @@ export default function ListPropertyPage() {
       />
       <CreationDisabledModal
         open={showDisabledModal}
-        onClose={() => setShowDisabledModal(false)}
+        onClose={() => {}}
       />
     </AgentLayout>
   );
