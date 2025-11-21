@@ -119,7 +119,7 @@ export function PropertiesTable({ properties, loading, onPropertyChange }: Prope
     <div className="bg-white rounded-lg shadow-sm p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Properties</h2>
+        <h2 className="text-xl font-semibold text-gray-900">Actively Listed Properties</h2>
 
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
