@@ -48,13 +48,9 @@ const CreationDisabledModal: React.FC<CreationDisabledModalProps> = ({
           </div>
 
           <div className="mt-8 flex flex-col gap-3">
-            <button
-              type="button"
-              className="w-full rounded-2xl bg-[#49769F] text-white shadow-lg hover:bg-[#3a5d7f] py-2 font-medium transition-colors"
-              onClick={onClose}
-            >
-              Go Back
-            </button>
+            <p className="text-xs text-slate-500 text-center">
+              Please contact your administrator to enable this feature
+            </p>
           </div>
         </div>
       </div>
