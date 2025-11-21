@@ -164,8 +164,28 @@ const LoginModal: React.FC = () => {
       setErrorMessage(res.error || "Signup failed");
       return;
     }
-    // Optionally navigate or switch to signin
-    setActiveTab("signin");
+    
+    // Show verification message and transition to signin after 3 seconds
+    setResetSuccessMessage("An email has been sent. Waiting for verification...");
+    
+    // Clear all signup input fields immediately
+    setFirstName("");
+    setLastName("");
+    setMobileNumber("");
+    setSignupEmail("");
+    setSignupPassword("");
+    setConfirmPassword("");
+    
+    setTimeout(() => {
+      setIsAnimating(true);
+      setTimeout(() => {
+        setActiveTab("signin");
+        setResetSuccessMessage(null);
+        setTimeout(() => {
+          setIsAnimating(false);
+        }, 50);
+      }, 200);
+    }, 5000);
   };
 
   const handleSignin = async () => {
@@ -402,131 +422,146 @@ const LoginModal: React.FC = () => {
               <h2 className="text-[#17364b] text-base sm:text-lg font-semibold animate-fadeInUp">
                 Create an account
               </h2>
-
-              {registrationDisabled && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-800 text-sm font-semibold">Registration Currently Unavailable</p>
-                  <p className="text-red-700 text-xs mt-1">User registration is temporarily disabled. Please try again later or contact support.</p>
+              
+              {resetSuccessMessage ? (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <p className="text-green-700 text-center text-base font-medium">
+                    {resetSuccessMessage}
+                  </p>
                 </div>
-              )}
+              ) : (
+                <>
+                  {registrationDisabled && (
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-red-800 text-sm font-semibold">Registration Currently Unavailable</p>
+                      <p className="text-red-700 text-xs mt-1">User registration is temporarily disabled. Please try again later or contact support.</p>
+                    </div>
+                  )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <input
-                  style={inputFont}
-                  className={`${inputBase} ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                  placeholder="First name"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  disabled={registrationDisabled}
-                />
-                <input
-                  style={inputFont}
-                  className={`${inputBase} ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                  placeholder="Last name"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  disabled={registrationDisabled}
-                />
-              </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input
+                      style={inputFont}
+                      className={`${inputBase} ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                      placeholder="First name"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      disabled={registrationDisabled}
+                    />
+                    <input
+                      style={inputFont}
+                      className={`${inputBase} ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                      placeholder="Last name"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      disabled={registrationDisabled}
+                    />
+                  </div>
 
-              <div className="relative">
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="white"
-                    strokeWidth="1.8"
-                    className="w-5 h-5"
+                  <div className="relative">
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="white"
+                        strokeWidth="1.8"
+                        className="w-5 h-5"
+                      >
+                        <rect x="3" y="5" width="18" height="14" rx="2" />
+                        <path d="M3 7l9 6 9-6" />
+                      </svg>
+                    </span>
+                    <input
+                      style={inputFont}
+                      className={`${inputBase} pl-10 ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                      placeholder="Enter your email"
+                      type="email"
+                      value={signupEmail}
+                      onChange={(e) => setSignupEmail(e.target.value)}
+                      disabled={registrationDisabled}
+                    />
+                  </div>
+
+                  <input
+                    style={inputFont}
+                    className={`${inputBase} ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                    placeholder="Mobile Number"
+                    value={mobileNumber}
+                    onChange={(e) => setMobileNumber(e.target.value)}
+                    disabled={registrationDisabled}
+                  />
+
+                  <div className="relative">
+                    <input
+                      style={inputFont}
+                      className={`${inputBase} pr-12 ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                      placeholder="Password"
+                      type={showPassword ? "text" : "password"}
+                      value={signupPassword}
+                      onChange={(e) => setSignupPassword(e.target.value)}
+                      disabled={registrationDisabled}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#BDD8E9]/90 hover:text-[#BDD8E9] transition-colors p-1"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="relative">
+                    <input
+                      style={inputFont}
+                      className={`${inputBase} pr-12 ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                      placeholder="Confirm Password"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      disabled={registrationDisabled}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((v) => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#BDD8E9]/90 hover:text-[#BDD8E9] transition-colors p-1"
+                      aria-label={
+                        showConfirmPassword ? "Hide password" : "Show password"
+                      }
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+
+                  {errorMessage && (
+                    <div className="text-red-700 text-sm">{errorMessage}</div>
+                  )}
+                  <button
+                    disabled={isSubmitting || registrationDisabled}
+                    onClick={handleSignup}
+                    className={`mt-6 w-full rounded-xl bg-[#49769F] px-6 py-3 text-base text-[#BDD8E9] shadow transition-all duration-300 hover:bg-[#49769F]/90 hover:shadow-lg active:scale-95 font-semibold overflow-hidden group ${
+                      isSubmitting || registrationDisabled ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                   >
-                    <rect x="3" y="5" width="18" height="14" rx="2" />
-                    <path d="M3 7l9 6 9-6" />
-                  </svg>
-                </span>
-                <input
-                  style={inputFont}
-                  className={`${inputBase} pl-10 ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                  placeholder="Enter your email"
-                  type="email"
-                  value={signupEmail}
-                  onChange={(e) => setSignupEmail(e.target.value)}
-                  disabled={registrationDisabled}
-                />
-              </div>
-
-              <input
-                style={inputFont}
-                className={`${inputBase} ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                placeholder="Mobile Number"
-                value={mobileNumber}
-                onChange={(e) => setMobileNumber(e.target.value)}
-                disabled={registrationDisabled}
-              />
-
-              <div className="relative">
-                <input
-                  style={inputFont}
-                  className={`${inputBase} pr-12 ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                  placeholder="Password"
-                  type={showPassword ? "text" : "password"}
-                  value={signupPassword}
-                  onChange={(e) => setSignupPassword(e.target.value)}
-                  disabled={registrationDisabled}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#BDD8E9]/90 hover:text-[#BDD8E9] transition-colors p-1"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-
-              <div className="relative">
-                <input
-                  style={inputFont}
-                  className={`${inputBase} pr-12 ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                  placeholder="Confirm Password"
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  disabled={registrationDisabled}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#BDD8E9]/90 hover:text-[#BDD8E9] transition-colors p-1"
-                  aria-label={
-                    showConfirmPassword ? "Hide password" : "Show password"
-                  }
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-
-              {errorMessage && (
-                <div className="text-red-700 text-sm">{errorMessage}</div>
+                    <span className="inline-block transition-transform duration-300 transform-gpu group-hover:scale-105">
+                      {isSubmitting ? "Creating account..." : registrationDisabled ? "Registration Disabled" : "Create an account"}
+                    </span>
+                  </button>
+                </>
               )}
-              <button
-                disabled={isSubmitting || registrationDisabled}
-                onClick={handleSignup}
-                className={`mt-6 w-full rounded-xl bg-[#49769F] px-6 py-3 text-base text-[#BDD8E9] shadow transition-all duration-300 hover:bg-[#49769F]/90 hover:shadow-lg active:scale-95 font-semibold overflow-hidden group ${
-                  isSubmitting || registrationDisabled ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-              >
-                <span className="inline-block transition-transform duration-300 transform-gpu group-hover:scale-105">
-                  {isSubmitting ? "Creating account..." : registrationDisabled ? "Registration Disabled" : "Create an account"}
-                </span>
-              </button>
             </div>
           ) : activeTab === "signin" ? (
             <div className="space-y-4">
