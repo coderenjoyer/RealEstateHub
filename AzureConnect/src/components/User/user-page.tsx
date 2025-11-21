@@ -30,10 +30,15 @@ export default function HomePage() {
     priceRange: [0, 999999999], // Wide range to show all properties initially
     listingType: "sale", // Set to 'sale' since Buy tab is active by default
   });
+  const [searchLocation, setSearchLocation] = useState<string>(""); // New state for location search
 
   const handleFilterChange = (newFilters: FilterState) => {
     console.log("Filter changed:", newFilters); // Debug log
     setFilters(newFilters);
+  };
+
+  const handleLocationSearch = (location: string) => {
+    setSearchLocation(location);
   };
 
   const handleContactAgent = (
@@ -80,6 +85,7 @@ export default function HomePage() {
             selectedChatId={selectedChatId}
             onCloseDropdown={handleCloseDropdown}
             agentToContact={agentToContact}
+            onSearch={handleLocationSearch} // Pass the search handler
           />
         </div>
 
@@ -89,6 +95,7 @@ export default function HomePage() {
             activeTab={activeTab}
             filters={filters}
             onContactAgent={handleContactAgent}
+            searchLocation={searchLocation} // Pass the search location to property grid
           />
         </div>
       </div>

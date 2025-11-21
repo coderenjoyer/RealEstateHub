@@ -169,9 +169,11 @@ export function TopNav({
   }, [session?.user?.id]);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<{city: string, state: string | null, street_address: string, zip_postal: string}[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   const handleChatsClick = () => {
     if (activeDropdown === "chats") {
@@ -241,63 +243,95 @@ export function TopNav({
     }
   };
 
-  // ... existing code ...
+  const fetchLocationSuggestions = async (query: string) => {
+    if (!query.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
+    setIsLoadingSuggestions(true);
+    
+    try {
+      // Fetch distinct locations that match the query in any field
+      const { data, error } = await supabase
+        .from('listed_properties')
+        .select('street_address, city, state, zip_postal')
+        .or(`street_address.ilike.%${query}%,city.ilike.%${query}%,state.ilike.%${query}%,zip_postal.ilike.%${query}%`)
+        .eq('is_deleted', false)
+        .eq('property_status', 'available')
+        .eq('is_public', true)
+        .not('city', 'is', null)
+        .order('city')
+        .limit(10);
+
+      if (error) {
+        console.error("Error fetching location suggestions:", error);
+        setSuggestions([]);
+        return;
+      }
+
+      // Remove duplicates and format suggestions
+      const uniqueLocations = Array.from(
+        new Map(
+          (data || []).map(item => [
+            `${item.street_address}${item.city}${item.state || ''}${item.zip_postal}`, 
+            { 
+              street_address: item.street_address, 
+              city: item.city, 
+              state: item.state,
+              zip_postal: item.zip_postal
+            }
+          ])
+        ).values()
+      );
+
+      setSuggestions(uniqueLocations);
+    } catch (err) {
+      console.error("Error fetching location suggestions:", err);
+      setSuggestions([]);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
     
-    // Generate local suggestions from common locations
-    if (query.length > 0) {
-      const commonLocations = [
-        "Manila",
-        "Quezon City",
-        "Makati",
-        "Pasig",
-        "Caloocan",
-        "Cebu",
-        "Davao",
-        "Bacolod",
-        "Iloilo",
-        "Las Piñas",
-        "Parañaque",
-        "Marikina",
-        "Antipolo",
-        "Cavite",
-        "Laguna",
-      ];
-      
-      const filtered = commonLocations.filter((loc) =>
-        loc.toLowerCase().includes(query.toLowerCase())
-      );
-      setSuggestions(filtered);
-      setShowSuggestions(true);
-    } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
+    // Clear previous timer
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
     }
+    
+    // Set new timer for debounced search
+    debounceTimer.current = setTimeout(() => {
+      // Fetch suggestions
+      fetchLocationSuggestions(query);
+      setShowSuggestions(true);
+      
+      // Automatically filter properties as user types
+      if (onSearch) {
+        onSearch(query);
+      }
+    }, 300); // 300ms debounce
   };
 
-  const handleSelectLocation = (location: string) => {
-    setSearchQuery(location);
+  const handleSelectLocation = (location: {street_address: string, city: string, state: string | null, zip_postal: string}) => {
+    const locationString = `${location.street_address}, ${location.city}${location.state ? `, ${location.state}` : ''}${location.zip_postal ? ` ${location.zip_postal}` : ''}`;
+      
+    setSearchQuery(locationString);
     setSuggestions([]);
     setShowSuggestions(false);
     
     // Call parent callback to filter properties
     if (onSearch) {
-      onSearch(location);
+      onSearch(locationString);
     }
   };
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      // Call parent callback to filter properties
-      if (onSearch) {
-        onSearch(searchQuery.trim());
-      }
-      setShowSuggestions(false);
-    }
+    // No need to do anything here since filtering happens automatically as user types
   };
 
   const handleClearSearch = () => {
@@ -357,9 +391,9 @@ export function TopNav({
                 type="text"
                 value={searchQuery}
                 onChange={handleSearchChange}
-                placeholder="Search location..."
+                placeholder="Search by address, city, state, or zip..."
                 className="w-full pl-8 sm:pl-10 pr-8 sm:pr-10 py-1.5 sm:py-2 lg:py-2.5 bg-white/50 backdrop-blur-sm border border-[#49769F]/30 rounded-lg sm:rounded-xl text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#49769F]/50 focus:border-[#49769F] transition-all text-xs sm:text-sm lg:text-base"
-                onFocus={() => setShowSuggestions(true)}
+                onFocus={() => searchQuery && setShowSuggestions(true)}
               />
               {searchQuery && (
                 <button
@@ -373,25 +407,41 @@ export function TopNav({
             </div>
 
           {/* Suggestions Dropdown */}
-            {showSuggestions && suggestions.length > 0 && (
+            {showSuggestions && (
               <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-2xl max-h-64 overflow-y-auto">
-                {suggestions.map((location, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleSelectLocation(location)}
-                    className="w-full px-4 py-3 text-left hover:bg-[#BDD8E9]/30 transition-colors border-b border-gray-100 last:border-b-0 cursor-pointer"
-                  >
-                    <div className="flex items-start gap-3">
-                      <MapPin className="h-5 w-5 text-[#49769F] mt-0.5 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {location}
-                        </p>
+                {isLoadingSuggestions ? (
+                  <div className="px-4 py-3 text-center text-gray-500">
+                    Loading suggestions...
+                  </div>
+                ) : suggestions.length > 0 ? (
+                  suggestions.map((location, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleSelectLocation(location)}
+                      className="w-full px-4 py-3 text-left hover:bg-[#BDD8E9]/30 transition-colors border-b border-gray-100 last:border-b-0 cursor-pointer"
+                    >
+                      <div className="flex items-start gap-3">
+                        <MapPin className="h-5 w-5 text-[#49769F] mt-0.5 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {location.street_address}, {location.city}
+                            {location.state && (
+                              <span>, {location.state}</span>
+                            )}
+                            {location.zip_postal && (
+                              <span> {location.zip_postal}</span>
+                            )}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))
+                ) : searchQuery ? (
+                  <div className="px-4 py-3 text-center text-gray-500">
+                    No locations found
+                  </div>
+                ) : null}
               </div>
             )}
           </form>

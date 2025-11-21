@@ -28,9 +28,10 @@ interface PropertyGridProps {
   activeTab: string;
   filters?: FilterState;
   onContactAgent?: (agentId: string, agentName: string, agentAvatar?: string | null) => void;
+  searchLocation?: string; // Add searchLocation prop
 }
 
-export function PropertyGrid({ activeTab, filters, onContactAgent }: PropertyGridProps) {
+export function PropertyGrid({ activeTab, filters, onContactAgent, searchLocation }: PropertyGridProps) {
   const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null)
@@ -38,7 +39,7 @@ export function PropertyGrid({ activeTab, filters, onContactAgent }: PropertyGri
 
   useEffect(() => {
     fetchProperties()
-  }, [filters])
+  }, [filters, searchLocation]) // Add searchLocation to dependency array
 
   const fetchProperties = async () => {
     try {
@@ -68,6 +69,16 @@ export function PropertyGrid({ activeTab, filters, onContactAgent }: PropertyGri
         query = query
           .gte('price', filters.priceRange[0])
           .lte('price', filters.priceRange[1])
+      }
+
+      // Apply location search filter against all location fields
+      if (searchLocation) {
+        const trimmedLocation = searchLocation.trim();
+        if (trimmedLocation) {
+          query = query.or(
+            `street_address.ilike.%${trimmedLocation}%,city.ilike.%${trimmedLocation}%,state.ilike.%${trimmedLocation}%,zip_postal.ilike.%${trimmedLocation}%`
+          );
+        }
       }
 
       query = query.order('created_at', { ascending: false })
