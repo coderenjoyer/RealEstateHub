@@ -60,7 +60,16 @@ export function PropertyCard({
   return (
     <Card
       onClick={onClick}
-      className="overflow-hidden bg-white rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
+      className="overflow-hidden bg-white rounded-3xl transition-all duration-300 cursor-pointer"
+      style={{
+        boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.08)',
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLElement).style.boxShadow = '0 20px 50px -10px rgba(0, 0, 0, 0.25), 0 8px 16px -4px rgba(0, 0, 0, 0.12)';
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.boxShadow = '0 10px 30px -5px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.08)';
+      }}
     >
       {/* Property Image */}
       <div className="relative h-48 overflow-hidden">
