@@ -8,8 +8,8 @@ const services = [
   },
   {
     icon: Users,
-    title: "Broker Verification",
-    description: "All our brokers are verified and certified professionals",
+    title: "Agent Verification",
+    description: "All our agents are verified and certified professionals",
   },
   {
     icon: Wrench,
