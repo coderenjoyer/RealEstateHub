@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { Mail, Phone, MoreVertical, X, Building2, Briefcase, Trash2, Shield, ShieldOff, CheckCircle } from "lucide-react"
-import supabase from "@/supabaseClient"
 import { useAuth } from "@/AuthContext"
 import { deleteUserAccount, updateAccountStatus } from "@/services/adminService"
 
