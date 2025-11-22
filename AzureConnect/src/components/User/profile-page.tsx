@@ -31,7 +31,7 @@ function UserProfilePage() {
   
   // State management for edit functionality
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editMode, setEditMode] = useState<'profile' | 'cover' | 'bio' | 'preferences' | null>(null);
+  const [editMode, setEditMode] = useState<'profile' | 'cover' | 'bio' | 'preferences' | 'location' | null>(null);
   const [profileImage, setProfileImage] = useState("/header.jpeg");
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -43,6 +43,7 @@ function UserProfilePage() {
   const [preferredLocation, setPreferredLocation] = useState<string | null>(null);
   const [budgetRange, setBudgetRange] = useState<string | null>(null);
   const [investmentGoal, setInvestmentGoal] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<string | null>(null);
 
   // Load user profile from database
   useEffect(() => {
@@ -51,7 +52,7 @@ function UserProfilePage() {
       if (!userId) return;
       const { data, error } = await supabase
         .from("profiles")
-        .select("profile_image_url, cover_image_url, bio, property_type, preferred_location, budget_range, investment_goal")
+        .select("profile_image_url, cover_image_url, bio, property_type, preferred_location, budget_range, investment_goal, current_location")
         .eq("user_id", userId)
         .maybeSingle();
       if (!isMounted) return;
@@ -67,6 +68,7 @@ function UserProfilePage() {
         if (data.preferred_location) setPreferredLocation(data.preferred_location);
         if (data.budget_range) setBudgetRange(data.budget_range);
         if (data.investment_goal) setInvestmentGoal(data.investment_goal);
+        if (data.current_location) setUserLocation(data.current_location);
       }
     })();
     return () => { isMounted = false };
@@ -108,7 +110,7 @@ function UserProfilePage() {
     }
   };
 
-  const handleEditClick = (mode: 'profile' | 'cover' | 'bio' | 'preferences') => {
+  const handleEditClick = (mode: 'profile' | 'cover' | 'bio' | 'preferences' | 'location') => {
     setEditMode(mode);
     setIsEditModalOpen(true);
     setIsDropdownOpen(false);
@@ -201,6 +203,24 @@ function UserProfilePage() {
       if (error) {
         console.error("Failed to save preferences:", error);
         setErrorMessage(`Failed to save preferences: ${error.message ?? 'Unknown error'} (Code: ${(error as any).code})`);
+        return;
+      }
+      setIsEditModalOpen(false);
+      setEditMode(null);
+    })();
+  };  
+
+  const handleSaveLocation = () => {
+    (async () => {
+      setErrorMessage(null);
+      setIsSaving(true);
+      const { error } = await upsertProfile({
+        current_location: userLocation ?? null,
+      });
+      setIsSaving(false);
+      if (error) {
+        console.error("Failed to save location:", error);
+        setErrorMessage(`Failed to save location: ${error.message ?? 'Unknown error'} (Code: ${(error as any).code})`);
         return;
       }
       setIsEditModalOpen(false);
@@ -304,13 +324,15 @@ function UserProfilePage() {
             <div className="flex-1 w-full text-center sm:text-left">
               <div className="mb-4">
                 <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">{displayName}</h1>
-                <p className="text-base sm:text-lg text-slate-600 font-medium">Property Enthusiast</p>
+                <p className="text-base sm:text-lg text-slate-600 font-medium">User</p>
               </div>
 
               {/* Location */}
               <div className="flex items-center justify-center sm:justify-start gap-2 text-slate-600 mb-4 sm:mb-6">
                 <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-[#49769F]" />
-                <span className="text-sm font-medium">Makati City, Metro Manila</span>
+                <span className="text-sm font-medium cursor-pointer hover:text-[#49769F] transition-colors" onClick={() => handleEditClick('location')}>
+                  {userLocation || 'Add location'}
+                </span>
               </div>
 
               {/* Contact Info */}
@@ -419,6 +441,7 @@ function UserProfilePage() {
                   {editMode === 'profile' && 'Edit Profile Picture'}
                   {editMode === 'cover' && 'Edit Cover Photo'}
                   {editMode === 'bio' && 'Edit Bio'}
+                  {editMode === 'location' && 'Edit Location'}
                   {editMode === 'preferences' && 'Edit Property Preferences'}
                 </h3>
                 <button
@@ -516,6 +539,28 @@ function UserProfilePage() {
                 )}
 
                 {/* Preferences Edit Modal */}
+                {/* Location Edit Modal */}
+                {editMode === 'location' && (
+                  <div className="space-y-4">
+                    <div>
+                      <label htmlFor="userLocation" className="block text-sm font-medium text-gray-700 mb-2">
+                        Location
+                      </label>
+                      <input
+                        type="text"
+                        id="userLocation"
+                        value={userLocation ?? ''}
+                        onChange={(e) => setUserLocation(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49769F] focus:border-[#49769F]"
+                        placeholder="e.g., Makati City, Metro Manila"
+                      />
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      Enter your city or area for better property recommendations.
+                    </p>
+                  </div>
+                )}
+
                 {editMode === 'preferences' && (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -591,6 +636,7 @@ function UserProfilePage() {
                     onClick={
                       editMode === 'bio' ? handleSaveBio :
                       editMode === 'preferences' ? handleSavePreferences :
+                      editMode === 'location' ? handleSaveLocation :
                       handleSaveImage
                     }
                     disabled={((editMode === 'profile' || editMode === 'cover') && !previewImage) || isSaving}
