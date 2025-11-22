@@ -135,7 +135,7 @@ const FloatingMessageButton: React.FC = () => {
             }
           }
         }}
-        className="fixed bottom-6 right-[68px] z-[999] bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all hover:scale-110 flex items-center justify-center"
+        className="fixed bottom-25 right-[20px] z-[999] bg-[#49769F] text-white rounded-full p-4 shadow-lg transition-all hover:scale-110 flex items-center justify-center"
       >
         <MessageCircle size={24} />
         {unreadCount > 0 && (

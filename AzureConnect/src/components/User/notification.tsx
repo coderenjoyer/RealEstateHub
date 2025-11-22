@@ -81,7 +81,7 @@ export function NotificationDropdown({
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case "property":
-        return <Home className="h-4 w-4 text-sky-600" />;
+        return <Home className="h-4 w-4 text-[#49769F]" />;
       case "message":
         return <MessageSquare className="h-4 w-4 text-green-600" />;
       case "favorite":
@@ -89,7 +89,7 @@ export function NotificationDropdown({
       case "appointment":
         return <Calendar className="h-4 w-4 text-purple-600" />;
       case "maintenance":
-        return <Wrench className="h-4 w-4 text-blue-600" />;
+        return <Wrench className="h-4 w-4 text-[#49769F]" />;
       case "system":
         return <AlertCircle className="h-4 w-4 text-orange-500" />;
       default:
@@ -150,11 +150,11 @@ export function NotificationDropdown({
             <div className="flex items-center gap-1.5">
               {unreadCount > 0 && (
                 <button
-                  className="p-1.5 hover:bg-sky-100 rounded-full transition-colors"
+                  className="p-1.5 hover:bg-[#49769F]/20 rounded-full transition-colors"
                   onClick={markAllAsRead}
                   title="Mark all as read"
                 >
-                  <CheckCheck className="h-5 w-5 text-sky-600" />
+                  <CheckCheck className="h-5 w-5 text-[#49769F]" />
                 </button>
               )}
             </div>
@@ -165,7 +165,7 @@ export function NotificationDropdown({
             <button
               className={`px-3.5 py-1.5 text-sm font-semibold rounded-full transition-colors ${
                 activeFilter === "all"
-                  ? "text-sky-600 bg-sky-100"
+                  ? "text-[#49769F] bg-[#49769F]/20"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
               onClick={() => setActiveFilter("all")}
@@ -175,7 +175,7 @@ export function NotificationDropdown({
             <button
               className={`px-3.5 py-1.5 text-sm font-semibold rounded-full transition-colors ${
                 activeFilter === "unread"
-                  ? "text-sky-600 bg-sky-100"
+                  ? "text-[#49769F] bg-[#49769F]/20"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
               onClick={() => setActiveFilter("unread")}
@@ -189,7 +189,7 @@ export function NotificationDropdown({
         <div className="flex-1 overflow-y-auto scrollbar-hide">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-              <div className="h-8 w-8 border-4 border-gray-300 border-t-sky-600 rounded-full animate-spin mb-3"></div>
+              <div className="h-8 w-8 border-4 border-gray-300 border-t-[#49769F] rounded-full animate-spin mb-3"></div>
               <p className="text-sm">Loading notifications...</p>
             </div>
           ) : filteredNotifications && filteredNotifications.length === 0 ? (
@@ -213,7 +213,7 @@ export function NotificationDropdown({
                 data-notification
                 data-read={notification.read}
                 className={`flex items-start gap-3 p-4 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0 ${
-                  !notification.read ? "bg-sky-50/50" : ""
+                  !notification.read ? "bg-[#49769F]/10" : ""
                 }`}
                 onClick={async () => {
                   if (!notification.read) {
@@ -228,7 +228,7 @@ export function NotificationDropdown({
                   <div
                     className={`h-10 w-10 rounded-full flex items-center justify-center ${
                       notification.type === "property"
-                        ? "bg-sky-100"
+                        ? "bg-[#49769F]/20"
                         : notification.type === "message"
                         ? "bg-green-100"
                         : notification.type === "favorite"
@@ -236,9 +236,9 @@ export function NotificationDropdown({
                         : notification.type === "appointment"
                         ? "bg-purple-100"
                         : notification.type === "system"
-                        ? "bg-blue-100"
+                        ? "bg-[#49769F]/20"
                         : notification.type === "maintenance"
-                        ? "bg-blue-100"
+                        ? "bg-[#49769F]/20"
                         : "bg-orange-100"
                     }`}
                   >
@@ -261,7 +261,7 @@ export function NotificationDropdown({
                         {formatTimeAgo(notification.created_at)}
                       </span>
                       {!notification.read && (
-                        <div className="h-2 w-2 bg-sky-500 rounded-full" />
+                        <div className="h-2 w-2 bg-[#49769F] rounded-full" />
                       )}
                     </div>
                   </div>

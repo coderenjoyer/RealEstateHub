@@ -75,7 +75,7 @@ const statusBadgeColor = (status: MaintenanceStatus = "pending") => {
     case "completed":
       return "bg-emerald-50 text-emerald-700 border border-emerald-200"
     case "in-progress":
-      return "bg-sky-50 text-sky-700 border border-sky-200"
+      return "bg-[#49769F]/20 text-[#49769F] border border-[#49769F]/30"
     case "pending":
     default:
       return "bg-amber-50 text-amber-700 border border-amber-200"
@@ -257,9 +257,9 @@ export function MaintenanceModal({
 
       <div className="relative z-10 w-full max-w-3xl animate-in fade-in-0 zoom-in-95 duration-200">
         <div className="max-h-[90vh] overflow-hidden rounded-3xl border border-white/60 bg-white/95 shadow-[0_30px_80px_rgba(15,23,42,0.35)] backdrop-blur">
-          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 bg-gradient-to-r from-sky-400/20 via-white to-blue-500/10 px-8 py-6">
+          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 bg-gradient-to-r from-[#49769F]/20 via-white to-[#49769F]/10 px-8 py-6">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-sky-600">Maintenance</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#49769F]">Maintenance</p>
               <h2 className="mt-2 text-2xl font-semibold text-slate-900">Submit a request</h2>
               <p className="text-sm text-slate-500">
                 Provide context so your agent can coordinate contractors quickly.
@@ -423,7 +423,7 @@ export function MaintenanceModal({
                 <button
                   type="button"
                   onClick={handleChatWithAgent}
-                  className="flex-1 rounded-2xl border border-blue-300 bg-blue-50/70 px-4 py-3 text-sm font-semibold text-blue-600 shadow-sm transition hover:bg-blue-50"
+                  className="flex-1 rounded-2xl border border-[#49769F]/30 bg-[#49769F]/20 px-4 py-3 text-sm font-semibold text-[#49769F] shadow-sm transition hover:bg-[#49769F]/30"
                   disabled={loading}
                 >
                   Chat with Agent
@@ -431,7 +431,7 @@ export function MaintenanceModal({
               )}
               <button
                 type="submit"
-                className="flex-1 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:shadow-sky-500/40 disabled:opacity-70"
+                className="flex-1 rounded-2xl bg-[#49769F] px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:shadow-[#49769F]/40 disabled:opacity-70"
                 disabled={loading}
               >
                 {loading ? "Saving..." : "Submit request"}
