@@ -1,4 +1,4 @@
-import { Building2, Users, Shield, Wrench, Home, Star, Key, MapPin } from "lucide-react"
+import { Building2, Users, Wrench, Home, Star, Key, MapPin } from "lucide-react"
 
 const services = [
   {

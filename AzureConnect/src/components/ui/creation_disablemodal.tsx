@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { AlertCircle, Home } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 interface CreationDisabledModalProps {
   open: boolean;
