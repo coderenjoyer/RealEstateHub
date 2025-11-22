@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
-                  AlertCircle,
   ImagePlus,
   Check,
   ChevronDown,
@@ -95,7 +94,6 @@ export default function ListPropertyPage() {
   const { session } = useAuth();
   const userId = session?.user?.id;
   const userRole = session?.user?.user_metadata?.role;
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     propertyTitle: "",

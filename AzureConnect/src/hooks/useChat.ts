@@ -65,17 +65,15 @@ export function useChat() {
 
           // Get user details - query from profiles or auth metadata
           let participantName = 'Unknown User';
-          let otherUser = null;
           
           // Try to get from profiles table first (using user_id column)
-          const { data: profileData, error: profileError } = await supabase
+          const { data: profileData } = await supabase
             .from('profiles')
             .select('first_name, last_name, email')
             .eq('user_id', otherParticipantId)
             .maybeSingle();
           
           if (profileData) {
-            otherUser = profileData;
             const fullName = `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim();
             if (fullName) {
               participantName = fullName;
@@ -389,7 +387,7 @@ export function useChat() {
               schema: 'public',
               table: 'conversations',
             },
-            (payload) => {
+            () => {
               fetchConversations(); // Refresh all conversations
             }
           )
@@ -400,7 +398,7 @@ export function useChat() {
               schema: 'public',
               table: 'messages',
             },
-            (payload) => {
+            () => {
               fetchConversations(); // Refresh all conversations to update unread counts
             }
           )
@@ -411,7 +409,7 @@ export function useChat() {
               schema: 'public',
               table: 'messages',
             },
-            (payload) => {
+            () => {
               fetchConversations(); // Refresh all conversations to update unread counts
             }
           )
@@ -422,7 +420,7 @@ export function useChat() {
               schema: 'public',
               table: 'messages',
             },
-            (payload) => {
+            () => {
               fetchConversations(); // Refresh all conversations to update unread counts
             }
           )
@@ -433,7 +431,7 @@ export function useChat() {
               schema: 'public',
               table: 'conversations',
             },
-            (payload) => {
+            () => {
               fetchConversations(); // Refresh all conversations
             }
           )

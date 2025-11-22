@@ -1,5 +1,4 @@
-import { Plus, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {  Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import type { Conversation } from "@/components/Agent/communication/types";

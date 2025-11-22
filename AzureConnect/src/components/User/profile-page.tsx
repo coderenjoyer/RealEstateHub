@@ -1,4 +1,4 @@
-import { MapPin, Phone, Mail, Calendar, Heart, Home, Star, Edit3, Briefcase, Award, ArrowLeft, X, Upload, Camera, Image as ImageIcon, User, Image } from "lucide-react"
+import { MapPin, Phone, Mail, Calendar, Home, Edit3, Briefcase, Award, ArrowLeft, X, Upload, Camera, Image as ImageIcon, User, Image } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
@@ -323,7 +323,7 @@ function UserProfilePage() {
             {/* Profile Info */}
             <div className="flex-1 w-full text-center sm:text-left">
               <div className="mb-4">
-                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">{displayName}</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">{displayName}</h1> 
                 <p className="text-base sm:text-lg text-slate-600 font-medium">User</p>
               </div>
 

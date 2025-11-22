@@ -6,7 +6,7 @@ import { CTASection } from "./components/landing/cta-section";
 import { Footer } from "./components/landing/footer";
 import LoginParentContainer from "./components/login/login_parent_container";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { lazy, Suspense, useState, useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import ErrorPage from "./components/ui/errorpage";
 import AdminPage from "./components/admin/admin-page";
 import ListingApprovalsPage from "./components/admin/listings/admin-listing";

@@ -185,7 +185,7 @@ export default function EnhancedReportsPage() {
 
     try {
       // 1. Update the maintenance log status to "completed"
-      const { error: logError, data: logData } = await supabase
+      const { error: logError } = await supabase
         .from("property_maintenance_logs")
         .update({ maintenance_status: "completed" })
         .eq("id", selectedReport.id)
@@ -196,7 +196,7 @@ export default function EnhancedReportsPage() {
       }
 
       // 2. Update the property_ownerships maintenance_status to "completed"
-      const { error: ownershipError, data: ownershipData } = await supabase
+      const { error: ownershipError } = await supabase
         .from("property_ownerships")
         .update({ maintenance_status: "completed" })
         .eq("id", selectedReport.propertyOwnershipId)

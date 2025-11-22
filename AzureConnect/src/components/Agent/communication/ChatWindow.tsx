@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ArrowLeft, MoreVertical, Paperclip, Send, Trash2 } from "lucide-react";
+import { ArrowLeft, MoreVertical, Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type {
@@ -65,10 +65,6 @@ export function ChatWindow({
         document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [showOptionsMenu]);
-
-  const handleFileUpload = () => {
-    fileInputRef.current?.click();
-  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
