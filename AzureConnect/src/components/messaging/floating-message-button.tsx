@@ -9,6 +9,11 @@ const FloatingMessageButton: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [adminId, setAdminId] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Get user role
+  const userRole = session?.user?.user_metadata?.role;
+  const isAdmin = userRole === 'admin';
 
   // Get admin ID on mount
   useEffect(() => {
@@ -28,6 +33,8 @@ const FloatingMessageButton: React.FC = () => {
         }
       } catch (error) {
         console.error('Error fetching admin ID:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -78,7 +85,19 @@ const FloatingMessageButton: React.FC = () => {
     };
   }, [session?.user?.id, adminId]);
 
-  if (!session?.user?.id || !adminId) return null;
+  if (!session?.user?.id || isAdmin) return null;
+
+  // Don't return null while loading - show button even if admin ID hasn't loaded yet
+  if (isLoading) {
+    return (
+      <button
+        className="fixed bottom-6 right-6 z-[999] bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all hover:scale-110 flex items-center justify-center"
+        disabled
+      >
+        <MessageCircle size={24} />
+      </button>
+    );
+  }
 
   return (
     <>
@@ -96,12 +115,14 @@ const FloatingMessageButton: React.FC = () => {
       </button>
 
       {/* Modal */}
-      <AdminMessagingModal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        userId={session.user.id}
-        adminId={adminId}
-      />
+      {adminId && (
+        <AdminMessagingModal
+          open={showModal}
+          onClose={() => setShowModal(false)}
+          userId={session.user.id}
+          adminId={adminId}
+        />
+      )}
     </>
   );
 };
