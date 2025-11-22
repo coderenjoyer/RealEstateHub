@@ -202,23 +202,23 @@ const AdminMessaging: React.FC = () => {
   );
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-[#BDD8E9]">
       {/* Recipients Sidebar */}
-      <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+      <div className="w-80 bg-white/70 backdrop-blur-xl border-r border-[#49769F]/30 shadow-lg flex flex-col">
         {/* Header */}
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="p-4 border-b border-[#49769F]/30 bg-gradient-to-r from-[#49769F]/10 to-[#0A4174]/10">
+          <h2 className="text-xl font-bold text-[#49769F] mb-4 flex items-center gap-2">
             <MessageCircle size={24} />
             Messages
           </h2>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#49769F]" />
             <input
               type="text"
               placeholder="Search by name or email"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-3 py-2 bg-white/80 border border-[#49769F]/30 focus:border-[#49769F] focus:ring-[#49769F]/20 rounded-full text-sm"
             />
           </div>
         </div>
@@ -234,13 +234,13 @@ const AdminMessaging: React.FC = () => {
               <button
                 key={recipient.id}
                 onClick={() => setSelectedRecipient(recipient)}
-                className={`w-full text-left p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                  selectedRecipient?.id === recipient.id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''
+                className={`w-full text-left p-4 border-b border-[#BDD8E9]/50 hover:bg-[#49769F]/10 transition-colors ${
+                  selectedRecipient?.id === recipient.id ? 'bg-[#49769F]/10 border-l-4 border-l-[#49769F]' : ''
                 }`}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <div className="w-2 h-2 rounded-full bg-blue-600" />
-                  <p className="font-medium text-gray-900 truncate">{recipient.name}</p>
+                  <div className="w-2 h-2 rounded-full bg-[#49769F]" />
+                  <p className="font-semibold text-gray-800 truncate">{recipient.name}</p>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
                     recipient.role === 'agent'
                       ? 'bg-purple-100 text-purple-700'
@@ -249,7 +249,11 @@ const AdminMessaging: React.FC = () => {
                     {recipient.role}
                   </span>
                 </div>
-                <p className="text-sm text-gray-500 truncate">{recipient.email}</p>
+                <p className={`text-sm truncate ${
+                  recipient.id === selectedRecipient?.id
+                    ? "text-gray-800 font-medium"
+                    : "text-gray-500"
+                }`}>{recipient.email}</p>
               </button>
             ))
           )}
@@ -261,14 +265,14 @@ const AdminMessaging: React.FC = () => {
         {selectedRecipient ? (
           <>
             {/* Chat Header */}
-            <div className="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+            <div className="bg-white/70 backdrop-blur-xl border-b border-[#49769F]/30 p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold">
+                <div className="w-10 h-10 rounded-full bg-[#49769F] flex items-center justify-center text-[#F0FFFF] font-semibold">
                   {selectedRecipient.name.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">{selectedRecipient.name}</p>
-                  <p className="text-sm text-gray-500">{selectedRecipient.email}</p>
+                  <p className="font-semibold text-gray-800">{selectedRecipient.name}</p>
+                  <p className="text-sm text-gray-600">{selectedRecipient.email}</p>
                 </div>
               </div>
               <span className={`text-sm px-3 py-1 rounded-full ${
@@ -281,7 +285,7 @@ const AdminMessaging: React.FC = () => {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
               {loading ? (
                 <div className="flex items-center justify-center h-full">
                   <p className="text-gray-500">Loading messages...</p>
@@ -296,25 +300,38 @@ const AdminMessaging: React.FC = () => {
                   return (
                     <div
                       key={msg.id}
-                      className={`flex ${isAdmin ? 'justify-end' : 'justify-start'}`}
+                      className={`flex items-start gap-2 ${
+                        isAdmin ? 'justify-end' : 'justify-start'
+                      }`}
                     >
                       <div
-                        className={`max-w-xs px-4 py-2 rounded-lg ${
+                        className={`max-w-xs md:max-w-md lg:max-w-lg rounded-2xl p-3 relative transition-all hover:shadow-lg ${
                           isAdmin
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-200 text-gray-900'
+                            ? 'bg-[#49769F] text-white shadow-lg shadow-[#49769F]/30'
+                            : 'bg-white text-gray-800 shadow-md border border-[#BDD8E9]'
                         }`}
                       >
-                        <p className="break-words">{msg.message_text}</p>
-                        <p className={`text-xs mt-1 ${
-                          isAdmin ? 'text-blue-100' : 'text-gray-500'
-                        }`}>
-                          {new Date(msg.created_at).toLocaleTimeString('en-US', {
-                            hour: 'numeric',
-                            minute: '2-digit',
-                            hour12: true,
-                          })}
-                        </p>
+                        <div className="flex items-center justify-between mb-1">
+                          <p
+                            className={`text-xs font-semibold ${
+                              isAdmin ? 'text-[#F0FFFF]' : 'text-[#49769F]'
+                            }`}
+                          >
+                            {isAdmin ? 'You' : selectedRecipient.name}
+                          </p>
+                          <p
+                            className={`text-xs ${
+                              isAdmin ? 'text-[#F0FFFF]' : 'text-[#49769F]'
+                            } font-medium ml-2`}
+                          >
+                            {new Date(msg.created_at).toLocaleTimeString('en-US', {
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true,
+                            })}
+                          </p>
+                        </div>
+                        <p className="text-sm leading-relaxed break-words">{msg.message_text}</p>
                       </div>
                     </div>
                   );
@@ -324,7 +341,7 @@ const AdminMessaging: React.FC = () => {
             </div>
 
             {/* Message Input */}
-            <div className="bg-white border-t border-gray-200 p-4">
+            <div className="bg-white/70 backdrop-blur-xl border-t border-[#49769F]/30 p-4">
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -338,12 +355,12 @@ const AdminMessaging: React.FC = () => {
                   }}
                   placeholder="Type your message..."
                   disabled={sendingMessage}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F] disabled:bg-gray-100"
                 />
                 <button
                   onClick={handleSendMessage}
                   disabled={!messageInput.trim() || sendingMessage}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="bg-[#49769F] text-white px-4 py-2 rounded-lg hover:bg-[#49769F]/90 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   <Send size={18} />
                 </button>
