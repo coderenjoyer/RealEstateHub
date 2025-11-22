@@ -35,9 +35,9 @@ export function LogoutConfirmationModal({
       />
 
       <div className="relative w-full max-w-md animate-in fade-in-0 zoom-in-95 duration-200">
-        <div className="rounded-3xl border border-white/60 bg-white/95 shadow-2xl backdrop-blur p-8">
+        <div className="rounded-3xl border border-white/60 bg-[#F0FFFF] shadow-2xl backdrop-blur p-8">
           <div className="flex flex-col items-center text-center space-y-3">
-            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg ring-4 ring-[#49769F]/30">
+            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-[#49769F] text-white shadow-lg ring-4 ring-[#49769F]/30">
               <LogOut className="h-7 w-7" />
             </div>
             <p className="text-sm font-semibold tracking-[0.2em] text-[#49769F]">
@@ -63,7 +63,7 @@ export function LogoutConfirmationModal({
             </Button>
             <Button
               type="button"
-              className="flex-1 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg hover:from-sky-600 hover:to-blue-700"
+              className="flex-1 rounded-2xl bg-[#49769F] text-white shadow-lg hover:bg-[#49769F]/90"
               onClick={onConfirm}
               disabled={isProcessing}
             >
