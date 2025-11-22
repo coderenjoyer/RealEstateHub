@@ -115,7 +115,7 @@ export function PendingListingsTable() {
   const handleApprove = async (id: string) => {
     try {
       // Call the approve_listing function
-      const { data, error } = await supabase
+      const { error } = await supabase
         .rpc('approve_listing', { approval_record_id: parseInt(id) })
       
       if (error) {
@@ -141,7 +141,7 @@ export function PendingListingsTable() {
   const handleReject = async (id: string) => {
     try {
       // Call the reject_listing function
-      const { data, error } = await supabase
+      const { error } = await supabase
         .rpc('reject_listing', { 
           approval_record_id: parseInt(id),
           reason: rejectionReason || null

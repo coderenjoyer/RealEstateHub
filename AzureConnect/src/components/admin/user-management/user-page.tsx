@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { AdminLayout } from "@/components/layouts/AdminLayout"
-import { Plus, Search, CheckCircle, X } from "lucide-react"
+import { Plus, Search, CheckCircle} from "lucide-react"
 import { AccountCard } from "./user-card"
 import supabase from "@/supabaseClient"
 import LoadingAnimation from "@/components/ui/loadingui"
