@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Search, X, Phone, Minus, Send, Paperclip, Trash2 } from "lucide-react";
+import { Search, X, Phone, Minus, Send } from "lucide-react";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/AuthContext";
 import { useFeatureStatus } from "@/hooks/useFeatureStatus";
@@ -32,12 +32,10 @@ export function MessengerDropdown({
   const {
     conversations: dbConversations,
     messages: dbMessages,
-    loading,
     fetchMessages,
     fetchConversations, // Add this
     getOrCreateConversation,
     sendMessage,
-    deleteMessage,
     subscribeToConversation,
   } = useChat();
 
@@ -132,10 +130,6 @@ export function MessengerDropdown({
       supabase.removeChannel(channel);
     };
   }, [fetchConversations]);
-
-  const handleFileUpload = () => {
-    fileInputRef.current?.click();
-  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;

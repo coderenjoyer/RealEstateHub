@@ -24,7 +24,6 @@ interface NotificationDropdownProps {
 
 export function NotificationDropdown({
   onClose,
-  unreadCount: propUnreadCount,
 }: NotificationDropdownProps) {
   const [isOpen, setIsOpen] = useState(true); // Always open when rendered
   const [activeFilter, setActiveFilter] = useState<"all" | "unread">("all");

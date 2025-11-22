@@ -1,4 +1,4 @@
-import { User, Home, Bookmark, CheckCircle, TrendingUp, Users, MapPin, Star, Pencil, X } from "lucide-react"
+import { User, Home, Bookmark, CheckCircle, MapPin, Pencil, X } from "lucide-react"
 import { useState, useEffect } from "react"
 import supabase from "../../../supabaseClient"
 import { useAuth } from "../../../AuthContext"
@@ -25,11 +25,6 @@ interface ListedProperty {
   media?: any
 }
 
-const achievements = [
-  { label: "Top Performer 2024", icon: TrendingUp, color: "blue" },
-  { label: "Customer Choice Award", icon: Star, color: "yellow" },
-  { label: "Licensed Professional", icon: CheckCircle, color: "purple" }
-]
 
 export function AgentProfileCards() {
   const { session } = useAuth()

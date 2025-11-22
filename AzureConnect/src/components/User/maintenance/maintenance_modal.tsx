@@ -118,7 +118,6 @@ export function MaintenanceModal({
   const [formData, setFormData] = useState<MaintenanceFormState>(defaultForm)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [showChatConfirm, setShowChatConfirm] = useState(false)
   const [showMessenger, setShowMessenger] = useState(false)
 
   const propertyOptions = useMemo(() => {

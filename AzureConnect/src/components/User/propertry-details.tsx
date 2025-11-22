@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Star, MapPin, Bed, Bath, Maximize } from "lucide-react";
+import { X, MapPin, Bed, Bath, Maximize } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import supabase from "@/supabaseClient";
