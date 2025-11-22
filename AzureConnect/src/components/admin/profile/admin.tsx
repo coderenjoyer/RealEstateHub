@@ -19,7 +19,6 @@ const AdminControls: React.FC = () => {
     userRegistration: true,
     propertyListings: true,
     messaging: true,
-    notifications: true,
     maintenanceMode: false,
   });
 
@@ -125,7 +124,6 @@ const AdminControls: React.FC = () => {
           userRegistration: data.user_registration_enabled ?? true,
           propertyListings: data.property_listings_enabled ?? true,
           messaging: data.messaging_enabled ?? true,
-          notifications: data.notifications_enabled ?? true,
           maintenanceMode: data.maintenance_mode ?? false,
         });
       }
@@ -150,9 +148,6 @@ const AdminControls: React.FC = () => {
           break;
         case 'messaging':
           updatePayload.messaging_enabled = newValue;
-          break;
-        case 'notifications':
-          updatePayload.notifications_enabled = newValue;
           break;
         case 'maintenanceMode':
           updatePayload.maintenance_mode = newValue;

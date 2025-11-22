@@ -1,16 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AgentCommunicationLayout } from "@/components/layouts/AgentCommunicationLayout";
 import { MessagesSidebar } from "./MessagesSidebar";
 import { ChatWindow } from "./ChatWindow";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/AuthContext";
+import { useFeatureStatus } from "@/hooks/useFeatureStatus";
+import MessagingDisabledModal from "@/components/ui/messaging-disabled-modal";
 import supabase from "@/supabaseClient";
 import type { Conversation, Message } from "./types";
 
 export default function ChatPage() {
+  const navigate = useNavigate();
   const { session } = useAuth();
+  const { messagingEnabled } = useFeatureStatus();
   const {
     conversations: dbConversations,
     messages: dbMessages,
@@ -230,6 +235,25 @@ export default function ChatPage() {
       setSelectedConversationId(null);
     }
   }, [conversations, selectedConversationId]);
+
+  // Redirect to agent profile when messaging is disabled
+  useEffect(() => {
+    if (!messagingEnabled) {
+      const timer = setTimeout(() => {
+        navigate("/agent/profile");
+      }, 3000); // 3 second delay to show the modal
+      return () => clearTimeout(timer);
+    }
+  }, [messagingEnabled, navigate]);
+
+  // Show messaging disabled modal overlay
+  if (!messagingEnabled) {
+    return (
+      <AgentCommunicationLayout>
+        <MessagingDisabledModal open={true} onClose={() => {}} />
+      </AgentCommunicationLayout>
+    );
+  }
 
   // Show loading state
   if (loading && conversations.length === 0) {

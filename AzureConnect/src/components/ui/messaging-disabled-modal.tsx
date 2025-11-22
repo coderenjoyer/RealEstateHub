@@ -1,0 +1,62 @@
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { AlertCircle } from 'lucide-react';
+
+interface MessagingDisabledModalProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+const MessagingDisabledModal: React.FC<MessagingDisabledModalProps> = ({
+  open,
+  onClose,
+}) => {
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(
+    null
+  );
+
+  useEffect(() => {
+    setPortalContainer(document.body);
+  }, []);
+
+  if (!open || !portalContainer) return null;
+
+  return createPortal(
+    <div className="fixed left-0 right-0 top-0 bottom-0 z-[9999] flex items-center justify-center px-4">
+      <div
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity animate-in fade-in-0"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      <div className="relative w-full max-w-md animate-in fade-in-0 zoom-in-95 duration-200">
+        <div className="rounded-3xl border border-white/60 bg-white/95 shadow-2xl backdrop-blur p-8">
+          <div className="flex flex-col items-center text-center space-y-3">
+            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg ring-4 ring-red-100">
+              <AlertCircle className="h-7 w-7" />
+            </div>
+            <p className="text-sm font-semibold tracking-[0.2em] text-red-600">
+              FEATURE DISABLED
+            </p>
+            <h2 className="text-2xl font-semibold text-slate-900">
+              Communications Unavailable
+            </h2>
+            <p className="text-sm text-slate-600">
+              The messaging feature is currently disabled by the administrator. 
+              Please try again later or contact support for more information.
+            </p>
+          </div>
+
+          <div className="mt-8 flex flex-col gap-3">
+            <p className="text-xs text-slate-500 text-center">
+              Please contact your administrator to enable this feature
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>,
+    portalContainer
+  );
+};
+
+export default MessagingDisabledModal;

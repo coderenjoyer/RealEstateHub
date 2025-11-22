@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { Search, X, Phone, Minus, Send, Paperclip, Trash2 } from "lucide-react";
 import { useChat } from "@/hooks/useChat";
 import { useAuth } from "@/AuthContext";
+import { useFeatureStatus } from "@/hooks/useFeatureStatus";
+import MessagingDisabledModal from "@/components/ui/messaging-disabled-modal";
 import supabase from "@/supabaseClient";
 import type {
   RealtimeChannel,
@@ -26,6 +28,7 @@ export function MessengerDropdown({
   agentToContact,
 }: MessengerDropdownProps) {
   const { session } = useAuth();
+  const { messagingEnabled } = useFeatureStatus();
   const {
     conversations: dbConversations,
     messages: dbMessages,
@@ -251,7 +254,16 @@ export function MessengerDropdown({
   // ✅ FIXED: Use isOpen in render
   if (!isOpen) return null;
 
-  // ✅ FIXED: Use unreadCount in UI (show in header)
+  // Show messaging disabled modal overlay
+  if (!messagingEnabled) {
+    return (
+      <div className="fixed inset-0 z-[9999]">
+        <MessagingDisabledModal open={true} onClose={() => {}} />
+      </div>
+    );
+  }
+
+ 
   return (
     <div className="messenger-dropdown-container fixed right-20 top-20 w-[380px] max-h-[70vh] z-50 flex flex-col animate-in fade-in-0 zoom-in-95 duration-150">
       {/* Chat List Dropdown */}

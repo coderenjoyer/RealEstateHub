@@ -5,17 +5,21 @@ import { WhyChooseSection } from "./components/landing/why-choose-section";
 import { CTASection } from "./components/landing/cta-section";
 import { Footer } from "./components/landing/footer";
 import LoginParentContainer from "./components/login/login_parent_container";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { lazy, Suspense, useState, useEffect } from "react";
 import ErrorPage from "./components/ui/errorpage";
 import AdminPage from "./components/admin/admin-page";
 import ListingApprovalsPage from "./components/admin/listings/admin-listing";
 import UserManagementPage from "./components/admin/user-management/user-page";
 import AdminProfilePage from "./components/admin/profile/admin";
-import ReportsPage from "./components/admin/reports/admin_controls";
+import ReportsPage from "./components/admin/reports/admin_contact";
 import { BookmarkProvider } from "./contexts/BookmarkContext";
 import AzureRealEstateLoader from "./components/ui/loadingscreen";
 import { ProtectedRoute } from "./components/ui/ProtectedRoute";
+import { useAuth } from "./AuthContext";
+import { useFeatureStatus } from "./hooks/useFeatureStatus";
+import MaintenanceModeModal from "./components/ui/maintenance-mode-modal";
+import FloatingMessageButton from "./components/messaging/floating-message-button";
 
 const AgentListedPropertiesPage = lazy(
   () => import("./components/Agent/listedproperties/page")
@@ -26,7 +30,7 @@ const AgentListPropertyPage = lazy(
 );
 const AgentReportsPage = lazy(() => import("./components/Agent/reports/agent_report_page"));
 const AgentCommunicationPage = lazy(
-  () => import("./components/Agent/communication/page")
+  () => import("./components/Agent/communication/messenger_page")
 );
 const UserHomePage = lazy(() => import("./components/User/user-page"));
 const UserProfilePage = lazy(() => import("./components/User/profile-page"));
@@ -34,24 +38,24 @@ const FavoritesPage = lazy(() => import("./components/User/favorites"));
 const PropertyMaintenancePage = lazy(() => import("./components/User/maintenance/maintenance"));
 
 function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { session, signOut } = useAuth();
+  const { maintenanceMode } = useFeatureStatus();
   const [showRefreshLoader, setShowRefreshLoader] = useState(false);
 
-  // Detect page refresh and show loader
-  useEffect(() => {
-    // Check if this is a page refresh (not initial load)
-    const navigationEntries = performance.getEntriesByType('navigation');
-    if (navigationEntries.length > 0) {
-      const navigationEntry = navigationEntries[0] as PerformanceNavigationTiming;
-      if (navigationEntry.type === 'reload') {
-        // Show loader for 1 second during refresh
-        setShowRefreshLoader(true);
-        const timer = setTimeout(() => {
-          setShowRefreshLoader(false);
-        }, 1000);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, []);
+  // ... existing code ...
+
+  const userRole = session?.user?.user_metadata?.role;
+  const isAdmin = userRole === 'admin';
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login');
+  };
+
+  // Show maintenance mode modal only for non-admin users
+  const showMaintenanceModal = (maintenanceMode === true) && session && !isAdmin && !location.pathname.includes('/login');
 
   // If refreshing, show the loading screen
   if (showRefreshLoader) {
@@ -60,6 +64,8 @@ function App() {
 
   return (
     <BookmarkProvider>
+      <MaintenanceModeModal open={showMaintenanceModal || false} onLogout={handleLogout} />
+      <FloatingMessageButton />
       <Suspense fallback={<AzureRealEstateLoader />}>
         <Routes>
         <Route

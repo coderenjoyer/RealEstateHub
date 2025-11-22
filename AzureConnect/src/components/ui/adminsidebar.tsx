@@ -12,7 +12,7 @@ const menuItems = [
   { icon: User, label: "Admin Controls", to: "/admin/profile" },
   { icon: User, label: "User Management", to: "/admin/users" },
   { icon: FileCheck, label: "Listings", to: "/admin/listings" },
-  { icon: BarChart3, label: "Server Configurations", to: "/admin/reports" },
+  { icon: BarChart3, label: "Communication", to: "/admin/reports" },
 ]
 
 export function Sidebar() {
