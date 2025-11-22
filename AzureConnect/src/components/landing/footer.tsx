@@ -1,6 +1,26 @@
-import { Facebook, Twitter, Instagram, Youtube } from "lucide-react"
+import { Facebook, Twitter, Instagram } from "lucide-react"
 
 export function Footer() {
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault()
+    
+    // Add click animation effect
+    const link = e.currentTarget
+    link.style.transform = 'scale(0.95)'
+    setTimeout(() => {
+      link.style.transform = ''
+    }, 150)
+    
+    // Smooth scroll to target
+    const targetElement = document.querySelector(targetId)
+    if (targetElement) {
+      targetElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+    }
+  }
+
   return (
     <footer id="contact" className="py-12 scroll-mt-24 bg-[#0A4174] text-[#F0FFFF]">
       <div className="container mx-auto px-6">
@@ -9,22 +29,38 @@ export function Footer() {
             <h3 className="font-semibold text-[#FFFFFF] mb-4">NAVIGATION</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#home" className="text-[#F0FFFF]/70 hover:text-[#FFFFFF] transition-colors">
+                <a 
+                  href="#home" 
+                  onClick={(e) => handleNavClick(e, '#home')}
+                  className="text-[#F0FFFF]/70 hover:text-[#FFFFFF] transition-all duration-200 inline-block hover:scale-105 active:scale-95"
+                >
                   Home
                 </a>
               </li>
               <li>
-                <a href="#about" className="text-[#F0FFFF]/70 hover:text-[#FFFFFF] transition-colors">
+                <a 
+                  href="#about" 
+                  onClick={(e) => handleNavClick(e, '#about')}
+                  className="text-[#F0FFFF]/70 hover:text-[#FFFFFF] transition-all duration-200 inline-block hover:scale-105 active:scale-95"
+                >
                   About
                 </a>
               </li>
               <li>
-                <a href="#services" className="text-[#F0FFFF]/70 hover:text-[#FFFFFF] transition-colors">
+                <a 
+                  href="#services" 
+                  onClick={(e) => handleNavClick(e, '#services')}
+                  className="text-[#F0FFFF]/70 hover:text-[#FFFFFF] transition-all duration-200 inline-block hover:scale-105 active:scale-95"
+                >
                   Services
                 </a>
               </li>
               <li>
-                <a href="#contact" className="text-[#F0FFFF]/70 hover:text-[#FFFFFF] transition-colors">
+                <a 
+                  href="#contact" 
+                  onClick={(e) => handleNavClick(e, '#contact')}
+                  className="text-[#F0FFFF]/70 hover:text-[#FFFFFF] transition-all duration-200 inline-block hover:scale-105 active:scale-95"
+                >
                   Contact
                 </a>
               </li>
