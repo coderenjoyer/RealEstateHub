@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Save, RefreshCw, Shield, Users, Activity, Server, Lock, Eye, AlertCircle, CheckCircle, Clock, Database, Globe, Bell, Home } from 'lucide-react';
+import { RefreshCw, Users, Activity, AlertCircle, CheckCircle, Database, Globe, Bell, Home } from 'lucide-react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
 import supabase from '@/supabaseClient';
 
@@ -25,12 +25,12 @@ const AdminControls: React.FC = () => {
   const [loadingFeature, setLoadingFeature] = useState<string | null>(null);
   const [registrationDisabledNotice, setRegistrationDisabledNotice] = useState(false);
 
-  const [security, setSecurity] = useState({
+  /*const [security, setSecurity] = useState({
     twoFactorAuth: true,
     passwordPolicy: 'strict',
     sessionTimeout: 30,
     ipWhitelist: false,
-  });
+  }); */
 
   const [recentActivity, setRecentActivity] = useState<Array<any>>([]);
 
