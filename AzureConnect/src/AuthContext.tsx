@@ -25,6 +25,7 @@ interface UpdatePasswordParams {
 
 interface AuthContextValue {
 	session: Session | null;
+	isLoading: boolean;
 	signupNewUser: (
 		params: SignupParams
 	) => Promise<{ success: boolean; data?: unknown; error?: string }>;
@@ -45,6 +46,7 @@ const Authcontext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	const [session, setSession] = useState<Session | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -52,6 +54,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 			const { data } = await supabase.auth.getSession();
 			if (isMounted) {
 				setSession(data.session ?? null);
+				setIsLoading(false);
 			}
 		})();
 
@@ -191,6 +194,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 		<Authcontext.Provider
 			value={{
 				session,
+				isLoading,
 				signupNewUser,
 				signIn,
 				signInWithGoogle,

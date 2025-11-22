@@ -40,9 +40,25 @@ const PropertyMaintenancePage = lazy(() => import("./components/User/maintenance
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { session, signOut } = useAuth();
+  const { session, signOut, isLoading } = useAuth();
   const { maintenanceMode } = useFeatureStatus();
-  const [showRefreshLoader, setShowRefreshLoader] = useState(false);
+
+  // Store last location in localStorage on every successful navigation
+  useEffect(() => {
+    if (session && !location.pathname.includes('/login') && location.pathname !== '/') {
+      localStorage.setItem('lastLocation', location.pathname);
+    }
+  }, [session, location]);
+
+  // On mount, restore user to their last location if authenticated
+  useEffect(() => {
+    if (!isLoading && session) {
+      const lastLocation = localStorage.getItem('lastLocation');
+      if (lastLocation && location.pathname === '/') {
+        navigate(lastLocation, { replace: true });
+      }
+    }
+  }, [isLoading]);
 
   // ... existing code ...
 
@@ -57,8 +73,8 @@ function App() {
   // Show maintenance mode modal only for non-admin users
   const showMaintenanceModal = (maintenanceMode === true) && session && !isAdmin && !location.pathname.includes('/login');
 
-  // If refreshing, show the loading screen
-  if (showRefreshLoader) {
+  // Show loading screen while checking authentication
+  if (isLoading) {
     return <AzureRealEstateLoader />;
   }
 
