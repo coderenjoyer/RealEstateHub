@@ -8,6 +8,7 @@ interface Message {
   sender_id: string;
   recipient_id: string;
   message_text: string;
+  is_read: boolean;
   created_at: string;
 }
 

@@ -47,13 +47,13 @@ const FloatingMessageButton: React.FC = () => {
 
     const fetchUnreadCount = async () => {
       try {
-        // Get all messages from admin that haven't been read yet
-        // For simplicity, we'll just count messages from the admin
+        // Get unread messages from admin (only count messages where is_read is false or null)
         const { data, error } = await supabase
           .from('admin_messages')
           .select('id')
           .eq('sender_id', adminId)
-          .eq('recipient_id', session.user.id);
+          .eq('recipient_id', session.user.id)
+          .or('is_read.eq.false,is_read.is.null');
 
         if (error) throw error;
         setUnreadCount(data?.length || 0);
@@ -70,6 +70,21 @@ const FloatingMessageButton: React.FC = () => {
         'postgres_changes',
         {
           event: 'INSERT',
+          schema: 'public',
+          table: 'admin_messages',
+          filter: `recipient_id=eq.${session.user.id}`,
+        },
+        (payload: any) => {
+          // If the message is from admin and not read, increment count
+          if (payload.new.sender_id === adminId) {
+            setUnreadCount((prev) => prev + 1);
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
           schema: 'public',
           table: 'admin_messages',
           filter: `recipient_id=eq.${session.user.id}`,
@@ -91,7 +106,7 @@ const FloatingMessageButton: React.FC = () => {
   if (isLoading) {
     return (
       <button
-        className="fixed bottom-6 right-6 z-[999] bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all hover:scale-110 flex items-center justify-center"
+        className="fixed bottom-6 right-[38px] z-[999] bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all hover:scale-110 flex items-center justify-center"
         disabled
       >
         <MessageCircle size={24} />
@@ -103,14 +118,28 @@ const FloatingMessageButton: React.FC = () => {
     <>
       {/* Floating Button */}
       <button
-        onClick={() => setShowModal(true)}
-        className="fixed bottom-6 right-6 z-[999] bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all hover:scale-110 flex items-center justify-center"
+        onClick={async () => {
+          setShowModal(true);
+          // Mark all unread messages as read in database
+          if (adminId && session?.user?.id) {
+            try {
+              await supabase
+                .from('admin_messages')
+                .update({ is_read: true })
+                .eq('sender_id', adminId)
+                .eq('recipient_id', session.user.id)
+                .or('is_read.eq.false,is_read.is.null');
+              setUnreadCount(0);
+            } catch (error) {
+              console.error('Error marking messages as read:', error);
+            }
+          }
+        }}
+        className="fixed bottom-6 right-[68px] z-[999] bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all hover:scale-110 flex items-center justify-center"
       >
         <MessageCircle size={24} />
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-semibold">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
+          <span className="absolute top-0 right-0 bg-red-500 w-3 h-3 rounded-full"></span>
         )}
       </button>
 

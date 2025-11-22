@@ -107,6 +107,21 @@ const AdminMessaging: React.FC = () => {
 
     fetchMessages();
 
+    // Mark messages as read when viewing the conversation
+    const markAsRead = async () => {
+      try {
+        await supabase
+          .from('admin_messages')
+          .update({ is_read: true })
+          .eq('recipient_id', adminId)
+          .eq('sender_id', selectedRecipient.id)
+          .eq('is_read', false);
+      } catch (error) {
+        console.error('Error marking messages as read:', error);
+      }
+    };
+    markAsRead();
+
     // Subscribe to real-time updates
     const channel = supabase.channel(`messages_${adminId}_${selectedRecipient.id}`)
       .on(
