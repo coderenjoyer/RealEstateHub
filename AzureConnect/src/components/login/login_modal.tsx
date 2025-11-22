@@ -49,6 +49,7 @@ const LoginModal: React.FC = () => {
 
   // Check registration status on mount
   useEffect(() => {
+    let isMounted = true;
     const checkRegistrationStatus = async () => {
       try {
         const { data: settings } = await supabaseClient
@@ -56,18 +57,24 @@ const LoginModal: React.FC = () => {
           .select('user_registration_enabled')
           .single();
         
-        console.log('Admin settings:', settings);
-        if (settings && settings.user_registration_enabled === false) {
-          setRegistrationDisabled(true);
-        } else {
-          setRegistrationDisabled(false);
+        if (isMounted) {
+          console.log('Admin settings:', settings);
+          if (settings && settings.user_registration_enabled === false) {
+            setRegistrationDisabled(true);
+          } else {
+            setRegistrationDisabled(false);
+          }
         }
       } catch (error) {
         console.error('Error checking registration status:', error);
+        if (isMounted) {
+          setRegistrationDisabled(false);
+        }
       }
     };
     
     checkRegistrationStatus();
+    return () => { isMounted = false; };
   }, []);
 
   // Check if we're on the reset route or have a password recovery session
@@ -148,6 +155,10 @@ const LoginModal: React.FC = () => {
     }
     if (signupPassword !== confirmPassword) {
       setErrorMessage("Passwords do not match.");
+      return;
+    }
+    if (signupPassword.length < 6) {
+      setErrorMessage("Password must be at least 6 characters long.");
       return;
     }
     setIsSubmitting(true);
