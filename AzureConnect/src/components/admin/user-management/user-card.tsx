@@ -259,12 +259,6 @@ export function AccountCard({ account, showStatus, isAgent = true, onAccountUpda
                   </div>
                 )}
               </div>
-
-              {/* Agent ID */}
-              <div className="bg-[#49769F]/20 rounded-lg p-4 border border-[#49769F]/30">
-                <p className="text-xs text-[#49769F] font-medium mb-1">Agent ID</p>
-                <p className="text-xs text-[#49769F] font-mono break-all">{account.id}</p>
-              </div>
             </div>
 
             {/* Footer */}

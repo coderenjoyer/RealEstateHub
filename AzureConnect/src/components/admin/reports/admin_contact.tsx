@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Users, Search, MessageCircle } from 'lucide-react';
+import { Send, Users, Search, MessageCircle, Trash2 } from 'lucide-react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
 import supabase from '@/supabaseClient';
 
@@ -27,6 +27,9 @@ const AdminMessaging: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
   const [adminId, setAdminId] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingConversation, setDeletingConversation] = useState(false);
+  const [unreadCounts, setUnreadCounts] = useState<{ [key: string]: number }>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Get current admin ID on mount
@@ -51,10 +54,10 @@ const AdminMessaging: React.FC = () => {
           .rpc('get_all_users', { user_role: 'user' });
 
         if (agentsError) {
-          console.error('Error fetching agents:', agentsError);
+          // Error fetching agents
         }
         if (usersError) {
-          console.error('Error fetching users:', usersError);
+          // Error fetching users
         }
 
         // Combine both arrays
@@ -75,12 +78,65 @@ const AdminMessaging: React.FC = () => {
 
         setRecipients(formattedRecipients);
       } catch (error) {
-        console.error('Error fetching recipients:', error);
+        // Error fetching recipients
       }
     };
 
     fetchRecipients();
   }, []);
+
+  // Fetch unread message counts for all recipients
+  useEffect(() => {
+    if (!adminId) return;
+
+    const fetchUnreadCounts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('admin_messages')
+          .select('sender_id, is_read')
+          .eq('recipient_id', adminId)
+          .eq('is_read', false);
+
+        if (error) throw error;
+
+        // Count unread messages by sender
+        const counts: { [key: string]: number } = {};
+        if (data) {
+          data.forEach((msg: any) => {
+            counts[msg.sender_id] = (counts[msg.sender_id] || 0) + 1;
+          });
+        }
+        setUnreadCounts(counts);
+      } catch (error) {
+        // Error fetching unread counts
+      }
+    };
+
+    fetchUnreadCounts();
+
+    // Subscribe to message changes for real-time unread count updates
+    const channel = supabase.channel(`unread_${adminId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'admin_messages',
+          filter: `recipient_id=eq.${adminId}`,
+        },
+        () => {
+          // Refetch unread counts when messages change
+          fetchUnreadCounts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [adminId]);
+
+  // ... existing code ...
 
   // Fetch messages for selected recipient
   useEffect(() => {
@@ -99,7 +155,7 @@ const AdminMessaging: React.FC = () => {
         if (error) throw error;
         setMessages(data || []);
       } catch (error) {
-        console.error('Error fetching messages:', error);
+        // Error fetching messages
       } finally {
         setLoading(false);
       }
@@ -117,7 +173,7 @@ const AdminMessaging: React.FC = () => {
           .eq('sender_id', selectedRecipient.id)
           .eq('is_read', false);
       } catch (error) {
-        console.error('Error marking messages as read:', error);
+        // Error marking messages as read
       }
     };
     markAsRead();
@@ -152,12 +208,34 @@ const AdminMessaging: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const handleDeleteConversation = async () => {
+    if (!selectedRecipient || !adminId) return;
+
+    try {
+      setDeletingConversation(true);
+      
+      // Delete all messages between admin and selected recipient
+      await supabase
+        .from('admin_messages')
+        .delete()
+        .or(`and(sender_id.eq.${adminId},recipient_id.eq.${selectedRecipient.id}),and(sender_id.eq.${selectedRecipient.id},recipient_id.eq.${adminId})`);
+
+      // Reset UI state immediately before async operations complete
+      setSelectedRecipient(null);
+      setMessages([]);
+      setShowDeleteModal(false);
+    } catch (error) {
+      alert('Failed to delete conversation. Please try again.');
+    } finally {
+      setDeletingConversation(false);
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!messageInput.trim() || !selectedRecipient || !adminId) return;
 
     try {
       setSendingMessage(true);
-      console.log('Sending message from', adminId, 'to', selectedRecipient.id);
       
       const { data, error } = await supabase
         .from('admin_messages')
@@ -171,11 +249,8 @@ const AdminMessaging: React.FC = () => {
         .select();
 
       if (error) {
-        console.error('Insert error:', error);
         throw error;
       }
-
-      console.log('Message sent successfully:', data);
       setMessageInput('');
       
       // Refresh messages after sending
@@ -188,7 +263,6 @@ const AdminMessaging: React.FC = () => {
       if (refreshError) throw refreshError;
       setMessages(refreshedData || []);
     } catch (error) {
-      console.error('Error sending message:', error);
       alert('Failed to send message. Please try again.');
     } finally {
       setSendingMessage(false);
@@ -207,10 +281,17 @@ const AdminMessaging: React.FC = () => {
       <div className="w-80 bg-white/70 backdrop-blur-xl border-r border-[#49769F]/30 shadow-lg flex flex-col">
         {/* Header */}
         <div className="p-4 border-b border-[#49769F]/30 bg-gradient-to-r from-[#49769F]/10 to-[#0A4174]/10">
-          <h2 className="text-xl font-bold text-[#49769F] mb-4 flex items-center gap-2">
-            <MessageCircle size={24} />
-            Messages
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-[#49769F] flex items-center gap-2">
+              <MessageCircle size={24} />
+              Messages
+            </h2>
+            {Object.values(unreadCounts).reduce((a, b) => a + b, 0) > 0 && (
+              <div className="bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                {Object.values(unreadCounts).reduce((a, b) => a + b, 0)}
+              </div>
+            )}
+          </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#49769F]" />
             <input
@@ -234,7 +315,7 @@ const AdminMessaging: React.FC = () => {
               <button
                 key={recipient.id}
                 onClick={() => setSelectedRecipient(recipient)}
-                className={`w-full text-left p-4 border-b border-[#BDD8E9]/50 hover:bg-[#49769F]/10 transition-colors ${
+                className={`w-full text-left p-4 border-b border-[#BDD8E9]/50 hover:bg-[#49769F]/10 transition-colors relative ${
                   selectedRecipient?.id === recipient.id ? 'bg-[#49769F]/10 border-l-4 border-l-[#49769F]' : ''
                 }`}
               >
@@ -248,6 +329,10 @@ const AdminMessaging: React.FC = () => {
                   }`}>
                     {recipient.role}
                   </span>
+                  {/* Unread notification indicator */}
+                  {unreadCounts[recipient.id] > 0 && (
+                    <div className="ml-auto w-2 h-2 rounded-full bg-red-500" />
+                  )}
                 </div>
                 <p className={`text-sm truncate ${
                   recipient.id === selectedRecipient?.id
@@ -275,13 +360,23 @@ const AdminMessaging: React.FC = () => {
                   <p className="text-sm text-gray-600">{selectedRecipient.email}</p>
                 </div>
               </div>
-              <span className={`text-sm px-3 py-1 rounded-full ${
-                selectedRecipient.role === 'agent'
-                  ? 'bg-purple-100 text-purple-700'
-                  : 'bg-green-100 text-green-700'
-              }`}>
-                {selectedRecipient.role.charAt(0).toUpperCase() + selectedRecipient.role.slice(1)}
-              </span>
+              <div className="flex items-center gap-3">
+                <span className={`text-sm px-3 py-1 rounded-full ${
+                  selectedRecipient.role === 'agent'
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'bg-green-100 text-green-700'
+                }`}>
+                  {selectedRecipient.role.charAt(0).toUpperCase() + selectedRecipient.role.slice(1)}
+                </span>
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  disabled={deletingConversation}
+                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Delete conversation"
+                >
+                  <Trash2 size={20} />
+                </button>
+              </div>
             </div>
 
             {/* Messages */}
@@ -376,6 +471,35 @@ const AdminMessaging: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm mx-4">
+            <h3 className="text-lg font-bold text-gray-800 mb-2">Delete Conversation</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete the conversation with {selectedRecipient?.name}? This action cannot be undone and all messages will be permanently deleted.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deletingConversation}
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConversation}
+                disabled={deletingConversation}
+                className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <Trash2 size={18} />
+                {deletingConversation ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -36,12 +36,13 @@ DROP POLICY IF EXISTS "Users can insert messages" ON admin_messages;
 DROP POLICY IF EXISTS "Admins can view all messages" ON admin_messages;
 DROP POLICY IF EXISTS "Anyone can insert messages" ON admin_messages;
 DROP POLICY IF EXISTS "Users can view their own messages" ON admin_messages;
+DROP POLICY IF EXISTS "Admins can delete messages" ON admin_messages;
 
--- RLS Policy: Anyone authenticated can insert messages
-CREATE POLICY "Anyone can insert messages"
+-- RLS Policy: Only authenticated users who are the sender can insert messages
+CREATE POLICY "Authenticated users can insert messages"
 ON admin_messages FOR INSERT
 TO authenticated
-WITH CHECK (true);
+WITH CHECK (auth.uid() = sender_id);
 
 -- RLS Policy: Users can view messages where they are sender or recipient
 CREATE POLICY "Users can view their own messages"
@@ -50,6 +51,15 @@ TO authenticated
 USING (
   auth.uid() = sender_id 
   OR auth.uid() = recipient_id
+);
+
+-- RLS Policy: Only admins can delete messages
+CREATE POLICY "Admins can delete messages"
+ON admin_messages FOR DELETE
+TO authenticated
+USING (
+  (auth.jwt() ->> 'user_metadata')::jsonb ->> 'role' = 'admin'
+  AND (auth.uid() = sender_id OR auth.uid() = recipient_id)
 );
 
 -- Set up realtime replication for admin_messages table

@@ -69,11 +69,14 @@ export function Sidebar() {
         aria-label="Agent navigation"
       >
         {/* Logo/Brand Section */}
-        <div
+        <Link
+          to="/admin"
           className={cn(
-            "py-6 border-b border-[#49769F] flex items-center gap-3",
+            "py-6 border-b border-[#49769F] flex items-center gap-3 hover:bg-[#F0FFFF]/40 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#0A4174] focus:ring-offset-2",
             isCollapsed ? "justify-center px-4" : "px-6"
           )}
+          style={{ "--tw-ring-offset-color": "#BDD8E9" } as React.CSSProperties}
+          aria-label="Go to admin dashboard"
         >
           <div className="w-10 h-10 bg-gradient-to-br from-[#49769F] to-[#0A4174] rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
             <Home className="w-6 h-6 text-white" aria-hidden="true" />
@@ -85,7 +88,7 @@ export function Sidebar() {
             <h1 className="text-lg font-bold text-[#0A4174] whitespace-nowrap">RealEstate</h1>
             <p className="text-xs text-[#49769F] whitespace-nowrap">Admin Portal</p>
           </div>
-        </div>
+        </Link>
 
         {/* Navigation Menu */}
         <nav className="flex-1 py-4 overflow-y-auto" role="menu" aria-label="Admin navigation">

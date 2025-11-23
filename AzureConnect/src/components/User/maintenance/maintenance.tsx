@@ -1,11 +1,22 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../../AuthContext";
-import { Wrench, ArrowLeft, CalendarDays, MapPin, ClipboardCheck, Loader2, CheckCircle2 } from "lucide-react";
+import { Wrench, ArrowLeft, CalendarDays, MapPin, ClipboardCheck, Loader2, CheckCircle2, Bell, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import supabase from "../../../supabaseClient";
 import { MaintenanceModal, MaintenanceConfirmationDetails } from "./maintenance_modal";
 
 export type MaintenanceStatus = "pending" | "in-progress" | "completed";
+
+interface Notification {
+  id: number;
+  user_id: string;
+  title: string;
+  message: string;
+  type: string;
+  related_property_id: number | null;
+  read: boolean;
+  created_at: string;
+}
 
 interface MaintenanceItem {
   id: number;
@@ -38,12 +49,14 @@ export default function PropertyMaintenancePage() {
   const navigate = useNavigate();
   const [maintenanceItems, setMaintenanceItems] = useState<MaintenanceItem[]>([]);
   const [repairHistory, setRepairHistory] = useState<MaintenanceLog[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [repairHistoryLoading, setRepairHistoryLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MaintenanceItem | null>(null);
   const [confirmationDetails, setConfirmationDetails] = useState<MaintenanceConfirmationDetails | null>(null);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     if (!session?.user?.id) {
@@ -52,6 +65,7 @@ export default function PropertyMaintenancePage() {
     }
     fetchMaintenanceItems();
     fetchRepairHistory();
+    fetchRentalNotifications();
   }, [session?.user?.id]);
 
   const fetchMaintenanceItems = async () => {
@@ -180,6 +194,82 @@ export default function PropertyMaintenancePage() {
     }
   };
 
+  const fetchRentalNotifications = async () => {
+    if (!session?.user?.id) return;
+
+    try {
+      // First, check if user has any rental properties
+      const { data: rentalProperties, error: rentalError } = await supabase
+        .from("property_ownerships_with_properties")
+        .select("id")
+        .eq("owner_id", session.user.id)
+        .limit(1);
+
+      if (rentalError || !rentalProperties || rentalProperties.length === 0) {
+        // User has no rental properties, don't show notifications
+        setNotifications([]);
+        return;
+      }
+
+      // User has rental properties, fetch their notifications
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .eq("type", "maintenance")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Failed to load notifications:", error);
+        return;
+      }
+
+      setNotifications(data || []);
+    } catch (error: any) {
+      console.error("Failed to fetch rental notifications:", error);
+    }
+  };
+
+  const markNotificationAsRead = async (notificationId: number) => {
+    try {
+      const { error } = await supabase
+        .from("notifications")
+        .update({ read: true })
+        .eq("id", notificationId)
+        .eq("user_id", session?.user?.id);
+
+      if (error) {
+        console.error("Error marking notification as read:", error);
+        return;
+      }
+
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
+      );
+    } catch (error: any) {
+      console.error("Exception marking notification as read:", error);
+    }
+  };
+
+  const deleteNotification = async (notificationId: number) => {
+    try {
+      const { error } = await supabase
+        .from("notifications")
+        .delete()
+        .eq("id", notificationId)
+        .eq("user_id", session?.user?.id);
+
+      if (error) {
+        console.error("Error deleting notification:", error);
+        return;
+      }
+
+      setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+    } catch (error: any) {
+      console.error("Exception deleting notification:", error);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
@@ -269,7 +359,79 @@ export default function PropertyMaintenancePage() {
                 Track open issues, submit new service requests, and stay aligned with your agent on every property you own.
               </p>
             </div>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 items-start">
+              {notifications.length > 0 && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="relative inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-gradient-to-br from-white to-[#49769F]/10 border border-white/70 shadow-inner hover:shadow-md transition"
+                  title="Rental Notifications"
+                >
+                  <Bell className="w-5 h-5 text-[#49769F]" />
+                  {notifications.filter((n) => !n.read).length > 0 && (
+                    <span className="absolute top-2 right-2 inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-500 text-white text-xs font-bold">
+                      {notifications.filter((n) => !n.read).length}
+                    </span>
+                  )}
+                </button>
+                {showNotifications && (
+                  <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-2xl border border-white/70 bg-white/95 shadow-2xl z-50">
+                    <div className="p-4 border-b border-slate-100">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-slate-900">Rental Notifications</h3>
+                        <button
+                          onClick={() => setShowNotifications(false)}
+                          className="p-1 hover:bg-slate-100 rounded-lg transition"
+                        >
+                          <X className="w-4 h-4 text-slate-500" />
+                        </button>
+                      </div>
+                    </div>
+                    {notifications.length === 0 ? (
+                      <div className="p-4 text-center text-sm text-slate-500">
+                        No notifications
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-slate-100">
+                        {notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            className={`p-4 hover:bg-slate-50 transition cursor-pointer ${
+                              !notification.read ? "bg-blue-50" : ""
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <h4 className="text-sm font-semibold text-slate-900">{notification.title}</h4>
+                              <button
+                                onClick={() => deleteNotification(notification.id)}
+                                className="p-1 hover:bg-slate-200 rounded transition"
+                                title="Delete notification"
+                              >
+                                <X className="w-3 h-3 text-slate-400" />
+                              </button>
+                            </div>
+                            <p className="text-xs text-slate-600 mb-2">{notification.message}</p>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] text-slate-400">
+                                {new Date(notification.created_at).toLocaleDateString()}
+                              </span>
+                              {!notification.read && (
+                                <button
+                                  onClick={() => markNotificationAsRead(notification.id)}
+                                  className="text-[10px] text-[#49769F] font-semibold hover:underline"
+                                >
+                                  Mark as read
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              )}
               {overviewStats.map((stat) => (
                 <div
                   key={stat.label}

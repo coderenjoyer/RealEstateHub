@@ -100,7 +100,7 @@ const FloatingMessageButton: React.FC = () => {
     };
   }, [session?.user?.id, adminId]);
 
-  if (!session?.user?.id || isAdmin) return null;
+  if (!session?.user?.id) return null;
 
   // Don't return null while loading - show button even if admin ID hasn't loaded yet
   if (isLoading) {
