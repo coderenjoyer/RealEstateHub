@@ -12,7 +12,7 @@ export default function DashboardPage() {
   if (error) {
     return (
       <AdminLayout>
-        <div className="p-6">
+        <div className="p-6" style={{ backgroundColor: '#BDD8E9', minHeight: '100vh' }}>
           <div className="bg-[#BDD8E9] p-4 text-red-700">
             <p className="font-semibold">Error loading dashboard</p>
             <p className="text-sm">{error}</p>
@@ -24,7 +24,7 @@ export default function DashboardPage() {
 
   return (
     <AdminLayout>
-      <div className="p-6">
+      <div className="p-6" style={{ backgroundColor: '#BDD8E9', minHeight: '100vh' }}>
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <StatCard 
