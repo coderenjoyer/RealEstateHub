@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../../AuthContext";
-import { Wrench, ArrowLeft, CalendarDays, MapPin, ClipboardCheck, Loader2, CheckCircle2, Bell, X } from "lucide-react";
+import { Wrench, ArrowLeft, CalendarDays, MapPin, ClipboardCheck, Loader2, CheckCircle2, Bell, X, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import supabase from "../../../supabaseClient";
 import { MaintenanceModal, MaintenanceConfirmationDetails } from "./maintenance_modal";
+import { LogoutConfirmationModal } from "../../ui/logout-confirmation-modal";
 
 export type MaintenanceStatus = "pending" | "in-progress" | "completed";
 
@@ -57,6 +58,8 @@ export default function PropertyMaintenancePage() {
   const [selectedItem, setSelectedItem] = useState<MaintenanceItem | null>(null);
   const [confirmationDetails, setConfirmationDetails] = useState<MaintenanceConfirmationDetails | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     if (!session?.user?.id) {
@@ -301,6 +304,25 @@ export default function PropertyMaintenancePage() {
     setIsModalOpen(true);
   };
 
+  const handleSignOut = async () => {
+    setIsLoggingOut(true);
+    try {
+      await supabase.auth.signOut();
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Error signing out:", error);
+      setIsLoggingOut(false);
+    }
+  };
+
+  const openLogoutModal = () => {
+    setShowLogoutModal(true);
+  };
+
+  const closeLogoutModal = () => {
+    setShowLogoutModal(false);
+  };
+
   const closeMaintenanceModal = () => {
     setIsModalOpen(false);
     setSelectedItem(null);
@@ -334,13 +356,36 @@ export default function PropertyMaintenancePage() {
     <div className="min-h-screen bg-[#BDD8E9]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Back Button */}
-        <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3 text-sm text-slate-500">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate("/user?view=listings")}
+                className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                Find Properties
+              </button>
+            </div>
+            {maintenanceItems.length > 0 && (
+              <>
+                <span className="text-slate-400">•</span>
+                <button
+                  onClick={() => navigate("/user?view=listings")}
+                  className="text-slate-600 hover:text-slate-900 font-medium transition-colors"
+                >
+                  Browse Listings
+                </button>
+              </>
+            )}
+          </div>
           <button
-            onClick={() => navigate("/user")}
+            onClick={openLogoutModal}
             className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium transition-colors"
+            title="Sign out"
           >
-            <ArrowLeft className="w-5 h-5" />
-            Back to dashboard
+            <LogOut className="w-5 h-5" />
+            <span className="text-sm">Sign Out</span>
           </button>
         </div>
 
@@ -642,6 +687,13 @@ export default function PropertyMaintenancePage() {
           open={Boolean(confirmationDetails)}
           details={confirmationDetails}
           onClose={() => setConfirmationDetails(null)}
+        />
+
+        <LogoutConfirmationModal
+          open={showLogoutModal}
+          onConfirm={handleSignOut}
+          onCancel={closeLogoutModal}
+          isProcessing={isLoggingOut}
         />
       </div>
     </div>
