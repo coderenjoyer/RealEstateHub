@@ -260,7 +260,7 @@ export function PendingListingsTable() {
   const pendingCount = listings.filter(l => l.approval_status === "pending").length
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-sky-50 p-6">
+    <div className="min-h-screen bg-[#BDD8E9] p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="mb-8">
@@ -270,7 +270,7 @@ export function PendingListingsTable() {
 
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           {/* Controls Bar */}
-          <div className="bg-gradient-to-r from-sky-500 to-blue-600 p-6">
+          <div className="bg-[#49769F] p-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <h2 className="text-xl font-semibold text-white">
@@ -288,8 +288,8 @@ export function PendingListingsTable() {
                       }}
                       className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                         filter === status
-                          ? "bg-white text-blue-600"
-                          : "bg-blue-400/30 text-white hover:bg-blue-400/50"
+                          ? "bg-white text-[#49769F]"
+                          : "bg-[#49769F]/30 text-white hover:bg-[#49769F]/50"
                       }`}
                     >
                       {status}
@@ -308,7 +308,7 @@ export function PendingListingsTable() {
                     setSearchQuery(e.target.value)
                     setCurrentPage(1)
                   }}
-                  className="w-full pl-10 pr-4 py-2 border border-blue-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-[#49769F]/30 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
                 />
               </div>
             </div>
@@ -318,7 +318,7 @@ export function PendingListingsTable() {
           <div className="overflow-x-auto">
             {loading ? (
               <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#49769F]"></div>
               </div>
             ) : (
             <table className="w-full">
@@ -339,7 +339,7 @@ export function PendingListingsTable() {
                     : null
                   
                   return (
-                  <tr key={listing.id} className="hover:bg-sky-50/50 transition-colors">
+                  <tr key={listing.id} className="hover:bg-[#49769F]/10 transition-colors">
                     <td className="py-4 px-6">
                       <div className="flex items-start gap-3">
                         {imageUrl ? (
@@ -349,7 +349,7 @@ export function PendingListingsTable() {
                             className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                           />
                         ) : (
-                          <div className="w-12 h-12 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <div className="w-12 h-12 bg-[#49769F] rounded-lg flex items-center justify-center flex-shrink-0">
                             <Home className="w-6 h-6 text-white" />
                           </div>
                         )}
@@ -408,7 +408,7 @@ export function PendingListingsTable() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => setSelectedListing(listing)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-2 text-[#49769F] hover:bg-[#49769F]/20 rounded-lg transition-colors"
                           title="View Details"
                         >
                           <Eye className="w-4 h-4" />
@@ -504,7 +504,7 @@ export function PendingListingsTable() {
                     onClick={() => setCurrentPage(page)}
                     className={`px-3 py-2 text-sm rounded-lg transition-colors ${
                       currentPage === page
-                        ? "bg-gradient-to-r from-sky-500 to-blue-600 text-white"
+                        ? "bg-[#49769F] text-white"
                         : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
                     }`}
                   >
@@ -527,7 +527,7 @@ export function PendingListingsTable() {
         {selectedListing && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setSelectedListing(null)}>
             <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-              <div className="bg-gradient-to-r from-sky-500 to-blue-600 p-6 text-white">
+              <div className="bg-[#49769F] p-6 text-white">
                 <h3 className="text-2xl font-bold">Listing Details</h3>
               </div>
               
@@ -580,17 +580,17 @@ export function PendingListingsTable() {
                 )}
 
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-sky-50 p-4 rounded-lg">
+                  <div className="bg-[#49769F]/20 p-4 rounded-lg">
                     <label className="text-sm font-semibold text-gray-700 block mb-1">Bedrooms</label>
-                    <p className="text-2xl font-bold text-sky-600">{selectedListing.bedrooms}</p>
+                    <p className="text-2xl font-bold text-[#49769F]">{selectedListing.bedrooms}</p>
                   </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="bg-[#49769F]/20 p-4 rounded-lg">
                     <label className="text-sm font-semibold text-gray-700 block mb-1">Bathrooms</label>
-                    <p className="text-2xl font-bold text-blue-600">{selectedListing.bathrooms}</p>
+                    <p className="text-2xl font-bold text-[#49769F]">{selectedListing.bathrooms}</p>
                   </div>
-                  <div className="bg-indigo-50 p-4 rounded-lg">
+                  <div className="bg-[#49769F]/20 p-4 rounded-lg">
                     <label className="text-sm font-semibold text-gray-700 block mb-1">Square Feet</label>
-                    <p className="text-2xl font-bold text-indigo-600">{selectedListing.square_feet?.toLocaleString() || 'N/A'}</p>
+                    <p className="text-2xl font-bold text-[#49769F]">{selectedListing.square_feet?.toLocaleString() || 'N/A'}</p>
                   </div>
                 </div>
 

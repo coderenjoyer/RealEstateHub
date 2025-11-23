@@ -96,8 +96,8 @@ export function UserProfileDropdown({ onClose, onNavigateToProfile, onNavigateTo
             onClick={handlePropertyMaintenanceClick}
             className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors group"
           >
-            <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-              <Home className="w-4 h-4 text-blue-600" />
+            <div className="p-2 bg-[#49769F]/20 rounded-lg group-hover:bg-[#49769F]/30 transition-colors">
+              <Home className="w-4 h-4 text-[#49769F]" />
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium text-gray-900">Property Maintenance</p>
@@ -111,8 +111,8 @@ export function UserProfileDropdown({ onClose, onNavigateToProfile, onNavigateTo
           onClick={handleSettingsClick}
           className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors group"
         >
-          <div className="p-2 bg-sky-100 rounded-lg group-hover:bg-sky-200 transition-colors">
-            <Settings className="w-4 h-4 text-sky-600" />
+          <div className="p-2 bg-[#49769F]/20 rounded-lg group-hover:bg-[#49769F]/30 transition-colors">
+            <Settings className="w-4 h-4 text-[#49769F]" />
           </div>
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-900">Settings</p>

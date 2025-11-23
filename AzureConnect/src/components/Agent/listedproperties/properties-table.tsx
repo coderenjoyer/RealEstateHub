@@ -38,6 +38,7 @@ interface Property {
   listing_type: string
   media?: any
   is_pending?: boolean // Helper flag to identify pending properties
+  rent_end_date?: string | null // Date when rentee will vacate
 }
 
 export function PropertiesTable() {
@@ -53,6 +54,7 @@ export function PropertiesTable() {
   const [transferModalProperty, setTransferModalProperty] = useState<Property | null>(null)
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false)
   const [transferNotes, setTransferNotes] = useState("")
+  const [rentEndDate, setRentEndDate] = useState("") // New state for rent end date
   const [ownerSearchTerm, setOwnerSearchTerm] = useState("")
   const [ownerResults, setOwnerResults] = useState<any[]>([])
   const [ownerSearchLoading, setOwnerSearchLoading] = useState(false)
@@ -189,6 +191,9 @@ export function PropertiesTable() {
 
   const handleDeactivateListing = async (propertyId: number) => {
     try {
+      // Get property details first to send notification
+      const property = properties.find(p => p.id === propertyId)
+      
       const { error } = await supabase
         .from('listed_properties')
         .update({ is_deleted: true })
@@ -199,6 +204,33 @@ export function PropertiesTable() {
         console.error('Error deactivating listing:', error)
         alert('Failed to deactivate listing')
         return
+      }
+
+      // Send notification to owner if this is a rental that expired
+      if (property && property.listing_type === 'rent') {
+        const { data: ownershipData } = await supabase
+          .from('property_ownerships')
+          .select('owner_id')
+          .eq('property_id', propertyId)
+          .single()
+        
+        if (ownershipData?.owner_id) {
+          const { error: notificationError } = await supabase
+            .from('notifications')
+            .insert({
+              user_id: ownershipData.owner_id,
+              title: "Rental Period Ended",
+              message: `Your rental period for ${property.property_title} has ended. The property has been deactivated.`,
+              type: "maintenance",
+              related_property_id: propertyId,
+              related_agent_id: session?.user?.id,
+              read: false,
+            })
+          
+          if (notificationError) {
+            console.error('Error creating rental end notification:', notificationError)
+          }
+        }
       }
 
       // Refresh the properties list
@@ -269,6 +301,7 @@ export function PropertiesTable() {
   const openTransferModal = (property: Property) => {
     setTransferModalProperty(property)
     setTransferNotes("")
+    setRentEndDate("")
     setOwnerSearchTerm("")
     setOwnerResults([])
     setSelectedOwner(null)
@@ -282,6 +315,7 @@ export function PropertiesTable() {
     setIsTransferModalOpen(false)
     setTransferModalProperty(null)
     setTransferNotes("")
+    setRentEndDate("")
     setTransferError(null)
     setTransferSuccess(null)
     setTransferLoading(false)
@@ -370,6 +404,7 @@ export function PropertiesTable() {
           selectedOwner.email,
         maintenance_status: "pending",
         notes: transferNotes.trim() || null,
+        rent_end_date: rentEndDate || null, // Add rent end date to payload
       }
 
       const { error: ownershipError } = await supabase
@@ -395,7 +430,33 @@ export function PropertiesTable() {
         throw listingUpdateError
       }
 
-      setTransferSuccess("Ownership transferred successfully. The homeowner now sees it in maintenance.")
+      // Create notification for renter when rental period is set
+      if (transferModalProperty.listing_type === "rent" && rentEndDate) {
+        const rentalEndDateObj = new Date(rentEndDate)
+        const notificationMessage = `Your rental period for ${transferModalProperty.property_title} will end on ${rentalEndDateObj.toLocaleDateString()}`
+        
+        const { error: notificationError } = await supabase
+          .from("notifications")
+          .insert({
+            user_id: selectedOwner.id,
+            title: "Rental Period Ending",
+            message: notificationMessage,
+            type: "maintenance",
+            related_property_id: transferModalProperty.id,
+            related_agent_id: session.user.id,
+            read: false,
+          })
+        
+        if (notificationError) {
+          console.error("Error creating rental notification:", notificationError)
+        }
+      }
+
+      setTransferSuccess(
+        transferModalProperty.listing_type === "rent" 
+          ? "Property marked as rented successfully. The renter now sees it in their maintenance." 
+          : "Ownership transferred successfully. The homeowner now sees it in maintenance."
+      )
       await fetchProperties()
       setTimeout(() => {
         closeTransferModal()
@@ -552,10 +613,10 @@ export function PropertiesTable() {
                         <button 
                           onClick={() => openTransferModal(property)}
                           className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 text-emerald-600 font-medium text-xs hover:bg-emerald-100 transition-colors"
-                          title="Transfer Ownership"
+                          title={property.listing_type === "rent" ? "Mark as Rented" : "Transfer Ownership"}
                         >
                           <UserPlus className="w-3 h-3" />
-                          Transfer
+                          {property.listing_type === "rent" ? "Rented" : "Transfer"}
                         </button>
                       )}
                       {!property.is_pending && property.approval_status !== "pending" && (
@@ -788,8 +849,14 @@ export function PropertiesTable() {
           >
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-semibold text-slate-900">Transfer Ownership</h3>
-                <p className="text-sm text-slate-500">Send {transferModalProperty.property_title} to a homeowner</p>
+                <h3 className="text-xl font-semibold text-slate-900">
+                  {transferModalProperty.listing_type === "rent" ? "Mark as Rented" : "Transfer Ownership"}
+                </h3>
+                <p className="text-sm text-slate-500">
+                  {transferModalProperty.listing_type === "rent" 
+                    ? `Set rental period for ${transferModalProperty.property_title}`
+                    : `Send ${transferModalProperty.property_title} to a homeowner`}
+                </p>
               </div>
               <button
                 onClick={closeTransferModal}
@@ -802,14 +869,14 @@ export function PropertiesTable() {
             <form className="px-6 py-6 space-y-4" onSubmit={handleTransferOwnership}>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Select Homeowner
+                  {transferModalProperty.listing_type === "rent" ? "Rentee Name/Email" : "Select Homeowner"}
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     value={ownerSearchTerm}
                     onChange={(e) => setOwnerSearchTerm(e.target.value)}
-                    placeholder="Search by name or email"
+                    placeholder={transferModalProperty.listing_type === "rent" ? "Search rentee by name or email" : "Search by name or email"}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                   {ownerSearchLoading && (
@@ -846,22 +913,37 @@ export function PropertiesTable() {
                 )}
                 {selectedOwner && (
                   <p className="text-xs text-emerald-600 mt-1">
-                    Selected owner:{" "}
+                    Selected {transferModalProperty.listing_type === "rent" ? "rentee" : "owner"}:{" "}
                     {`${selectedOwner.first_name ?? ""} ${selectedOwner.last_name ?? ""}`.trim() ||
                       selectedOwner.email}
                   </p>
                 )}
               </div>
 
+              {transferModalProperty.listing_type === "rent" && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Rental End Date
+                  </label>
+                  <input
+                    type="date"
+                    value={rentEndDate}
+                    onChange={(e) => setRentEndDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">The date when the rentee will vacate the property</p>
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Notes for the Owner
+                  {transferModalProperty.listing_type === "rent" ? "Additional Notes" : "Notes for the Owner"}
                 </label>
                 <textarea
                   value={transferNotes}
                   onChange={(e) => setTransferNotes(e.target.value)}
                   rows={3}
-                  placeholder="Include reminders, warranty information, etc."
+                  placeholder={transferModalProperty.listing_type === "rent" ? "Include rental agreement details, house rules, etc." : "Include reminders, warranty information, etc."}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
@@ -893,7 +975,7 @@ export function PropertiesTable() {
                   disabled={transferLoading}
                 >
                   <Send className="w-4 h-4" />
-                  {transferLoading ? "Transferring..." : "Transfer"}
+                  {transferLoading ? (transferModalProperty.listing_type === "rent" ? "Marking..." : "Transferring...") : (transferModalProperty.listing_type === "rent" ? "Mark as Rented" : "Transfer")}
                 </button>
               </div>
             </form>

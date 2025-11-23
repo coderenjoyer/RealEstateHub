@@ -89,7 +89,7 @@ export default function FavoritesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-300/95 via-blue-200/95 to-blue-300/95 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-[#F0FFFF] p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -120,7 +120,7 @@ export default function FavoritesPage() {
         {loading || bookmarksLoading ? (
           <div className="flex items-center justify-center h-[calc(100vh-300px)]">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#49769F] mx-auto mb-4"></div>
               <p className="text-slate-600">Loading your favorites...</p>
             </div>
           </div>

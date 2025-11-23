@@ -236,7 +236,7 @@ function UserProfilePage() {
 
   return (
     <div 
-      className="min-h-screen bg-[#E8F6F8]"
+      className="min-h-screen bg-[#BDD8E9]"
       onClick={handleClickOutside}
     >
       {/* Hero Background Section */}

@@ -180,7 +180,7 @@ export function PropertiesTable({ properties, loading, onPropertyChange }: Prope
                   <td className="py-4 px-4 text-sm">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       property.property_status === 'available' ? 'bg-green-100 text-green-800' :
-                      property.property_status === 'rented' ? 'bg-blue-100 text-blue-800' :
+                      property.property_status === 'rented' ? 'bg-[#49769F]/20 text-[#49769F]' :
                       'bg-gray-100 text-gray-800'
                     }`}>
                       {property.property_status.charAt(0).toUpperCase() + property.property_status.slice(1)}
@@ -191,7 +191,7 @@ export function PropertiesTable({ properties, loading, onPropertyChange }: Prope
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEditClick(property)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 text-[#49769F] hover:bg-[#49769F]/20 rounded-lg transition-colors"
                         title="Edit property"
                       >
                         <Edit2 className="w-4 h-4" />
@@ -299,7 +299,7 @@ export function PropertiesTable({ properties, loading, onPropertyChange }: Prope
               <button
                 onClick={handleUpdateProperty}
                 disabled={isLoading}
-                className="flex-1 py-2 px-4 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                className="flex-1 py-2 px-4 text-sm font-medium text-white bg-[#49769F] rounded-lg hover:bg-[#49769F]/90 transition-colors disabled:opacity-50"
               >
                 {isLoading ? "Saving..." : "Save Changes"}
               </button>

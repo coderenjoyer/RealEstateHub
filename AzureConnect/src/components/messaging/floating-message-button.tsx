@@ -12,8 +12,6 @@ const FloatingMessageButton: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Get user role
-  const userRole = session?.user?.user_metadata?.role;
-  const isAdmin = userRole === 'admin';
 
   // Get admin ID on mount
   useEffect(() => {
@@ -100,7 +98,7 @@ const FloatingMessageButton: React.FC = () => {
     };
   }, [session?.user?.id, adminId]);
 
-  if (!session?.user?.id || isAdmin) return null;
+  if (!session?.user?.id) return null;
 
   // Don't return null while loading - show button even if admin ID hasn't loaded yet
   if (isLoading) {
@@ -135,7 +133,7 @@ const FloatingMessageButton: React.FC = () => {
             }
           }
         }}
-        className="fixed bottom-6 right-[68px] z-[999] bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all hover:scale-110 flex items-center justify-center"
+        className="fixed bottom-25 right-[20px] z-[999] bg-[#49769F] text-white rounded-full p-4 shadow-lg transition-all hover:scale-110 flex items-center justify-center"
       >
         <MessageCircle size={24} />
         {unreadCount > 0 && (

@@ -1,11 +1,23 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../../AuthContext";
-import { Wrench, ArrowLeft, CalendarDays, MapPin, ClipboardCheck, Loader2, CheckCircle2 } from "lucide-react";
+import { Wrench, ArrowLeft, CalendarDays, MapPin, ClipboardCheck, Loader2, CheckCircle2, Bell, X, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import supabase from "../../../supabaseClient";
 import { MaintenanceModal, MaintenanceConfirmationDetails } from "./maintenance_modal";
+import { LogoutConfirmationModal } from "../../ui/logout-confirmation-modal";
 
 export type MaintenanceStatus = "pending" | "in-progress" | "completed";
+
+interface Notification {
+  id: number;
+  user_id: string;
+  title: string;
+  message: string;
+  type: string;
+  related_property_id: number | null;
+  read: boolean;
+  created_at: string;
+}
 
 interface MaintenanceItem {
   id: number;
@@ -38,12 +50,16 @@ export default function PropertyMaintenancePage() {
   const navigate = useNavigate();
   const [maintenanceItems, setMaintenanceItems] = useState<MaintenanceItem[]>([]);
   const [repairHistory, setRepairHistory] = useState<MaintenanceLog[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [repairHistoryLoading, setRepairHistoryLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MaintenanceItem | null>(null);
   const [confirmationDetails, setConfirmationDetails] = useState<MaintenanceConfirmationDetails | null>(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     if (!session?.user?.id) {
@@ -52,6 +68,7 @@ export default function PropertyMaintenancePage() {
     }
     fetchMaintenanceItems();
     fetchRepairHistory();
+    fetchRentalNotifications();
   }, [session?.user?.id]);
 
   const fetchMaintenanceItems = async () => {
@@ -180,12 +197,88 @@ export default function PropertyMaintenancePage() {
     }
   };
 
+  const fetchRentalNotifications = async () => {
+    if (!session?.user?.id) return;
+
+    try {
+      // First, check if user has any rental properties
+      const { data: rentalProperties, error: rentalError } = await supabase
+        .from("property_ownerships_with_properties")
+        .select("id")
+        .eq("owner_id", session.user.id)
+        .limit(1);
+
+      if (rentalError || !rentalProperties || rentalProperties.length === 0) {
+        // User has no rental properties, don't show notifications
+        setNotifications([]);
+        return;
+      }
+
+      // User has rental properties, fetch their notifications
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .eq("type", "maintenance")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Failed to load notifications:", error);
+        return;
+      }
+
+      setNotifications(data || []);
+    } catch (error: any) {
+      console.error("Failed to fetch rental notifications:", error);
+    }
+  };
+
+  const markNotificationAsRead = async (notificationId: number) => {
+    try {
+      const { error } = await supabase
+        .from("notifications")
+        .update({ read: true })
+        .eq("id", notificationId)
+        .eq("user_id", session?.user?.id);
+
+      if (error) {
+        console.error("Error marking notification as read:", error);
+        return;
+      }
+
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
+      );
+    } catch (error: any) {
+      console.error("Exception marking notification as read:", error);
+    }
+  };
+
+  const deleteNotification = async (notificationId: number) => {
+    try {
+      const { error } = await supabase
+        .from("notifications")
+        .delete()
+        .eq("id", notificationId)
+        .eq("user_id", session?.user?.id);
+
+      if (error) {
+        console.error("Error deleting notification:", error);
+        return;
+      }
+
+      setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+    } catch (error: any) {
+      console.error("Exception deleting notification:", error);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
         return "bg-emerald-50 text-emerald-700 border border-emerald-200";
       case "in-progress":
-        return "bg-sky-50 text-sky-700 border border-sky-200";
+        return "bg-[#49769F]/20 text-[#49769F] border border-[#49769F]/30";
       case "pending":
         return "bg-amber-50 text-amber-700 border border-amber-200";
       default:
@@ -209,6 +302,25 @@ export default function PropertyMaintenancePage() {
   const openMaintenanceModal = (item: MaintenanceItem) => {
     setSelectedItem(item);
     setIsModalOpen(true);
+  };
+
+  const handleSignOut = async () => {
+    setIsLoggingOut(true);
+    try {
+      await supabase.auth.signOut();
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Error signing out:", error);
+      setIsLoggingOut(false);
+    }
+  };
+
+  const openLogoutModal = () => {
+    setShowLogoutModal(true);
+  };
+
+  const closeLogoutModal = () => {
+    setShowLogoutModal(false);
   };
 
   const closeMaintenanceModal = () => {
@@ -241,26 +353,49 @@ export default function PropertyMaintenancePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-300 via-blue-200 to-blue-300">
+    <div className="min-h-screen bg-[#BDD8E9]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Back Button */}
-        <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3 text-sm text-slate-500">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate("/user?view=listings")}
+                className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                Find Properties
+              </button>
+            </div>
+            {maintenanceItems.length > 0 && (
+              <>
+                <span className="text-slate-400">•</span>
+                <button
+                  onClick={() => navigate("/user?view=listings")}
+                  className="text-slate-600 hover:text-slate-900 font-medium transition-colors"
+                >
+                  Browse Listings
+                </button>
+              </>
+            )}
+          </div>
           <button
-            onClick={() => navigate("/user")}
+            onClick={openLogoutModal}
             className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium transition-colors"
+            title="Sign out"
           >
-            <ArrowLeft className="w-5 h-5" />
-            Back to dashboard
+            <LogOut className="w-5 h-5" />
+            <span className="text-sm">Sign Out</span>
           </button>
         </div>
 
         {/* Header */}
-        <div className="mb-8 rounded-3xl border border-white/60 bg-white/90 px-8 py-8 shadow-2xl shadow-sky-500/10 backdrop-blur-sm">
+        <div className="mb-8 rounded-3xl border border-white/60 bg-white/90 px-8 py-8 shadow-2xl shadow-[#49769F]/10 backdrop-blur-sm">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-sky-600">Maintenance</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#49769F]">Maintenance</p>
               <h1 className="mt-3 text-3xl font-semibold text-slate-900 flex items-center gap-3">
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg">
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#49769F] text-white shadow-lg">
                   <Wrench className="w-6 h-6" />
                 </span>
                 Property Maintenance
@@ -269,11 +404,83 @@ export default function PropertyMaintenancePage() {
                 Track open issues, submit new service requests, and stay aligned with your agent on every property you own.
               </p>
             </div>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 items-start">
+              {notifications.length > 0 && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="relative inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-gradient-to-br from-white to-[#49769F]/10 border border-white/70 shadow-inner hover:shadow-md transition"
+                  title="Rental Notifications"
+                >
+                  <Bell className="w-5 h-5 text-[#49769F]" />
+                  {notifications.filter((n) => !n.read).length > 0 && (
+                    <span className="absolute top-2 right-2 inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-500 text-white text-xs font-bold">
+                      {notifications.filter((n) => !n.read).length}
+                    </span>
+                  )}
+                </button>
+                {showNotifications && (
+                  <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-2xl border border-white/70 bg-white/95 shadow-2xl z-50">
+                    <div className="p-4 border-b border-slate-100">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-slate-900">Rental Notifications</h3>
+                        <button
+                          onClick={() => setShowNotifications(false)}
+                          className="p-1 hover:bg-slate-100 rounded-lg transition"
+                        >
+                          <X className="w-4 h-4 text-slate-500" />
+                        </button>
+                      </div>
+                    </div>
+                    {notifications.length === 0 ? (
+                      <div className="p-4 text-center text-sm text-slate-500">
+                        No notifications
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-slate-100">
+                        {notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            className={`p-4 hover:bg-slate-50 transition cursor-pointer ${
+                              !notification.read ? "bg-blue-50" : ""
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <h4 className="text-sm font-semibold text-slate-900">{notification.title}</h4>
+                              <button
+                                onClick={() => deleteNotification(notification.id)}
+                                className="p-1 hover:bg-slate-200 rounded transition"
+                                title="Delete notification"
+                              >
+                                <X className="w-3 h-3 text-slate-400" />
+                              </button>
+                            </div>
+                            <p className="text-xs text-slate-600 mb-2">{notification.message}</p>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] text-slate-400">
+                                {new Date(notification.created_at).toLocaleDateString()}
+                              </span>
+                              {!notification.read && (
+                                <button
+                                  onClick={() => markNotificationAsRead(notification.id)}
+                                  className="text-[10px] text-[#49769F] font-semibold hover:underline"
+                                >
+                                  Mark as read
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              )}
               {overviewStats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="min-w-[140px] rounded-2xl border border-white/70 bg-gradient-to-br from-white to-sky-50/70 px-5 py-4 text-slate-600 shadow-inner"
+                  className="min-w-[140px] rounded-2xl border border-white/70 bg-gradient-to-br from-white to-[#49769F]/10 px-5 py-4 text-slate-600 shadow-inner"
                 >
                   <p className="text-[11px] uppercase tracking-[0.25em] text-slate-400">{stat.label}</p>
                   <p className="mt-2 text-3xl font-semibold text-slate-900">{loading ? "—" : stat.value}</p>
@@ -291,7 +498,7 @@ export default function PropertyMaintenancePage() {
               <p className="text-sm text-slate-500">Choose a property to submit or review maintenance activity.</p>
             </div>
             {!loading && (
-              <span className="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-sky-700 shadow-sm">
+              <span className="inline-flex items-center rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-[#49769F] shadow-sm">
                 {maintenanceItems.length} total
               </span>
             )}
@@ -324,9 +531,9 @@ export default function PropertyMaintenancePage() {
               {maintenanceItems.map((item) => (
                 <div
                   key={`card-${item.id}`}
-                  className="group relative overflow-hidden rounded-3xl border border-white/70 bg-white/90 p-6 shadow-xl shadow-sky-500/10 transition hover:-translate-y-1 hover:shadow-sky-500/30"
+                  className="group relative overflow-hidden rounded-3xl border border-white/70 bg-white/90 p-6 shadow-xl shadow-[#49769F]/10 transition hover:-translate-y-1 hover:shadow-[#49769F]/30"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white via-transparent to-sky-100 opacity-0 transition group-hover:opacity-100" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white via-transparent to-[#49769F]/20 opacity-0 transition group-hover:opacity-100" />
                   <div className="relative flex flex-col gap-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -338,13 +545,13 @@ export default function PropertyMaintenancePage() {
                         {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
                       </span>
                     </div>
-                    <div className="rounded-2xl bg-gradient-to-r from-sky-50/80 to-blue-50/80 p-4 text-sm text-slate-600">
+                    <div className="rounded-2xl bg-gradient-to-r from-[#49769F]/10 to-[#49769F]/10 p-4 text-sm text-slate-600">
                       <div className="flex items-center gap-2 font-medium text-slate-700">
-                        <CalendarDays className="w-4 h-4 text-sky-600" />
+                        <CalendarDays className="w-4 h-4 text-[#49769F]" />
                         {item.dueDate ? `Next due ${new Date(item.dueDate).toLocaleDateString()}` : "No schedule on file"}
                       </div>
                       <div className="mt-2 flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-blue-500" />
+                        <MapPin className="w-4 h-4 text-[#49769F]" />
                         <span>{item.address}</span>
                       </div>
                       {item.notes && item.notes.trim() !== "" && (
@@ -353,7 +560,7 @@ export default function PropertyMaintenancePage() {
                     </div>
                     <button
                       onClick={() => openMaintenanceModal(item)}
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-600/30 transition hover:shadow-sky-600/50"
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#49769F] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-[#49769F]/30 transition hover:shadow-[#49769F]/50"
                     >
                       <ClipboardCheck className="w-4 h-4" />
                       Submit Maintenance Request
@@ -394,10 +601,10 @@ export default function PropertyMaintenancePage() {
               </p>
             </div>
           ) : (
-            <div className="rounded-3xl border border-white/70 bg-white/90 shadow-2xl shadow-sky-500/10 overflow-hidden backdrop-blur">
+            <div className="rounded-3xl border border-white/70 bg-white/90 shadow-2xl shadow-[#49769F]/10 overflow-hidden backdrop-blur">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-slate-100">
-                  <thead className="bg-gradient-to-r from-sky-100 to-blue-50">
+                  <thead className="bg-gradient-to-r from-[#49769F]/20 to-[#49769F]/10">
                     <tr>
                       <th scope="col" className="px-6 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.25em]">
                         Property ID
@@ -424,7 +631,7 @@ export default function PropertyMaintenancePage() {
                   </thead>
                   <tbody className="bg-white/70 divide-y divide-slate-100">
                     {repairHistory.map((log) => (
-                      <tr key={log.id} className="hover:bg-blue-50/60">
+                      <tr key={log.id} className="hover:bg-[#49769F]/10">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900">
                           {log.property_title}
                         </td>
@@ -480,6 +687,13 @@ export default function PropertyMaintenancePage() {
           open={Boolean(confirmationDetails)}
           details={confirmationDetails}
           onClose={() => setConfirmationDetails(null)}
+        />
+
+        <LogoutConfirmationModal
+          open={showLogoutModal}
+          onConfirm={handleSignOut}
+          onCancel={closeLogoutModal}
+          isProcessing={isLoggingOut}
         />
       </div>
     </div>
@@ -540,7 +754,7 @@ function MaintenanceRequestConfirmationModal({
 
           <button
             onClick={onClose}
-            className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-600/30 transition hover:shadow-sky-600/50"
+            className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-[#49769F] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-[#49769F]/30 transition hover:shadow-[#49769F]/50"
           >
             Done
           </button>

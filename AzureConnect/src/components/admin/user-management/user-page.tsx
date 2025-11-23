@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { AdminLayout } from "@/components/layouts/AdminLayout"
-import { Plus, Search, CheckCircle} from "lucide-react"
+import { Plus, Search, CheckCircle } from "lucide-react"
 import { AccountCard } from "./user-card"
 import supabase from "@/supabaseClient"
 import LoadingAnimation from "@/components/ui/loadingui"
@@ -275,7 +275,7 @@ export default function UserManagementPage() {
               <button
                 onClick={() => setActiveTab("agent")}
                 className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                  activeTab === "agent" ? "bg-[#4A90E2] text-white" : "bg-white text-gray-700 hover:bg-gray-50"
+                  activeTab === "agent" ? "bg-[#49769F] text-white" : "bg-white text-gray-700 hover:bg-gray-50"
                 }`}
               >
                 Agent Account
@@ -283,7 +283,7 @@ export default function UserManagementPage() {
               <button
                 onClick={() => setActiveTab("user")}
                 className={`px-6 py-2 rounded-md font-medium transition-colors ${
-                  activeTab === "user" ? "bg-[#4A90E2] text-white" : "bg-white text-gray-700 hover:bg-gray-50"
+                  activeTab === "user" ? "bg-[#49769F] text-white" : "bg-white text-gray-700 hover:bg-gray-50"
                 }`}
               >
                 User Account
@@ -310,7 +310,7 @@ export default function UserManagementPage() {
                 placeholder="Search by name, email, or phone..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#49769F] focus:border-transparent"
               />
             </div>
           </div>
@@ -428,7 +428,7 @@ export default function UserManagementPage() {
                     type="text"
                     value={agentForm.firstName}
                     onChange={(e) => setAgentForm({ ...agentForm, firstName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#49769F] focus:border-transparent"
                     placeholder="John"
                     required
                   />
@@ -443,7 +443,7 @@ export default function UserManagementPage() {
                     type="text"
                     value={agentForm.lastName}
                     onChange={(e) => setAgentForm({ ...agentForm, lastName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#49769F] focus:border-transparent"
                     placeholder="Doe"
                     required
                   />
@@ -458,7 +458,7 @@ export default function UserManagementPage() {
                     type="email"
                     value={agentForm.email}
                     onChange={(e) => setAgentForm({ ...agentForm, email: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#49769F] focus:border-transparent"
                     placeholder="agent@example.com"
                     required
                   />
@@ -473,7 +473,7 @@ export default function UserManagementPage() {
                     type="tel"
                     value={agentForm.mobileNumber}
                     onChange={(e) => setAgentForm({ ...agentForm, mobileNumber: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#49769F] focus:border-transparent"
                     placeholder="+63 912 345 6789"
                   />
                 </div>
@@ -487,7 +487,7 @@ export default function UserManagementPage() {
                     type="password"
                     value={agentForm.password}
                     onChange={(e) => setAgentForm({ ...agentForm, password: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4A90E2] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#49769F] focus:border-transparent"
                     placeholder="Minimum 6 characters"
                     required
                   />
@@ -523,7 +523,7 @@ export default function UserManagementPage() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-2 bg-[#4A90E2] text-white rounded-md hover:bg-[#3A7BC8] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 px-4 py-2 bg-[#49769F] text-white rounded-md hover:bg-[#49769F]/90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? "Creating..." : "Create Agent"}

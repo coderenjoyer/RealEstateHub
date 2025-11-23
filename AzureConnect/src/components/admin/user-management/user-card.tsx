@@ -208,7 +208,7 @@ export function AccountCard({ account, showStatus, isAgent = true, onAccountUpda
             <div className="p-6 space-y-6">
               {/* Profile Header */}
               <div className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-sky-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                <div className="w-16 h-16 bg-[#49769F] rounded-full flex items-center justify-center mx-auto mb-3">
                   <Briefcase className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">{account.name}</h3>
@@ -227,7 +227,7 @@ export function AccountCard({ account, showStatus, isAgent = true, onAccountUpda
               <div className="space-y-4">
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center gap-3 mb-3">
-                    <Mail className="w-5 h-5 text-sky-600 flex-shrink-0" />
+                    <Mail className="w-5 h-5 text-[#49769F] flex-shrink-0" />
                     <div>
                       <p className="text-xs text-gray-600 font-medium">Email</p>
                       <p className="text-sm text-gray-900 break-all">{account.email}</p>
@@ -237,7 +237,7 @@ export function AccountCard({ account, showStatus, isAgent = true, onAccountUpda
 
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center gap-3 mb-3">
-                    <Phone className="w-5 h-5 text-sky-600 flex-shrink-0" />
+                    <Phone className="w-5 h-5 text-[#49769F] flex-shrink-0" />
                     <div>
                       <p className="text-xs text-gray-600 font-medium">Phone</p>
                       <p className="text-sm text-gray-900">{account.phone}</p>
@@ -249,7 +249,7 @@ export function AccountCard({ account, showStatus, isAgent = true, onAccountUpda
                 {isAgent && (
                   <div className="bg-gray-50 rounded-lg p-4">
                     <div className="flex items-center gap-3">
-                      <Building2 className="w-5 h-5 text-sky-600 flex-shrink-0" />
+                      <Building2 className="w-5 h-5 text-[#49769F] flex-shrink-0" />
                       <div>
                         <p className="text-xs text-gray-600 font-medium">Listed Properties</p>
                         <p className="text-sm text-gray-900 font-semibold">{account.properties} properties</p>
@@ -258,19 +258,13 @@ export function AccountCard({ account, showStatus, isAgent = true, onAccountUpda
                   </div>
                 )}
               </div>
-
-              {/* Agent ID */}
-              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                <p className="text-xs text-blue-600 font-medium mb-1">Agent ID</p>
-                <p className="text-xs text-blue-900 font-mono break-all">{account.id}</p>
-              </div>
             </div>
 
             {/* Footer */}
             <div className="border-t border-gray-200 p-6 space-y-3">
               <button
                 onClick={() => setShowModal(false)}
-                className="w-full py-2 px-4 bg-sky-600 text-white font-medium rounded-lg hover:bg-sky-700 transition-colors"
+                className="w-full py-2 px-4 bg-[#49769F] text-white font-medium rounded-lg hover:bg-[#49769F]/90 transition-colors"
               >
                 Close
               </button>
@@ -298,7 +292,7 @@ export function AccountCard({ account, showStatus, isAgent = true, onAccountUpda
                 {accountStatus === "Active" ? (
                   <ShieldOff className="w-6 h-6 text-yellow-600" />
                 ) : (
-                  <Shield className="w-6 h-6 text-blue-600" />
+                  <Shield className="w-6 h-6 text-[#49769F]" />
                 )}
               </div>
 
@@ -340,7 +334,7 @@ export function AccountCard({ account, showStatus, isAgent = true, onAccountUpda
                 className={`flex-1 py-2 px-4 text-sm font-medium text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                   accountStatus === "Active"
                     ? "bg-yellow-600 hover:bg-yellow-700"
-                    : "bg-blue-600 hover:bg-blue-700"
+                    : "bg-[#49769F] hover:bg-[#49769F]/90"
                 }`}
               >
                 {isLoading

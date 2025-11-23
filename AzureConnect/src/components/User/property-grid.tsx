@@ -153,7 +153,7 @@ export function PropertyGrid({ activeTab, filters, onContactAgent, searchLocatio
             /* Loading State */
             <div className="flex items-center justify-center h-[calc(100vh-200px)]">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#49769F] mx-auto mb-4"></div>
                 <p className="text-slate-600">Loading properties...</p>
               </div>
             </div>
@@ -181,8 +181,8 @@ export function PropertyGrid({ activeTab, filters, onContactAgent, searchLocatio
             /* Empty State for No Properties */
             <div className="flex items-center justify-center h-[calc(100vh-200px)]">
               <div className="text-center py-16 bg-white rounded-2xl shadow-lg max-w-md px-8">
-                <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Home className="w-12 h-12 text-blue-500" />
+                <div className="w-24 h-24 bg-[#49769F]/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Home className="w-12 h-12 text-[#49769F]" />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-2">
                   No properties available

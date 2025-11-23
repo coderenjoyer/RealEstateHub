@@ -131,7 +131,6 @@ export function MessengerDropdown({
     };
   }, [fetchConversations]);
 
-
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 0) {

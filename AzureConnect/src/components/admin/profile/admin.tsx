@@ -255,7 +255,7 @@ const AdminControls: React.FC = () => {
           </h3>
           <button
             onClick={refreshSystemStatus}
-            className="flex items-center gap-2 px-4 py-2 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-sm bg-[#49769F]/20 text-[#49769F] rounded-lg hover:bg-[#49769F]/30 transition-colors"
           >
             <RefreshCw size={16} />
             Refresh
@@ -272,13 +272,13 @@ const AdminControls: React.FC = () => {
             <p className="text-sm text-green-700 mt-1">All systems operational</p>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-[#49769F]/20 border border-[#49769F]/30 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="text-blue-600" size={20} />
-              <span className="font-semibold text-blue-900">Active Users</span>
+              <Users className="text-[#49769F]" size={20} />
+              <span className="font-semibold text-[#49769F]">Active Users</span>
             </div>
-            <p className="text-2xl font-bold text-blue-600">{systemHealth.activeUsers.toLocaleString()}</p>
-            <p className="text-sm text-blue-700 mt-1">Total users registered</p>
+            <p className="text-2xl font-bold text-[#49769F]">{systemHealth.activeUsers.toLocaleString()}</p>
+            <p className="text-sm text-[#49769F] mt-1">Total users registered</p>
           </div>
         </div>
 
@@ -292,12 +292,12 @@ const AdminControls: React.FC = () => {
               {systemHealth.databaseStatus}
             </span>
           </div>
-          <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="flex items-center justify-between p-3 bg-[#49769F]/20 rounded-lg border border-[#49769F]/30">
             <div className="flex items-center gap-2">
-              <Home className="text-blue-600" size={18} />
-              <span className="text-sm text-blue-700">Total Listings</span>
+              <Home className="text-[#49769F]" size={18} />
+              <span className="text-sm text-[#49769F]">Total Listings</span>
             </div>
-            <span className="text-sm font-semibold text-blue-600">{systemHealth.totalListings}</span>
+            <span className="text-sm font-semibold text-[#49769F]">{systemHealth.totalListings}</span>
           </div>
           <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200">
             <div className="flex items-center gap-2">
@@ -332,7 +332,7 @@ const AdminControls: React.FC = () => {
                 onClick={() => toggleFeature(key as keyof typeof features)}
                 disabled={loadingFeature === key}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  value ? 'bg-blue-600' : 'bg-gray-300'
+                  value ? 'bg-[#49769F]' : 'bg-gray-300'
                 } ${loadingFeature === key ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <span
@@ -374,7 +374,7 @@ const AdminControls: React.FC = () => {
                   ? 'bg-green-50 border-green-200'
                   : activity.type === 'warning'
                   ? 'bg-yellow-50 border-yellow-200'
-                  : 'bg-blue-50 border-blue-200'
+                  : 'bg-[#49769F]/20 border-[#49769F]/30'
               }`}
             >
               <div className={`mt-0.5 ${
@@ -382,7 +382,7 @@ const AdminControls: React.FC = () => {
                   ? 'text-green-600'
                   : activity.type === 'warning'
                   ? 'text-yellow-600'
-                  : 'text-blue-600'
+                  : 'text-[#49769F]'
               }`}>
                 {activity.icon === 'home' ? (
                   <Home size={18} />
