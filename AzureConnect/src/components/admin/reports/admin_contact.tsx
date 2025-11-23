@@ -237,7 +237,7 @@ const AdminMessaging: React.FC = () => {
     try {
       setSendingMessage(true);
       
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('admin_messages')
         .insert([
           {

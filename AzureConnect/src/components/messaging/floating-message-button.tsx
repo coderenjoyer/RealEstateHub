@@ -12,8 +12,6 @@ const FloatingMessageButton: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Get user role
-  const userRole = session?.user?.user_metadata?.role;
-  const isAdmin = userRole === 'admin';
 
   // Get admin ID on mount
   useEffect(() => {

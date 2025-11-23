@@ -122,11 +122,6 @@ export default function HomePage() {
     setAgentToContact(undefined);
   };
 
-  // Function to navigate to maintenance while preserving listings view state
-  const navigateToMaintenance = () => {
-    // Use replace to prevent back button issues
-    window.location.href = "/user/property-maintenance";
-  };
 
   return (
     <div className="h-screen bg-[#BDD8E9] flex flex-col lg:flex-row overflow-hidden">
