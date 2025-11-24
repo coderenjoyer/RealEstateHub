@@ -22,8 +22,6 @@ export function useNotifications() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
-  const realtimeChannelRef = useState<RealtimeChannel | null>(null)[1];
-
   // Fetch notifications from database
   const fetchNotifications = useCallback(async () => {
     if (!session?.user?.id) {
