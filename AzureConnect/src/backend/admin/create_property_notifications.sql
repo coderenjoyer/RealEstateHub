@@ -17,7 +17,7 @@ BEGIN
   SELECT 
     auth.users.id,
     'New Property Listed',
-    agent_name || ' posted a new ' || NEW.property_title || ' in ' || NEW.city || ' for $' || TO_CHAR(NEW.price, 'FM9,999,999.99'),
+    agent_name || ' posted a new ' || NEW.property_title || ' in ' || NEW.city || ' for Php ' || TO_CHAR(NEW.price, 'FM9,999,999.99'),
     'property',
     NEW.id,
     NEW.user_id,

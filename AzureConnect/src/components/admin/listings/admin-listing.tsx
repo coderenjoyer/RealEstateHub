@@ -4,7 +4,7 @@ import { PendingListingsTable } from "./listings-table"
 export default function ListingApprovalsPage() {
   return (
     <AdminLayout>
-      <div className="p-6">
+      <div className="p-0">
         <PendingListingsTable />
       </div>
     </AdminLayout>

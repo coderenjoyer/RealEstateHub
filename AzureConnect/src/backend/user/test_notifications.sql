@@ -18,7 +18,7 @@ INSERT INTO notifications (
 ) VALUES (
   'USER_ID_HERE',
   'New Property Listed',
-  'John Smith posted a new 3 Bedroom House in Manila for $500,000.00',
+  'John Smith posted a new 3 Bedroom House in Manila for Php 500,000.00',
   'property',
   NULL,
   NULL,

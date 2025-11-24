@@ -413,7 +413,7 @@ const AdminControls: React.FC = () => {
 export default function AdminProfilePage() {
   return (
     <AdminLayout>
-      <div className="p-6">
+      <div className="p-6" style={{ backgroundColor: '#BDD8E9', minHeight: '100vh' }}>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Admin Controls & Settings
         </h1>

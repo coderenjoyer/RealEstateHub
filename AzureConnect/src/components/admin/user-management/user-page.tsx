@@ -243,7 +243,7 @@ export default function UserManagementPage() {
   if (hasError && !loading && error) {
     return (
       <AdminLayout>
-        <div className="overflow-auto">
+        <div className="overflow-auto" style={{ backgroundColor: '#BDD8E9', minHeight: '100vh' }}>
           <div className="p-8">
             <div className="bg-red-50 border border-red-200 rounded-md p-6">
               <h2 className="text-lg font-semibold text-red-800 mb-2">Error Loading Page</h2>
@@ -268,7 +268,7 @@ export default function UserManagementPage() {
 
   return (
     <AdminLayout>
-      <div className="overflow-auto">
+      <div className="overflow-auto" style={{ backgroundColor: '#BDD8E9', minHeight: '100vh' }}>
         <div className="p-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex gap-2">
