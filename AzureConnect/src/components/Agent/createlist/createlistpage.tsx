@@ -144,7 +144,8 @@ export default function ListPropertyPage() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [isAgent, setIsAgent] = useState<boolean | null>(null);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-  const [propertyListingsDisabled, setPropertyListingsDisabled] = useState(false);
+  const [propertyListingsDisabled, setPropertyListingsDisabled] =
+    useState(false);
   const [showDisabledModal, setShowDisabledModal] = useState(false);
 
   const propertyTypes = [
@@ -202,37 +203,37 @@ export default function ListPropertyPage() {
     const checkPropertyListingsStatus = async () => {
       try {
         const { data: settings, error } = await supabase
-          .from('admin_settings')
-          .select('property_listings_enabled')
+          .from("admin_settings")
+          .select("property_listings_enabled")
           .single();
-        
+
         if (error) {
-          console.warn('Error fetching admin_settings:', error);
+          console.warn("Error fetching admin_settings:", error);
           // Default to enabled if there's an error
           setPropertyListingsDisabled(false);
           setShowDisabledModal(false);
           return;
         }
-        
-        console.log('Admin settings fetched:', settings);
-        
+
+        console.log("Admin settings fetched:", settings);
+
         if (settings && settings.property_listings_enabled === false) {
-          console.log('Property listings are disabled');
+          console.log("Property listings are disabled");
           setPropertyListingsDisabled(true);
           setShowDisabledModal(true);
         } else {
-          console.log('Property listings are enabled');
+          console.log("Property listings are enabled");
           setPropertyListingsDisabled(false);
           setShowDisabledModal(false);
         }
       } catch (error) {
-        console.error('Exception checking property listings status:', error);
+        console.error("Exception checking property listings status:", error);
         // Default to enabled if there's an error
         setPropertyListingsDisabled(false);
         setShowDisabledModal(false);
       }
     };
-    
+
     checkPropertyListingsStatus();
   }, []);
 
@@ -313,7 +314,9 @@ export default function ListPropertyPage() {
 
     // Check if property listings are disabled
     if (propertyListingsDisabled) {
-      setSubmitError("Property listings are currently disabled. Please try again later.");
+      setSubmitError(
+        "Property listings are currently disabled. Please try again later."
+      );
       return;
     }
 
@@ -745,10 +748,10 @@ export default function ListPropertyPage() {
 
   return (
     <AgentLayout>
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <div className="max-w-7xl min-w-[375px] mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-slate-900">
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
               List New Property
             </h1>
             <p className="text-slate-600 mt-2">
@@ -758,11 +761,11 @@ export default function ListPropertyPage() {
           </div>
 
           {submitSuccess && (
-            <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-lg border border-green-200">
-              <div className="flex items-start gap-3">
-                <Check className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-100 text-green-700 rounded-lg border border-green-200">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <Check className="w-4 sm:w-5 h-4 sm:h-5 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold">
+                  <p className="text-sm sm:text-base font-semibold">
                     Property submitted successfully!
                   </p>
                   <p className="text-sm mt-1">
@@ -775,20 +778,18 @@ export default function ListPropertyPage() {
           )}
 
           {submitError && (
-            <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">
+            <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-100 text-red-700 rounded-lg text-sm sm:text-base">
               {submitError}
             </div>
           )}
-
-
 
           <div className="bg-white rounded-3xl shadow-lg sm:p-8 p-4">
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* Basic Information Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <Home className="w-5 h-5 text-[#49769F]" />
-                  <h2 className="text-xl font-bold text-slate-900">
+                  <Home className="w-4 sm:w-5 h-4 sm:h-5 text-[#49769F]" />
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-900">
                     Basic Information
                   </h2>
                 </div>
@@ -919,8 +920,8 @@ export default function ListPropertyPage() {
               {/* Pricing & Details Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <DollarSign className="w-5 h-5 text-[#49769F]" />
-                  <h2 className="text-xl font-bold text-slate-900">
+                  <DollarSign className="w-4 sm:w-5 h-4 sm:h-5 text-[#49769F]" />
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-900">
                     Pricing & Property Details
                   </h2>
                 </div>
@@ -1122,8 +1123,10 @@ export default function ListPropertyPage() {
               {/* Location Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <MapPin className="w-5 h-5 text-[#49769F]" />
-                  <h2 className="text-xl font-bold text-slate-900">Location</h2>
+                  <MapPin className="w-4 sm:w-5 h-4 sm:h-5 text-[#49769F]" />
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-900">
+                    Location
+                  </h2>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">
@@ -1213,8 +1216,8 @@ export default function ListPropertyPage() {
               {/* Description Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <FileText className="w-5 h-5 text-[#49769F]" />
-                  <h2 className="text-xl font-bold text-slate-900">
+                  <FileText className="w-4 sm:w-5 h-4 sm:h-5 text-[#49769F]" />
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-900">
                     Property Description
                   </h2>
                 </div>
@@ -1241,8 +1244,8 @@ export default function ListPropertyPage() {
               {/* About This Property Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <FileText className="w-5 h-5 text-[#49769F]" />
-                  <h2 className="text-xl font-bold text-slate-900">
+                  <FileText className="w-4 sm:w-5 h-4 sm:h-5 text-[#49769F]" />
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-900">
                     About This Property
                   </h2>
                 </div>
@@ -1271,8 +1274,10 @@ export default function ListPropertyPage() {
               {/* Nearby Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <MapPin className="w-5 h-5 text-[#49769F]" />
-                  <h2 className="text-xl font-bold text-slate-900">Nearby</h2>
+                  <MapPin className="w-4 sm:w-5 h-4 sm:h-5 text-[#49769F]" />
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-900">
+                    Nearby
+                  </h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1362,7 +1367,7 @@ export default function ListPropertyPage() {
 
               {/* Features & Amenities Section */}
               <div className="space-y-4">
-                <h2 className="text-xl font-bold text-slate-900">
+                <h2 className="text-lg sm:text-xl font-bold text-slate-900">
                   Features & Amenities
                 </h2>
 
@@ -1505,7 +1510,7 @@ export default function ListPropertyPage() {
 
               {/* Property Images Section */}
               <div className="space-y-4">
-                <h2 className="text-xl font-bold text-slate-900">
+                <h2 className="text-lg sm:text-xl font-bold text-slate-900">
                   Property Images
                 </h2>
                 <p className="text-sm text-slate-600">
@@ -1588,8 +1593,8 @@ export default function ListPropertyPage() {
               {/* Contact Information Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <User className="w-5 h-5 text-[#49769F]" />
-                  <h2 className="text-xl font-bold text-slate-900">
+                  <User className="w-4 sm:w-5 h-4 sm:h-5 text-[#49769F]" />
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-900">
                     Contact Information
                   </h2>
                 </div>
@@ -1627,22 +1632,22 @@ export default function ListPropertyPage() {
               <hr className="border-slate-200" />
 
               {/* Form Actions */}
-              <div className="flex justify-between items-center pt-4">
-                <p className="text-sm text-slate-600">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 pt-4">
+                <p className="text-xs sm:text-sm text-slate-600">
                   <span className="text-red-500">*</span> Required fields
                 </p>
-                <div className="flex gap-3">
+                <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
                   <button
                     type="button"
                     onClick={handleCancel}
-                    className="px-6 py-2 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded-lg font-medium transition-colors"
+                    className="flex-1 sm:flex-none px-4 sm:px-6 py-2 border border-slate-300 text-slate-700 hover:bg-slate-100 rounded-lg font-medium transition-colors text-sm sm:text-base"
                     disabled={isSubmitting}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2 bg-[#49769F] hover:bg-[#3a5d7f] text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+                    className="flex-1 sm:flex-none px-4 sm:px-6 py-2 bg-[#49769F] hover:bg-[#3a5d7f] text-white rounded-lg font-medium transition-colors disabled:opacity-50 text-sm sm:text-base"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? "Submitting..." : "Submit Property"}
@@ -1657,10 +1662,7 @@ export default function ListPropertyPage() {
         open={showConfirmationModal}
         onClose={() => setShowConfirmationModal(false)}
       />
-      <CreationDisabledModal
-        open={showDisabledModal}
-        onClose={() => {}}
-      />
+      <CreationDisabledModal open={showDisabledModal} onClose={() => {}} />
     </AgentLayout>
   );
 }

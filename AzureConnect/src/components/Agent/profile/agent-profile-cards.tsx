@@ -586,7 +586,7 @@ export function AgentProfileCards() {
                       key={property.id}
                       className="border border-[#F0FFFF] rounded-xl overflow-hidden hover:shadow-lg transition-shadow bg-[#FFFFFF]"
                     >
-                      <div className="h-40 bg-gradient-to-br from-[#0A4174]/20 to-[#49769F]/30 relative">
+                      <div className="h-32 sm:h-40 bg-gradient-to-br from-[#0A4174]/20 to-[#49769F]/30 relative">
                         {imageUrl && (
                           <img
                             src={imageUrl}
@@ -600,19 +600,19 @@ export function AgentProfileCards() {
                           </span>
                         </div>
                       </div>
-                      <div className="p-4">
-                        <h4 className="font-semibold text-[#0A4174] mb-2">
+                      <div className="p-3 sm:p-4">
+                        <h4 className="text-sm sm:text-base font-semibold text-[#0A4174] mb-2">
                           {property.property_title}
                         </h4>
-                        <div className="flex items-center gap-2 text-[#49769F] text-sm mb-3">
-                          <MapPin className="w-4 h-4" />
+                        <div className="flex items-center gap-2 text-[#49769F] text-xs sm:text-sm mb-2 sm:mb-3">
+                          <MapPin className="w-3 sm:w-4 h-3 sm:h-4 flex-shrink-0" />
                           <span>
                             {property.street_address}, {property.city}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between flex-wrap gap-2">
                           <div>
-                            <p className="text-xl font-bold text-[#49769F]">
+                            <p className="text-lg sm:text-xl font-bold text-[#49769F]">
                               ₱{property.price.toLocaleString()}
                             </p>
                             <p className="text-xs text-[#0A4174]/70">
@@ -622,7 +622,7 @@ export function AgentProfileCards() {
                                 : "Rent"}
                             </p>
                           </div>
-                          <button className="px-4 py-2 bg-[#F0FFFF] text-[#0A4174] rounded-lg text-sm font-medium hover:bg-[#FFFFFF] transition-colors">
+                          <button className="px-3 sm:px-4 py-1.5 sm:py-2 bg-[#F0FFFF] text-[#0A4174] rounded-lg text-xs sm:text-sm font-medium hover:bg-[#FFFFFF] transition-colors">
                             View Details
                           </button>
                         </div>
