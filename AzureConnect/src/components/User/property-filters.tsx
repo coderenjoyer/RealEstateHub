@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import {
-  DollarSign,
   Home,
   Sparkles,
   X,

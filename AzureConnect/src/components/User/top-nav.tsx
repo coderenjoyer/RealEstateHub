@@ -175,7 +175,8 @@ export function TopNav({
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
-  const handleChatsClick = () => {
+  const handleChatsClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (activeDropdown === "chats") {
       setActiveDropdown("none");
     } else {
@@ -183,7 +184,8 @@ export function TopNav({
     }
   };
 
-  const handleNotificationsClick = () => {
+  const handleNotificationsClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (activeDropdown === "notifications") {
       setActiveDropdown("none");
     } else {
@@ -191,7 +193,8 @@ export function TopNav({
     }
   };
 
-  const handleProfileClick = () => {
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (activeDropdown === "profile") {
       setActiveDropdown("none");
     } else {
@@ -451,44 +454,47 @@ export function TopNav({
       {/* Right Side - Actions */}
       <div className="flex items-center gap-2 lg:gap-3 relative">
         {/* Chats Button */}
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={handleChatsClick}
-          className={`p-2 lg:p-2.5 bg-white/50 border border-[#49769F]/30 hover:bg-white/70 text-[#49769F] rounded-xl transition-all duration-200 shadow-md relative ${
-            activeDropdown === "chats"
-              ? "ring-2 ring-[#49769F] ring-opacity-50 scale-105"
-              : ""
-          }`}
-        >
-          <MessageCircle className="h-4 w-4 lg:h-5 lg:w-5" />
-          {unreadChatsCount > 0 && (
-            <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
-          )}
-        </Button>
+        <div className="relative">
+          <div
+            onClick={handleChatsClick}
+            data-dropdown-trigger="chats"
+            className={`flex items-center justify-center bg-white/50 border border-[#49769F]/30 backdrop-blur-sm rounded-full p-2 lg:p-2.5 cursor-pointer hover:bg-white/70 transition-all duration-200 relative ${
+              activeDropdown === "chats"
+                ? "ring-2 ring-[#49769F] ring-opacity-50 scale-105"
+                : ""
+            }`}
+          >
+            <MessageCircle className="h-4 w-4 lg:h-5 lg:w-5 text-[#49769F]" />
+            {unreadChatsCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
+            )}
+          </div>
+        </div>
 
         {/* Notifications Button */}
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={handleNotificationsClick}
-          className={`p-2 lg:p-2.5 bg-white/50 border border-[#49769F]/30 hover:bg-white/70 text-[#49769F] rounded-xl transition-all duration-200 shadow-md relative ${
-            activeDropdown === "notifications"
-              ? "ring-2 ring-[#49769F] ring-opacity-50 scale-105"
-              : ""
-          }`}
-        >
-          <Bell className="h-4 w-4 lg:h-5 lg:w-5" />
-          {unreadNotificationsCount > 0 && (
-            <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
-          )}
-        </Button>
+        <div className="relative">
+          <div
+            onClick={handleNotificationsClick}
+            data-dropdown-trigger="notifications"
+            className={`flex items-center justify-center bg-white/50 border border-[#49769F]/30 backdrop-blur-sm rounded-full p-2 lg:p-2.5 cursor-pointer hover:bg-white/70 transition-all duration-200 relative ${
+              activeDropdown === "notifications"
+                ? "ring-2 ring-[#49769F] ring-opacity-50 scale-105"
+                : ""
+            }`}
+          >
+            <Bell className="h-4 w-4 lg:h-5 lg:w-5 text-[#49769F]" />
+            {unreadNotificationsCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
+            )}
+          </div>
+        </div>
 
         {/* User Profile */}
         <div className="relative">
           <div
             onClick={handleProfileClick}
-            className={`flex items-center gap-2 lg:gap-3 ml-1 lg:ml-2 bg-white/50 border border-[#49769F]/30 backdrop-blur-sm rounded-full pl-3 lg:pl-4 pr-1 lg:pr-2 py-1.5 lg:py-2 cursor-pointer hover:bg-white/70 transition-all duration-200 ${
+            data-dropdown-trigger="profile"
+            className={`flex items-center gap-2 lg:gap-1 bg-white/50 border border-[#49769F]/30 backdrop-blur-sm rounded-full pl-3 lg:pl-4 pr-1 lg:pr-2 py-1.5 lg:py-2 cursor-pointer hover:bg-white/70 transition-all duration-200 ${
               activeDropdown === "profile"
                 ? "ring-2 ring-[#49769F] ring-opacity-50 scale-105"
                 : ""

@@ -218,6 +218,10 @@ export function MessengerDropdown({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
+      // Don't close if clicking on the trigger button
+      if (target.closest('[data-dropdown-trigger="chats"]')) {
+        return;
+      }
       if (!target.closest(".messenger-dropdown-container")) {
         setIsOpen(false); // This will trigger the useEffect above
         // Remove onClose() from here since it's now in the useEffect

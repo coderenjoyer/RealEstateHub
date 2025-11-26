@@ -28,6 +28,10 @@ export function UserProfileDropdown({ onClose, onNavigateToProfile, onNavigateTo
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
+      // Don't close if clicking on the trigger button
+      if (target.closest('[data-dropdown-trigger="profile"]')) {
+        return;
+      }
       if (dropdownRef.current && !dropdownRef.current.contains(target)) {
         setIsOpen(false);
         onClose();
