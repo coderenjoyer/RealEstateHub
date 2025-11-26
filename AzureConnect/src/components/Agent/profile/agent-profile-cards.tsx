@@ -73,6 +73,28 @@ export function AgentProfileCards() {
       const { data: userData, error } = await supabase.auth.getUser();
       if (error) throw error;
 
+      // Try to fetch from profiles table first
+      if (userData?.user?.id) {
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('bio, specializations, languages, certifications')
+          .eq('user_id', userData.user.id)
+          .single();
+
+        if (profileData && !profileError) {
+          const aboutData = {
+            bio: profileData.bio || "",
+            specializations: (profileData.specializations && profileData.specializations.length > 0) ? profileData.specializations : [""],
+            languages: profileData.languages || "",
+            certifications: (profileData.certifications && profileData.certifications.length > 0) ? profileData.certifications : [""],
+          };
+          setAboutData(aboutData);
+          setTempAboutData(aboutData);
+          return;
+        }
+      }
+
+      // Fallback to auth metadata if not in profiles table
       const savedAbout = userData.user?.user_metadata?.about;
       if (savedAbout) {
         setAboutData(savedAbout);
@@ -189,14 +211,30 @@ export function AgentProfileCards() {
     try {
       setSaving(true);
 
-      const { error } = await supabase.auth.updateUser({
+      // Save to auth metadata
+      const { error: authError } = await supabase.auth.updateUser({
         data: {
           about: tempAboutData,
         },
       });
 
-      if (error) {
-        console.error("Error saving about data:", error);
+      if (authError) {
+        console.error("Error saving to auth:", authError);
+      }
+
+      // Also save to profiles table for easy retrieval
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          bio: tempAboutData.bio,
+          specializations: tempAboutData.specializations,
+          languages: tempAboutData.languages,
+          certifications: tempAboutData.certifications,
+        })
+        .eq('user_id', session?.user?.id);
+
+      if (profileError) {
+        console.error("Error saving to profiles table:", profileError);
         alert("Failed to save changes. Please try again.");
         return;
       }

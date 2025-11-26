@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, MapPin, Bed, Bath, Maximize } from "lucide-react";
+import { X, MapPin, Bed, Bath, Maximize, CheckCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import supabase from "@/supabaseClient";
@@ -61,6 +61,10 @@ interface AgentInfo {
   email: string;
   phone: string;
   avatar: string | null;
+  bio?: string;
+  specializations?: string[];
+  languages?: string;
+  certifications?: string[];
 }
 
 export function PropertyDetailsPanel({
@@ -75,6 +79,7 @@ export function PropertyDetailsPanel({
   const [propertyDetails, setPropertyDetails] = useState<PropertyDetails | null>(null);
   const [agentInfo, setAgentInfo] = useState<AgentInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showAgentAbout, setShowAgentAbout] = useState(false);
 
   // Fetch property details from database
   useEffect(() => {
@@ -111,12 +116,23 @@ export function PropertyDetailsPanel({
           .from('user-media')
           .getPublicUrl(`${propertyData.user_id}/profile.jpg`);
 
+        // Fetch agent's about information from profiles table
+        const { data: agentProfileData } = await supabase
+          .from('profiles')
+          .select('bio, specializations, languages, certifications')
+          .eq('user_id', propertyData.user_id)
+          .single();
+
         setAgentInfo({
           id: propertyData.user_id,
           name: agentName,
           email: agentEmail,
           phone: agentPhone,
           avatar: avatarData?.publicUrl || null,
+          bio: agentProfileData?.bio || '',
+          specializations: agentProfileData?.specializations || [],
+          languages: agentProfileData?.languages || '',
+          certifications: agentProfileData?.certifications || [],
         });
       }
     } catch (error) {
@@ -231,7 +247,7 @@ export function PropertyDetailsPanel({
           {/* Agent Information Display */}
           {agentInfo && (
             <div className="mt-4 bg-[#49769F]/5 rounded-2xl p-4 border border-[#49769F]/20">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 mb-3">
                 {/* Agent Avatar */}
                 <div className="relative flex-shrink-0">
                   <div className="h-12 w-12 rounded-full bg-[#49769F] flex items-center justify-center text-white font-semibold text-base overflow-hidden border-2 border-white shadow-md">
@@ -261,6 +277,14 @@ export function PropertyDetailsPanel({
                   <p className="text-xs text-gray-500">Property Agent</p>
                 </div>
               </div>
+              
+              {/* View About Me Button */}
+              <button
+                onClick={() => setShowAgentAbout(true)}
+                className="w-full px-3 py-2 text-sm font-medium text-[#49769F] bg-[#49769F]/10 hover:bg-[#49769F]/20 rounded-lg transition-colors"
+              >
+                View Profile
+              </button>
             </div>
           )}
 
@@ -486,6 +510,86 @@ export function PropertyDetailsPanel({
           )}
         </div>
       </Card>
+
+      {/* Agent About Modal */}
+      {showAgentAbout && agentInfo && (
+        <div
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowAgentAbout(false)}
+        >
+          <Card
+            className="w-full max-w-2xl max-h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-[#49769F] to-[#0A4174] text-white px-6 py-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold">{agentInfo.name}</h2>
+              <button
+                onClick={() => setShowAgentAbout(false)}
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+              {/* Bio Section */}
+              {agentInfo.bio && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">About</h3>
+                  <p className="text-gray-600 leading-relaxed whitespace-pre-line">{agentInfo.bio}</p>
+                </div>
+              )}
+
+              {/* Specializations */}
+              {agentInfo.specializations && agentInfo.specializations.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Specializations</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {agentInfo.specializations.map((spec, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1.5 bg-[#49769F]/10 text-[#49769F] rounded-full text-sm font-medium"
+                      >
+                        {spec}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Languages */}
+              {agentInfo.languages && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Languages</h3>
+                  <p className="text-gray-600">{agentInfo.languages}</p>
+                </div>
+              )}
+
+              {/* Certifications */}
+              {agentInfo.certifications && agentInfo.certifications.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Certifications</h3>
+                  <ul className="space-y-2">
+                    {agentInfo.certifications.map((cert, index) => (
+                      <li key={index} className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-[#49769F] flex-shrink-0" />
+                        <span className="text-gray-600">{cert}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* No Info Message */}
+              {!agentInfo.bio && (!agentInfo.specializations || agentInfo.specializations.length === 0) && !agentInfo.languages && (!agentInfo.certifications || agentInfo.certifications.length === 0) && (
+                <p className="text-gray-500 text-center py-8">No profile information available</p>
+              )}
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

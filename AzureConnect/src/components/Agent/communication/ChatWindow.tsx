@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { ArrowLeft, MoreVertical, Send, Trash2 } from "lucide-react";
+import { ArrowLeft, MoreVertical, Send, Trash2, User, FileText, Home, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import supabase from "@/supabaseClient";
 import type {
   Conversation,
   Message,
@@ -18,6 +20,7 @@ interface ChatWindowProps {
   onBackToConversations?: () => void;
   isMobileView: boolean;
   sendingMessage?: boolean;
+  participantUserId?: string;
 }
 
 export function ChatWindow({
@@ -31,6 +34,7 @@ export function ChatWindow({
   onBackToConversations,
   isMobileView,
   sendingMessage = false,
+  participantUserId,
 }: ChatWindowProps) {
   const [hoveredMessage, setHoveredMessage] = useState<string | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<string | null>(
@@ -39,6 +43,11 @@ export function ChatWindow({
   const [deleteConversationConfirmation, setDeleteConversationConfirmation] =
     useState(false);
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
+  const [showUserProfile, setShowUserProfile] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [userAvatar, setUserAvatar] = useState<string>("");
+  const [participantAvatar, setParticipantAvatar] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const optionsMenuRef = useRef<HTMLDivElement>(null);
@@ -65,6 +74,50 @@ export function ChatWindow({
         document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [showOptionsMenu]);
+
+  // Fetch user profile data
+  const fetchUserProfile = async () => {
+    try {
+      setLoadingProfile(true);
+      
+      if (!participantUserId) {
+        setLoadingProfile(false);
+        return;
+      }
+      
+      // Fetch the participant's profile using their user ID
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('user_id, bio, property_type, preferred_location, budget_range, investment_goal, current_location, profile_image_url')
+        .eq('user_id', participantUserId)
+        .single();
+
+      if (profileError) {
+        setLoadingProfile(false);
+        return;
+      }
+      
+      if (profileData) {
+        setUserProfile(profileData);
+        
+        // Set avatar from profile_image_url
+        if (profileData.profile_image_url) {
+          setUserAvatar(profileData.profile_image_url);
+          setParticipantAvatar(profileData.profile_image_url);
+        }
+      }
+    } catch (error) {
+      // Error fetching profile - continue without crashing
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  const handleViewProfile = async () => {
+    await fetchUserProfile();
+    setShowUserProfile(true);
+    setShowOptionsMenu(false);
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -203,6 +256,21 @@ export function ChatWindow({
         )}
 
         <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold text-sm overflow-hidden flex-shrink-0">
+            {participantAvatar ? (
+              <img 
+                src={participantAvatar} 
+                alt={selectedConversation.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.parentElement!.textContent = selectedConversation.name.substring(0, 2).toUpperCase();
+                }}
+              />
+            ) : (
+              selectedConversation.name.substring(0, 2).toUpperCase()
+            )}
+          </div>
           <div>
             <h3 className="font-bold text-gray-800 text-lg">
               {selectedConversation.name}
@@ -222,6 +290,13 @@ export function ChatWindow({
           {/* Options Dropdown Menu */}
           {showOptionsMenu && (
             <div className="absolute right-0 top-12 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[200px] z-50 animate-in fade-in-0 zoom-in-95 duration-150">
+              <button
+                onClick={handleViewProfile}
+                className="w-full px-4 py-2.5 text-left text-sm font-medium text-[#49769F] hover:bg-[#49769F]/10 transition-colors flex items-center gap-2"
+              >
+                <User className="h-4 w-4" />
+                View Profile
+              </button>
               {onDeleteConversation && (
                 <button
                   onClick={handleDeleteConversation}
@@ -333,6 +408,113 @@ export function ChatWindow({
           </Button>
         </div>
       </div>
+
+      {/* User Profile Modal */}
+      {showUserProfile && (
+        <div
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowUserProfile(false)}
+        >
+          <Card
+            className="w-full max-w-2xl max-h-[90vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-[#49769F] to-[#0A4174] text-white px-6 py-6 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {/* User Avatar */}
+                <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center text-white font-semibold text-base overflow-hidden border-2 border-white/30 flex-shrink-0">
+                  {userAvatar ? (
+                    <img 
+                      src={userAvatar} 
+                      alt={selectedConversation.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.parentElement!.textContent = selectedConversation.name.substring(0, 2).toUpperCase();
+                      }}
+                    />
+                  ) : (
+                    selectedConversation.name.substring(0, 2).toUpperCase()
+                  )}
+                </div>
+                <h2 className="text-2xl font-bold">{selectedConversation.name}</h2>
+              </div>
+              <button
+                onClick={() => setShowUserProfile(false)}
+                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            {loadingProfile ? (
+              <div className="flex-1 flex items-center justify-center">
+                <p className="text-gray-500">Loading profile...</p>
+              </div>
+            ) : (
+              <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+                {/* About Me Section */}
+                {userProfile?.bio && (
+                  <div>
+                    <div className="flex items-center gap-3 mb-3">
+                      <FileText className="h-5 w-5 text-[#49769F]" />
+                      <h3 className="font-semibold text-gray-900">About Me</h3>
+                    </div>
+                    <p className="text-gray-600 leading-relaxed whitespace-pre-line ml-8">
+                      {userProfile.bio}
+                    </p>
+                  </div>
+                )}
+
+                {/* Property Preferences Section */}
+                <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Home className="h-5 w-5 text-[#49769F]" />
+                    <h3 className="font-semibold text-gray-900">Property Preferences</h3>
+                  </div>
+                  <div className="space-y-3 ml-8">
+                    {userProfile?.property_type && (
+                      <div>
+                        <p className="text-xs text-gray-600 font-medium">Property Type</p>
+                        <p className="text-sm text-gray-900">{userProfile.property_type}</p>
+                      </div>
+                    )}
+                    {userProfile?.preferred_location && (
+                      <div>
+                        <p className="text-xs text-gray-600 font-medium">Preferred Location</p>
+                        <p className="text-sm text-gray-900">{userProfile.preferred_location}</p>
+                      </div>
+                    )}
+                    {userProfile?.budget_range && (
+                      <div>
+                        <p className="text-xs text-gray-600 font-medium">Budget Range</p>
+                        <p className="text-sm text-gray-900">{userProfile.budget_range}</p>
+                      </div>
+                    )}
+                    {userProfile?.investment_goal && (
+                      <div>
+                        <p className="text-xs text-gray-600 font-medium">Investment Goal</p>
+                        <p className="text-sm text-gray-900">{userProfile.investment_goal}</p>
+                      </div>
+                    )}
+                    {userProfile?.current_location && (
+                      <div>
+                        <p className="text-xs text-gray-600 font-medium">Current Location</p>
+                        <p className="text-sm text-gray-900">{userProfile.current_location}</p>
+                      </div>
+                    )}
+                    {!userProfile?.property_type && !userProfile?.preferred_location && !userProfile?.budget_range && !userProfile?.investment_goal && !userProfile?.current_location && (
+                      <p className="text-gray-500 text-sm">No preferences set</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
