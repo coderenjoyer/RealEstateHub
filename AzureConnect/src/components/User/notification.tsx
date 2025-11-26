@@ -109,6 +109,10 @@ export function NotificationDropdown({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
+      // Don't close if clicking on the trigger button
+      if (target.closest('[data-dropdown-trigger="notifications"]')) {
+        return;
+      }
       if (!target.closest(".notification-dropdown-container")) {
         setIsOpen(false); // ✅ USE setIsOpen
         onClose();

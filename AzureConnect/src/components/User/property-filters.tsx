@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import {
-  DollarSign,
   Home,
   Sparkles,
   X,
@@ -254,9 +253,9 @@ export function PropertyFilters({
           <div className="border-t border-gray-200" />
 
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-white/50 rounded-xl shadow-sm">
-                <DollarSign className="h-4 w-4 text-[#49769F]" />
+            <div className="flex items-center gap-1">
+              <div className="p-1 bg-transparent rounded-xl shadow-none">
+                <span className="text-lg font-bold text-[#49769F]">₱</span>
               </div>
               <h3 className="font-bold text-gray-800 text-sm">Price Range</h3>
             </div>

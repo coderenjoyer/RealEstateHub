@@ -524,9 +524,9 @@ const LoginModal: React.FC = () => {
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? (
-                        <EyeOff className="w-5 h-5" />
+                        <EyeOff className="w-5 h-5 text-gray-500" />
                       ) : (
-                        <Eye className="w-5 h-5" />
+                        <Eye className="w-5 h-5 text-gray-500" />
                       )}
                     </button>
                   </div>
@@ -550,9 +550,9 @@ const LoginModal: React.FC = () => {
                       }
                     >
                       {showConfirmPassword ? (
-                        <EyeOff className="w-5 h-5" />
+                        <EyeOff className="w-5 h-5 text-gray-500" />
                       ) : (
-                        <Eye className="w-5 h-5" />
+                        <Eye className="w-5 h-5 text-gray-500" />
                       )}
                     </button>
                   </div>
@@ -627,10 +627,11 @@ const LoginModal: React.FC = () => {
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
+                    <EyeOff className="w-5 h-5 text-gray-500" />
                   ) : (
-                    <Eye className="w-5 h-5" />
+                    <Eye className="w-5 h-5 text-gray-500" />
                   )}
+                  
                 </button>
               </div>
               {errorMessage && (
@@ -781,9 +782,9 @@ const LoginModal: React.FC = () => {
                       }
                     >
                       {showNewPassword ? (
-                        <EyeOff className="w-5 h-5" />
+                        <EyeOff className="w-5 h-5 text-gray-500" />
                       ) : (
-                        <Eye className="w-5 h-5" />
+                        <Eye className="w-5 h-5 text-gray-500" />
                       )}
                     </button>
                   </div>
@@ -812,9 +813,9 @@ const LoginModal: React.FC = () => {
                       }
                     >
                       {showConfirmNewPassword ? (
-                        <EyeOff className="w-5 h-5" />
+                        <EyeOff className="w-5 h-5 text-gray-500" />
                       ) : (
-                        <Eye className="w-5 h-5" />
+                        <Eye className="w-5 h-5 text-gray-500" />
                       )}
                     </button>
                   </div>

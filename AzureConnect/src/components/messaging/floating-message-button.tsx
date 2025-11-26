@@ -120,7 +120,8 @@ const FloatingMessageButton: React.FC = () => {
   }, [session?.user?.id, adminId]);
 
   // Only show button for users and agents (not for admins)
-  if (!session?.user?.id || userRole === 'admin') return null;
+  if (!session?.user?.id) return null;
+  if (userRole === 'admin') return null;
 
   // Don't return null while loading - show button even if admin ID hasn't loaded yet
   if (isLoading) {

@@ -60,6 +60,7 @@ export function AgentProfileCards() {
   const [tempAboutData, setTempAboutData] = useState(aboutData);
   const [newSpecialization, setNewSpecialization] = useState("");
   const [newCertification, setNewCertification] = useState("");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   useEffect(() => {
     fetchAboutData();
@@ -208,8 +209,13 @@ export function AgentProfileCards() {
   };
 
   const handleSaveAbout = async () => {
+    setShowConfirmModal(true);
+  };
+
+  const confirmSaveAbout = async () => {
     try {
       setSaving(true);
+      setShowConfirmModal(false);
 
       // Save to auth metadata
       const { error: authError } = await supabase.auth.updateUser({
@@ -235,7 +241,6 @@ export function AgentProfileCards() {
 
       if (profileError) {
         console.error("Error saving to profiles table:", profileError);
-        alert("Failed to save changes. Please try again.");
         return;
       }
 
@@ -243,10 +248,8 @@ export function AgentProfileCards() {
       setIsEditingAbout(false);
       setNewSpecialization("");
       setNewCertification("");
-      alert("About section updated successfully!");
     } catch (error) {
       console.error("Error:", error);
-      alert("Failed to save changes. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -672,6 +675,40 @@ export function AgentProfileCards() {
             )}
           </div>
         </div>
+        
+        {/* Confirmation Modal */}
+        {showConfirmModal && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full mx-auto border border-gray-100 animate-in fade-in-0 zoom-in-95 duration-200">
+              <div className="text-center mb-6">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                  Confirm Changes
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                  Are you sure you want to save these changes to your about section?
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => setShowConfirmModal(false)}
+                  disabled={saving}
+                  className="flex-1 px-5 py-3 text-sm sm:text-base font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmSaveAbout}
+                  disabled={saving}
+                  className="flex-1 px-5 py-3 text-sm sm:text-base font-semibold text-white bg-[#49769F] hover:bg-[#0A4174] rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#49769F]/30"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
+                  {saving ? "Saving..." : "Confirm Save"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

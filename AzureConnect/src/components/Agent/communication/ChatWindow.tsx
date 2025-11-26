@@ -47,7 +47,6 @@ export function ChatWindow({
   const [userProfile, setUserProfile] = useState<any>(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [userAvatar, setUserAvatar] = useState<string>("");
-  const [participantAvatar, setParticipantAvatar] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const optionsMenuRef = useRef<HTMLDivElement>(null);
@@ -103,7 +102,6 @@ export function ChatWindow({
         // Set avatar from profile_image_url
         if (profileData.profile_image_url) {
           setUserAvatar(profileData.profile_image_url);
-          setParticipantAvatar(profileData.profile_image_url);
         }
       }
     } catch (error) {
@@ -256,21 +254,6 @@ export function ChatWindow({
         )}
 
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold text-sm overflow-hidden flex-shrink-0">
-            {participantAvatar ? (
-              <img 
-                src={participantAvatar} 
-                alt={selectedConversation.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.parentElement!.textContent = selectedConversation.name.substring(0, 2).toUpperCase();
-                }}
-              />
-            ) : (
-              selectedConversation.name.substring(0, 2).toUpperCase()
-            )}
-          </div>
           <div>
             <h3 className="font-bold text-gray-800 text-lg">
               {selectedConversation.name}
