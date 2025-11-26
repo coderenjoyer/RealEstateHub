@@ -452,7 +452,7 @@ export function TopNav({
       </div>
 
       {/* Right Side - Actions */}
-      <div className="flex items-center gap-2 lg:gap-3 relative">
+      <div className="flex items-center gap-2 lg:gap-3 relative ml-4 lg:ml-8">
         {/* Chats Button */}
         <div className="relative">
           <div
