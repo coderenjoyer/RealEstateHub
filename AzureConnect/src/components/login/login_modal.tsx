@@ -137,6 +137,12 @@ const LoginModal: React.FC = () => {
     fontSize: "16px",
   } as const;
 
+  // Email validation function
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSignup = async () => {
     setErrorMessage(null);
     if (registrationDisabled) {
@@ -153,12 +159,20 @@ const LoginModal: React.FC = () => {
       setErrorMessage("Please fill in all fields.");
       return;
     }
+    if (!isValidEmail(signupEmail)) {
+      setErrorMessage("Please enter a valid email address.");
+      return;
+    }
     if (signupPassword !== confirmPassword) {
       setErrorMessage("Passwords do not match.");
       return;
     }
     if (signupPassword.length < 6) {
       setErrorMessage("Password must be at least 6 characters long.");
+      return;
+    }
+    if (mobileNumber.length !== 11) {
+      setErrorMessage("Mobile number must be exactly 11 digits.");
       return;
     }
     setIsSubmitting(true);
@@ -496,14 +510,21 @@ const LoginModal: React.FC = () => {
                       onChange={(e) => setSignupEmail(e.target.value)}
                       disabled={registrationDisabled}
                     />
+                    {signupEmail && !isValidEmail(signupEmail) && (
+                      <div className="text-red-500 text-xs mt-1">Please enter a valid email address</div>
+                    )}
                   </div>
 
                   <input
                     style={inputFont}
                     className={`${inputBase} ${registrationDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                    placeholder="Mobile Number"
+                    placeholder="Mobile Number (PH)"
                     value={mobileNumber}
-                    onChange={(e) => setMobileNumber(e.target.value)}
+                    onChange={(e) => {
+                      // Only allow digits, max 11 characters
+                      const value = e.target.value.replace(/\D/g, "").slice(0, 11);
+                      setMobileNumber(value);
+                    }}
                     disabled={registrationDisabled}
                   />
 

@@ -70,10 +70,10 @@ export function Footer() {
           <div>
             <h3 className="font-semibold text-[#FFFFFF] mb-4">CONNECT WITH US</h3>
             <div className="flex gap-4">
-              <a href="#" className="text-[#F0FFFF]/70 hover:text-[#FFFFFF] transition-colors">
+              <a href="https://www.facebook.com/profile.php?id=61584387506639" className="text-[#F0FFFF]/70 hover:text-[#FFFFFF] transition-colors" target="_blank" rel="noopener noreferrer">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="text-[#F0FFFF]/70 hover:text-[#FFFFFF] transition-colors">
+              <a href="https://x.com/AZconnect01" className="text-[#F0FFFF]/70 hover:text-[#FFFFFF] transition-colors">
                 <Twitter className="w-5 h-5" />
               </a>
               <a href="#" className="text-[#F0FFFF]/70 hover:text-[#FFFFFF] transition-colors">
@@ -102,6 +102,7 @@ export function Footer() {
 
         <div className="border-t border-[#F0FFFF]/20 pt-8 text-center text-sm text-[#F0FFFF]/70">
           <p>&copy; 2025 AzureConnect. All rights reserved.</p>
+          <p className="mt-2">Trust us with your property needs</p>
         </div>
       </div>
     </footer>
