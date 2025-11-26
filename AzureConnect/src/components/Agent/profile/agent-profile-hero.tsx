@@ -320,7 +320,7 @@ export function AgentProfileHero() {
   return (
     <div className="relative bg-[#BDD8E9]" onClick={handleClickOutside}>
       {/* Hero Background Section */}
-      <div className="relative h-64 w-full overflow-hidden bg-gradient-to-br from-[#0A4174] via-[#49769F] to-[#0A4174]">
+      <div className="relative h-48 sm:h-64 w-full overflow-hidden bg-gradient-to-br from-[#0A4174] via-[#49769F] to-[#0A4174]">
         {coverImage && (
           <img
             src={coverImage}
@@ -337,12 +337,12 @@ export function AgentProfileHero() {
       </div>
 
       {/* Profile Section */}
-      <div className="relative max-w-11xl mx-auto px-1 -mt-20">
-        <div className="bg-[#FFFFFF] rounded-3xl shadow-xl sm:p-8 p-4 min-w-[375px] border border-[#F0FFFF]">
-          <div className="flex flex-col md:flex-row gap-8 items-start">
+      <div className="relative max-w-11xl mx-auto px-1 -mt-16 sm:-mt-20">
+        <div className="bg-[#FFFFFF] rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-8 min-w-[375px] border border-[#F0FFFF]">
+          <div className="flex flex-col md:flex-row gap-4 sm:gap-8 items-start">
             {/* Profile Image */}
-            <div className="relative flex-shrink-0">
-              <div className="relative h-40 w-40 rounded-2xl border-4 border-[#F0FFFF] bg-[#FFFFFF] shadow-lg overflow-hidden">
+            <div className="relative flex-shrink-0 mx-auto md:mx-0">
+              <div className="relative h-32 w-32 sm:h-40 sm:w-40 rounded-2xl border-4 border-[#F0FFFF] bg-[#FFFFFF] shadow-lg overflow-hidden">
                 <img
                   src={profileImage || "/header.jpeg"}
                   alt="Agent profile"
@@ -391,20 +391,20 @@ export function AgentProfileHero() {
             </div>
 
             {/* Profile Info */}
-            <div className="flex-1">
-              <div className="flex items-start justify-between mb-4">
+            <div className="flex-1 w-full">
+              <div className="flex flex-col sm:flex-row items-start justify-between mb-4 gap-3 sm:gap-0">
                 <div>
-                  <h1 className="text-3xl font-bold text-[#0A4174] mb-2">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-[#0A4174] mb-2">
                     {agentData?.name || "Agent Name"}
                   </h1>
-                  <p className="text-lg text-[#49769F] font-medium">
+                  <p className="text-base sm:text-lg text-[#49769F] font-medium">
                     Real Estate Agent
                   </p>
                 </div>
               </div>
 
               {/* Location */}
-              <div className="flex items-center gap-2 text-[#49769F] mb-6">
+              <div className="flex items-center gap-2 text-[#49769F] mb-4 sm:mb-6">
                 <MapPin className="w-5 h-5 text-[#0A4174] flex-shrink-0" />
                 {isLocationEditMode ? (
                   <div className="flex items-center gap-2 flex-1">
@@ -432,8 +432,8 @@ export function AgentProfileHero() {
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 flex-1 group">
-                    <span className="text-sm font-medium text-[#0A4174]">
+                  <div className="flex items-center gap-2 flex-1 group flex-wrap">
+                    <span className="text-xs sm:text-sm font-medium text-[#0A4174]">
                       {location}
                     </span>
                     <button
@@ -448,7 +448,7 @@ export function AgentProfileHero() {
               </div>
 
               {/* Contact Info */}
-              <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-2 text-center sm:text-left">
                 <div className="flex items-center gap-2 bg-[#F0FFFF] px-3 py-2 rounded-lg border border-[#49769F]/20 text-center sm:text-left">
                   <Phone className="w-4 h-4 text-[#0A4174] flex-shrink-0" />
                   <span className="text-xs sm:text-sm font-medium text-[#0A4174]">
@@ -476,10 +476,10 @@ export function AgentProfileHero() {
       {/* Edit Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#FFFFFF] rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto border border-[#F0FFFF]">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-[#0A4174]">
+          <div className="bg-[#FFFFFF] rounded-2xl shadow-2xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto border border-[#F0FFFF]">
+            <div className="p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <h3 className="text-lg sm:text-xl font-bold text-[#0A4174]">
                   {editMode === "profile" && "Edit Profile Picture"}
                   {editMode === "cover" && "Edit Cover Photo"}
                 </h3>
@@ -491,13 +491,15 @@ export function AgentProfileHero() {
                 </button>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Current Image Preview */}
                 <div className="text-center">
                   <div className="relative inline-block">
                     <div
                       className={`relative overflow-hidden rounded-xl border-4 border-[#F0FFFF] shadow-lg ${
-                        editMode === "profile" ? "w-32 h-32" : "w-full h-32"
+                        editMode === "profile"
+                          ? "w-24 h-24 sm:w-32 sm:h-32"
+                          : "w-full h-24 sm:h-32"
                       }`}
                     >
                       <img
@@ -514,7 +516,7 @@ export function AgentProfileHero() {
                       <Camera className="w-4 h-4 text-[#F0FFFF]" />
                     </div>
                   </div>
-                  <p className="text-sm text-[#49769F] mt-2">
+                  <p className="text-xs sm:text-sm text-[#49769F] mt-2">
                     Current{" "}
                     {editMode === "profile" ? "Profile Picture" : "Cover Photo"}
                   </p>
@@ -523,7 +525,7 @@ export function AgentProfileHero() {
                 {/* Upload Section */}
                 <div className="space-y-4">
                   <div
-                    className="border-2 border-dashed border-[#49769F]/40 rounded-xl p-6 text-center hover:border-[#49769F] transition-colors cursor-pointer"
+                    className="border-2 border-dashed border-[#49769F]/40 rounded-xl p-4 sm:p-6 text-center hover:border-[#49769F] transition-colors cursor-pointer"
                     onClick={triggerFileInput}
                   >
                     <input
@@ -534,8 +536,8 @@ export function AgentProfileHero() {
                       className="hidden"
                       id="image-upload"
                     />
-                    <Upload className="w-8 h-8 text-[#49769F] mx-auto mb-2" />
-                    <p className="text-sm font-medium text-[#0A4174] mb-1">
+                    <Upload className="w-6 sm:w-8 h-6 sm:h-8 text-[#49769F] mx-auto mb-2" />
+                    <p className="text-xs sm:text-sm font-medium text-[#0A4174] mb-1">
                       Click to upload new image
                     </p>
                     <p className="text-xs text-[#49769F]">
@@ -549,7 +551,9 @@ export function AgentProfileHero() {
                       <div className="relative inline-block">
                         <div
                           className={`relative overflow-hidden rounded-xl border-4 border-[#49769F]/40 shadow-lg ${
-                            editMode === "profile" ? "w-32 h-32" : "w-full h-32"
+                            editMode === "profile"
+                              ? "w-24 h-24 sm:w-32 sm:h-32"
+                              : "w-full h-24 sm:h-32"
                           }`}
                         >
                           <img
@@ -562,7 +566,7 @@ export function AgentProfileHero() {
                           <Camera className="w-4 h-4 text-[#F0FFFF]" />
                         </div>
                       </div>
-                      <p className="text-sm text-[#0A4174] mt-2">
+                      <p className="text-xs sm:text-sm text-[#0A4174] mt-2">
                         New{" "}
                         {editMode === "profile"
                           ? "Profile Picture"

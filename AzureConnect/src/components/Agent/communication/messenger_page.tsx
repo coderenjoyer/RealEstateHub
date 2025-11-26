@@ -313,6 +313,7 @@ export default function ChatPage() {
             onBackToConversations={handleBackToConversations}
             isMobileView={isMobileView}
             sendingMessage={sendingMessage}
+            participantUserId={dbConversations.find(c => c.id === selectedConversationId)?.other_participant_id}
           />
         )}
       </div>
