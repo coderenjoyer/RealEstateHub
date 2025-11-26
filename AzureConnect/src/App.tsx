@@ -6,7 +6,7 @@ import { CTASection } from "./components/landing/cta-section";
 import { Footer } from "./components/landing/footer";
 import LoginParentContainer from "./components/login/login_parent_container";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import ErrorPage from "./components/ui/errorpage";
 import AdminPage from "./components/admin/admin-page";
 import ListingApprovalsPage from "./components/admin/listings/admin-listing";
@@ -20,6 +20,7 @@ import { useAuth } from "./AuthContext";
 import { useFeatureStatus } from "./hooks/useFeatureStatus";
 import MaintenanceModeModal from "./components/ui/maintenance-mode-modal";
 import FloatingMessageButton from "./components/messaging/floating-message-button";
+import { PatchFixModal } from "./components/ui/patch-fix-modal";
 
 const AgentListedPropertiesPage = lazy(
   () => import("./components/Agent/listedproperties/page")
@@ -42,8 +43,24 @@ function App() {
   const location = useLocation();
   const { session, signOut, isLoading } = useAuth();
   const { maintenanceMode } = useFeatureStatus();
+  const [showPatchModal, setShowPatchModal] = useState(false);
+  const [patchModalShown, setPatchModalShown] = useState(false);
 
-  // Store last location in localStorage on every successful navigation
+  // ... existing code ...
+
+  // Show patch modal when user or agent logs in
+  useEffect(() => {
+    if (session && !patchModalShown && !isLoading) {
+      const userRole = session.user?.user_metadata?.role;
+      // Show patch modal for users and agents only (not admins)
+      if ((userRole === 'user' || userRole === 'agent') && !location.pathname.includes('/login')) {
+        setShowPatchModal(true);
+        setPatchModalShown(true);
+        // Mark that we've shown the modal so it doesn't show again on page refresh
+        sessionStorage.setItem('patchModalShown', 'true');
+      }
+    }
+  }, [session, isLoading, patchModalShown, location.pathname]);
   useEffect(() => {
     if (session && !location.pathname.includes('/login') && location.pathname !== '/') {
       localStorage.setItem('lastLocation', location.pathname);
@@ -80,6 +97,10 @@ function App() {
 
   return (
     <BookmarkProvider>
+      <PatchFixModal 
+        isOpen={showPatchModal} 
+        onClose={() => setShowPatchModal(false)} 
+      />
       <MaintenanceModeModal open={showMaintenanceModal || false} onLogout={handleLogout} />
       <FloatingMessageButton />
       <Suspense fallback={<AzureRealEstateLoader />}>
