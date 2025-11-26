@@ -28,9 +28,11 @@ export function PatchFixModal({ isOpen, onClose }: PatchFixModalProps) {
       // For now, this is a placeholder that the developer can customize
       setPatchTitle("System Maintenance");
       setPatchMessage(
-        "In v1.0.4\n" +
+        "In v1.0.5\n" +
         "- Added Profile Pictures in Agent Messaging\n" +
-        "- Improved performance of property listings\n"
+        "- Improved performance of property listings\n" +
+        "- Removed user images in Agent Messaging\n" +
+        "- Fixed bug where agent messages were not displaying correctly\n"
       );
     } catch (error) {
       console.error("Error fetching patch message:", error);
