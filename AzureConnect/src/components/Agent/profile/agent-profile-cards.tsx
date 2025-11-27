@@ -6,6 +6,9 @@ import {
   MapPin,
   Pencil,
   X,
+  Bed,
+  Bath,
+  Maximize,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import supabase from "../../../supabaseClient";
@@ -30,6 +33,28 @@ interface ListedProperty {
   price: number;
   property_type: string;
   listing_type: string;
+  property_status?: string;
+  bedrooms?: number | null;
+  bathrooms?: number | null;
+  description?: string | null;
+  square_feet?: number | null;
+  parking_spaces?: number | null;
+  year_built?: number | null;
+  features?: string[] | null;
+  lot_size?: number | null;
+  available_from?: string | null;
+  furnished?: string | null;
+  pet_policy?: string | null;
+  about_property?: string | null;
+  utilities?: string[] | null;
+  nearby_places?: any[] | null;
+  zip_postal?: string | null;
+  country?: string | null;
+  state?: string | null;
+  full_name?: string | null;
+  email?: string | null;
+  phone_number?: string | null;
+  user_id?: string | null;
   media?: any;
 }
 
@@ -47,6 +72,11 @@ export function AgentProfileCards() {
     []
   );
   const [loadingListed, setLoadingListed] = useState(true);
+  const [selectedProperty, setSelectedProperty] =
+    useState<ListedProperty | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState<"overview" | "about">("overview");
 
   // About Me states
   const [aboutData, setAboutData] = useState({
@@ -177,7 +207,7 @@ export function AgentProfileCards() {
       const { data, error } = await supabase
         .from("listed_properties")
         .select(
-          "id, property_title, street_address, city, price, property_type, listing_type, media"
+          "id, property_title, street_address, city, price, property_type, listing_type, property_status, bedrooms, bathrooms, description, square_feet, parking_spaces, year_built, features, media, lot_size, available_from, furnished, pet_policy, about_property, utilities, nearby_places, zip_postal, country, state, full_name, email, phone_number, user_id"
         )
         .eq("user_id", session.user.id)
         .eq("is_deleted", false)
@@ -187,7 +217,26 @@ export function AgentProfileCards() {
       if (error) {
         console.error("Error fetching listed properties:", error);
       } else {
-        setListedProperties(data || []);
+        const normalized =
+          data?.map((item: any) => ({
+            ...item,
+            features: Array.isArray(item.features)
+              ? item.features
+              : item.features
+              ? [item.features]
+              : [],
+            utilities: Array.isArray(item.utilities)
+              ? item.utilities
+              : item.utilities
+              ? [item.utilities]
+              : [],
+            nearby_places: Array.isArray(item.nearby_places)
+              ? item.nearby_places
+              : item.nearby_places
+              ? [item.nearby_places]
+              : [],
+          })) || [];
+        setListedProperties(normalized);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -288,6 +337,18 @@ export function AgentProfileCards() {
       });
       setNewCertification("");
     }
+  };
+
+  const handleViewDetails = (property: ListedProperty) => {
+    setSelectedProperty(property);
+    setIsDetailsModalOpen(true);
+    setSelectedImageIndex(0);
+    setActiveTab("overview");
+  };
+
+  const closeDetailsModal = () => {
+    setIsDetailsModalOpen(false);
+    setSelectedProperty(null);
   };
 
   const removeCertification = (index: number) => {
@@ -663,7 +724,10 @@ export function AgentProfileCards() {
                                 : "Rent"}
                             </p>
                           </div>
-                          <button className="px-3 sm:px-4 py-1.5 sm:py-2 bg-[#F0FFFF] text-[#0A4174] rounded-lg text-xs sm:text-sm font-medium hover:bg-[#FFFFFF] transition-colors">
+                          <button
+                            onClick={() => handleViewDetails(property)}
+                            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-[#F0FFFF] text-[#0A4174] rounded-lg text-xs sm:text-sm font-medium hover:bg-[#FFFFFF] transition-colors"
+                          >
                             View Details
                           </button>
                         </div>
@@ -676,6 +740,375 @@ export function AgentProfileCards() {
           </div>
         </div>
         
+        {/* Property Details Modal */}
+        {isDetailsModalOpen && selectedProperty && (
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={closeDetailsModal}
+          >
+            <div
+              className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in-0 zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {(() => {
+                const propertyImages =
+                  selectedProperty.media && selectedProperty.media.length > 0
+                    ? selectedProperty.media.map(
+                        (item: any) =>
+                          supabase.storage
+                            .from("property-media")
+                            .getPublicUrl(item.bucket_path).data.publicUrl
+                      )
+                    : ["/cozy-suburban-house.png"];
+                const currentImage =
+                  propertyImages[selectedImageIndex] || propertyImages[0];
+
+                return (
+                  <>
+                    <div className="relative">
+                      <div className="h-48 sm:h-56 bg-slate-100">
+                        <img
+                          src={currentImage}
+                          alt={selectedProperty.property_title}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          onClick={closeDetailsModal}
+                          className="absolute top-4 left-4 p-2 bg-white/95 backdrop-blur-sm rounded-xl hover:bg-white transition-all shadow-md z-10"
+                        >
+                          <X className="h-5 w-5 text-gray-600" />
+                        </button>
+                        <div className="absolute top-4 right-4 flex gap-2">
+                          {selectedProperty.property_type && (
+                            <span className="px-3 py-1.5 bg-white/95 rounded-full text-xs font-semibold text-[#0A4174] shadow-sm">
+                              {selectedProperty.property_type}
+                            </span>
+                          )}
+                          <span className="px-3 py-1.5 bg-white/95 rounded-full text-xs font-semibold text-[#0A4174] shadow-sm">
+                            {selectedProperty.listing_type === "sale"
+                              ? "For Sale"
+                              : "For Rent"}
+                          </span>
+                        </div>
+                      </div>
+                      {propertyImages.length > 1 && (
+                        <div className="px-6 py-4 flex gap-3 overflow-x-auto bg-white">
+                          {propertyImages.map((image, index) => (
+                            <button
+                              key={image}
+                              onClick={() => setSelectedImageIndex(index)}
+                              className={`w-20 h-16 rounded-xl overflow-hidden border-2 transition-all ${
+                                selectedImageIndex === index
+                                  ? "border-[#49769F] opacity-100"
+                                  : "border-transparent opacity-60 hover:opacity-100"
+                              }`}
+                            >
+                              <img
+                                src={image}
+                                alt={`${selectedProperty.property_title} view ${
+                                  index + 1
+                                }`}
+                                className="w-full h-full object-cover"
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="px-6 py-4 border-b border-slate-100">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div>
+                          <h3 className="text-2xl font-bold text-[#0A4174]">
+                            {selectedProperty.property_title}
+                          </h3>
+                          <div className="flex items-center text-sm text-[#49769F] gap-2 mt-1">
+                            <MapPin className="w-4 h-4" />
+                            <span>
+                              {selectedProperty.street_address},{" "}
+                              {selectedProperty.city}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-3xl font-bold text-[#49769F]">
+                            ₱{selectedProperty.price.toLocaleString()}
+                          </p>
+                          {selectedProperty.property_status && (
+                            <span className="inline-flex px-3 py-1 text-xs font-semibold bg-[#F0FFFF] text-[#0A4174] rounded-full">
+                              {selectedProperty.property_status
+                                .charAt(0)
+                                .toUpperCase() +
+                                selectedProperty.property_status.slice(1)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="px-6 flex gap-6 border-b border-slate-100">
+                      <button
+                        onClick={() => setActiveTab("overview")}
+                        className={`pb-3 font-semibold text-sm transition-all ${
+                          activeTab === "overview"
+                            ? "text-[#0A4174] border-b-2 border-[#49769F]"
+                            : "text-slate-500 hover:text-slate-700"
+                        }`}
+                      >
+                        Overview
+                      </button>
+                      <button
+                        onClick={() => setActiveTab("about")}
+                        className={`pb-3 font-semibold text-sm transition-all ${
+                          activeTab === "about"
+                            ? "text-[#0A4174] border-b-2 border-[#49769F]"
+                            : "text-slate-500 hover:text-slate-700"
+                        }`}
+                      >
+                        About
+                      </button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
+                      {activeTab === "overview" && (
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm text-[#0A4174]">
+                            <div className="flex items-center gap-2 bg-[#F0FFFF] rounded-xl px-3 py-2">
+                              <Bed className="w-4 h-4 text-[#49769F]" />
+                              <div>
+                                <p className="font-semibold text-[#0A4174]">
+                                  {selectedProperty.bedrooms ?? "—"}
+                                </p>
+                                <p className="text-xs text-[#49769F]">
+                                  Bedrooms
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 bg-[#F0FFFF] rounded-xl px-3 py-2">
+                              <Bath className="w-4 h-4 text-[#49769F]" />
+                              <div>
+                                <p className="font-semibold text-[#0A4174]">
+                                  {selectedProperty.bathrooms ?? "—"}
+                                </p>
+                                <p className="text-xs text-[#49769F]">
+                                  Bathrooms
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 bg-[#F0FFFF] rounded-xl px-3 py-2">
+                              <Maximize className="w-4 h-4 text-[#49769F]" />
+                              <div>
+                                <p className="font-semibold text-[#0A4174]">
+                                  {selectedProperty.square_feet
+                                    ? `${selectedProperty.square_feet.toLocaleString()} sq ft`
+                                    : "—"}
+                                </p>
+                                <p className="text-xs text-[#49769F]">
+                                  Floor Area
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="bg-[#F8FBFD] rounded-2xl p-4">
+                            <h3 className="font-semibold text-[#0A4174] mb-2">
+                              Description
+                            </h3>
+                            <p className="text-sm text-[#49769F] leading-relaxed">
+                              {selectedProperty.description ||
+                                "No description available."}
+                            </p>
+                          </div>
+
+                          {selectedProperty.features &&
+                            selectedProperty.features.length > 0 && (
+                              <div className="bg-[#F8FBFD] rounded-2xl p-4">
+                                <h3 className="font-semibold text-[#0A4174] mb-3">
+                                  Features
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                  {selectedProperty.features.map(
+                                    (feature, index) => (
+                                      <span
+                                        key={`${feature}-${index}`}
+                                        className="px-3 py-1 text-xs bg-[#49769F]/10 text-[#0A4174] rounded-full"
+                                      >
+                                        {feature}
+                                      </span>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                          {(selectedProperty.parking_spaces ||
+                            selectedProperty.year_built ||
+                            selectedProperty.lot_size ||
+                            selectedProperty.furnished ||
+                            selectedProperty.pet_policy) && (
+                            <div className="bg-[#F8FBFD] rounded-2xl p-4 space-y-2 text-sm text-[#0A4174]">
+                              <h3 className="font-semibold text-[#0A4174] mb-2">
+                                Additional Details
+                              </h3>
+                              {selectedProperty.parking_spaces !== null &&
+                                selectedProperty.parking_spaces !== undefined && (
+                                  <div className="flex justify-between">
+                                    <span className="text-[#49769F]">
+                                      Parking Spaces
+                                    </span>
+                                    <span className="font-semibold">
+                                      {selectedProperty.parking_spaces}
+                                    </span>
+                                  </div>
+                                )}
+                              {selectedProperty.year_built && (
+                                <div className="flex justify-between">
+                                  <span className="text-[#49769F]">
+                                    Year Built
+                                  </span>
+                                  <span className="font-semibold">
+                                    {selectedProperty.year_built}
+                                  </span>
+                                </div>
+                              )}
+                              {selectedProperty.lot_size && (
+                                <div className="flex justify-between">
+                                  <span className="text-[#49769F]">
+                                    Lot Size
+                                  </span>
+                                  <span className="font-semibold">
+                                    {selectedProperty.lot_size} sqm
+                                  </span>
+                                </div>
+                              )}
+                              {selectedProperty.furnished && (
+                                <div className="flex justify-between">
+                                  <span className="text-[#49769F]">
+                                    Furnished
+                                  </span>
+                                  <span className="font-semibold">
+                                    {selectedProperty.furnished}
+                                  </span>
+                                </div>
+                              )}
+                              {selectedProperty.pet_policy && (
+                                <div className="flex justify-between">
+                                  <span className="text-[#49769F]">
+                                    Pet Policy
+                                  </span>
+                                  <span className="font-semibold">
+                                    {selectedProperty.pet_policy}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {activeTab === "about" && (
+                        <div className="space-y-4">
+                          {selectedProperty.about_property && (
+                            <div className="bg-[#F8FBFD] rounded-2xl p-4">
+                              <h3 className="font-semibold text-[#0A4174] mb-2">
+                                About This Property
+                              </h3>
+                              <p className="text-sm text-[#49769F] leading-relaxed">
+                                {selectedProperty.about_property}
+                              </p>
+                            </div>
+                          )}
+
+                          {(selectedProperty.full_name ||
+                            selectedProperty.email ||
+                            selectedProperty.phone_number) && (
+                            <div className="bg-[#F8FBFD] rounded-2xl p-4 space-y-2 text-sm">
+                              <h3 className="font-semibold text-[#0A4174] mb-2">
+                                Contact Information
+                              </h3>
+                              {selectedProperty.full_name && (
+                                <div className="flex justify-between">
+                                  <span className="text-[#49769F]">Name</span>
+                                  <span className="font-semibold text-[#0A4174]">
+                                    {selectedProperty.full_name}
+                                  </span>
+                                </div>
+                              )}
+                              {selectedProperty.email && (
+                                <div className="flex justify-between">
+                                  <span className="text-[#49769F]">Email</span>
+                                  <span className="font-semibold text-[#0A4174]">
+                                    {selectedProperty.email}
+                                  </span>
+                                </div>
+                              )}
+                              {selectedProperty.phone_number && (
+                                <div className="flex justify-between">
+                                  <span className="text-[#49769F]">Phone</span>
+                                  <span className="font-semibold text-[#0A4174]">
+                                    {selectedProperty.phone_number}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {selectedProperty.nearby_places &&
+                            selectedProperty.nearby_places.length > 0 && (
+                              <div className="bg-[#F8FBFD] rounded-2xl p-4 space-y-2">
+                                <h3 className="font-semibold text-[#0A4174] mb-2">
+                                  Nearby Places
+                                </h3>
+                                {selectedProperty.nearby_places.map(
+                                  (place: any, index: number) => (
+                                    <div
+                                      key={`${place?.name}-${index}`}
+                                      className="flex justify-between text-sm"
+                                    >
+                                      <span className="text-[#49769F]">
+                                        {place?.name || "Point of Interest"}
+                                      </span>
+                                      <span className="font-semibold text-[#0A4174]">
+                                        {place?.distance_km
+                                          ? `${place.distance_km} km`
+                                          : ""}
+                                      </span>
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            )}
+
+                          {selectedProperty.utilities &&
+                            selectedProperty.utilities.length > 0 && (
+                              <div className="bg-[#F8FBFD] rounded-2xl p-4">
+                                <h3 className="font-semibold text-[#0A4174] mb-2">
+                                  Utilities
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                  {selectedProperty.utilities.map(
+                                    (utility, index) => (
+                                      <span
+                                        key={`${utility}-${index}`}
+                                        className="px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full text-xs font-medium"
+                                      >
+                                        {utility}
+                                      </span>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+        )}
+
         {/* Confirmation Modal */}
         {showConfirmModal && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50 p-4">
