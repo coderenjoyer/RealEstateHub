@@ -64,12 +64,16 @@ function UserProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [bio, setBio] = useState<string | null>(null);
+  const [tempBio, setTempBio] = useState<string | null>(null); // Temporary state for bio editing
   const [propertyType, setPropertyType] = useState<string | null>(null);
-  const [preferredLocation, setPreferredLocation] = useState<string | null>(
-    null
-  );
+  const [preferredLocation, setPreferredLocation] = useState<string | null>(null);
   const [budgetRange, setBudgetRange] = useState<string | null>(null);
   const [investmentGoal, setInvestmentGoal] = useState<string | null>(null);
+  // Temporary state variables for preferences editing
+  const [tempPropertyType, setTempPropertyType] = useState<string | null>(null);
+  const [tempPreferredLocation, setTempPreferredLocation] = useState<string | null>(null);
+  const [tempBudgetRange, setTempBudgetRange] = useState<string | null>(null);
+  const [tempInvestmentGoal, setTempInvestmentGoal] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<string | null>(null);
   const [showLocationModal, setShowLocationModal] = useState(false);
 
@@ -154,6 +158,17 @@ function UserProfilePage() {
     mode: "profile" | "cover" | "bio" | "preferences" | "location"
   ) => {
     setEditMode(mode);
+    // Initialize tempBio with current bio value when opening bio edit modal
+    if (mode === "bio") {
+      setTempBio(bio);
+    }
+    // Initialize temp values for preferences when opening preferences edit modal
+    if (mode === "preferences") {
+      setTempPropertyType(propertyType);
+      setTempPreferredLocation(preferredLocation);
+      setTempBudgetRange(budgetRange);
+      setTempInvestmentGoal(investmentGoal);
+    }
     setIsEditModalOpen(true);
     setIsDropdownOpen(false);
   };
@@ -224,7 +239,8 @@ function UserProfilePage() {
     (async () => {
       setErrorMessage(null);
       setIsSaving(true);
-      const { error } = await upsertProfile({ bio });
+      // Save tempBio instead of bio
+      const { error } = await upsertProfile({ bio: tempBio });
       setIsSaving(false);
       if (error) {
         console.error("Failed to save bio:", error);
@@ -235,6 +251,8 @@ function UserProfilePage() {
         );
         return;
       }
+      // Update the main bio state only after successful save
+      setBio(tempBio);
       setIsEditModalOpen(false);
       setEditMode(null);
     })();
@@ -245,10 +263,10 @@ function UserProfilePage() {
       setErrorMessage(null);
       setIsSaving(true);
       const { error } = await upsertProfile({
-        property_type: propertyType ?? null,
-        preferred_location: preferredLocation ?? null,
-        budget_range: budgetRange ?? null,
-        investment_goal: investmentGoal ?? null,
+        property_type: tempPropertyType ?? null,
+        preferred_location: tempPreferredLocation ?? null,
+        budget_range: tempBudgetRange ?? null,
+        investment_goal: tempInvestmentGoal ?? null,
       });
       setIsSaving(false);
       if (error) {
@@ -260,6 +278,11 @@ function UserProfilePage() {
         );
         return;
       }
+      // Update the main preference states only after successful save
+      setPropertyType(tempPropertyType);
+      setPreferredLocation(tempPreferredLocation);
+      setBudgetRange(tempBudgetRange);
+      setInvestmentGoal(tempInvestmentGoal);
       setIsEditModalOpen(false);
       setEditMode(null);
     })();
@@ -302,6 +325,17 @@ function UserProfilePage() {
     setPreviewImage(null);
     setEditMode(null);
     setShowLocationModal(false);
+    // Reset tempBio when cancelling
+    if (editMode === "bio") {
+      setTempBio(bio); // Reset to original bio value
+    }
+    // Reset temp preferences when cancelling
+    if (editMode === "preferences") {
+      setTempPropertyType(propertyType);
+      setTempPreferredLocation(preferredLocation);
+      setTempBudgetRange(budgetRange);
+      setTempInvestmentGoal(investmentGoal);
+    }
   };
 
   return (
@@ -459,12 +493,17 @@ function UserProfilePage() {
                 onClick={() => handleEditClick("bio")}
               >
                 <Edit3 className="w-4 h-4" />
-                {isSaving && editMode === "bio" ? "Saving..." : "Edit Bio"}
+                {isSaving && editMode === "bio" 
+                  ? "Saving..." 
+                  : bio 
+                    ? "Edit Bio" 
+                    : "Add Bio"
+                }
               </Button>
             </div>
             <div className="prose prose-slate max-w-none text-left">
               <p className="text-slate-700 leading-relaxed whitespace-pre-line">
-                {bio}
+                {bio || "No bio available. Click 'Add Bio' to share something about yourself."}
               </p>
             </div>
           </div>
@@ -484,7 +523,10 @@ function UserProfilePage() {
                 <Edit3 className="w-4 h-4" />
                 {isSaving && editMode === "preferences"
                   ? "Saving..."
-                  : "Edit Preferences"}
+                  : (propertyType || preferredLocation || budgetRange || investmentGoal)
+                    ? "Edit Preferences"
+                    : "Add Preferences"
+                }
               </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 text-left">
@@ -670,8 +712,8 @@ function UserProfilePage() {
                       </label>
                       <textarea
                         id="bio"
-                        value={bio ?? ""}
-                        onChange={(e) => setBio(e.target.value)}
+                        value={tempBio ?? ""}
+                        onChange={(e) => setTempBio(e.target.value)}
                         rows={8}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49769F] focus:border-[#49769F] resize-none"
                         placeholder="Tell us about yourself..."
@@ -724,8 +766,8 @@ function UserProfilePage() {
                         <input
                           type="text"
                           id="propertyType"
-                          value={propertyType ?? ""}
-                          onChange={(e) => setPropertyType(e.target.value)}
+                          value={tempPropertyType ?? ""}
+                          onChange={(e) => setTempPropertyType(e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49769F] focus:border-[#49769F]"
                           placeholder="e.g., Condominium, Townhouse"
                         />
@@ -740,8 +782,8 @@ function UserProfilePage() {
                         <input
                           type="text"
                           id="preferredLocation"
-                          value={preferredLocation ?? ""}
-                          onChange={(e) => setPreferredLocation(e.target.value)}
+                          value={tempPreferredLocation ?? ""}
+                          onChange={(e) => setTempPreferredLocation(e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49769F] focus:border-[#49769F]"
                           placeholder="e.g., Makati, BGC, Ortigas"
                         />
@@ -756,8 +798,8 @@ function UserProfilePage() {
                         <input
                           type="text"
                           id="budgetRange"
-                          value={budgetRange ?? ""}
-                          onChange={(e) => setBudgetRange(e.target.value)}
+                          value={tempBudgetRange ?? ""}
+                          onChange={(e) => setTempBudgetRange(e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49769F] focus:border-[#49769F]"
                           placeholder="e.g., ₱3M - ₱8M"
                         />
@@ -772,8 +814,8 @@ function UserProfilePage() {
                         <input
                           type="text"
                           id="investmentGoal"
-                          value={investmentGoal ?? ""}
-                          onChange={(e) => setInvestmentGoal(e.target.value)}
+                          value={tempInvestmentGoal ?? ""}
+                          onChange={(e) => setTempInvestmentGoal(e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49769F] focus:border-[#49769F]"
                           placeholder="e.g., Long-term rental income"
                         />
