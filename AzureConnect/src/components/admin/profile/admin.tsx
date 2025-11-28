@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Users, Activity, AlertCircle, CheckCircle, Globe, Bell, Home } from 'lucide-react';
+import { Users, Activity, AlertCircle, CheckCircle, Globe, Bell, Home } from 'lucide-react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
 import supabase from '@/supabaseClient';
 
@@ -186,12 +186,6 @@ const AdminControls: React.FC = () => {
     } finally {
       setLoadingFeature(null);
     }
-  };
-
-  // ... existing code ...
-
-  const refreshSystemStatus = () => {
-    fetchSystemHealth();
   };
 
   const fetchSystemHealth = async () => {
