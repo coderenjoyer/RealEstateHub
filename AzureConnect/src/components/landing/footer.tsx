@@ -67,7 +67,7 @@ export function Footer() {
             </ul>
           </div>
 
-          <div>
+          <div className="flex flex-col items-end justify-start">
             <h3 className="font-semibold text-[#FFFFFF] mb-4">CONNECT WITH US</h3>
             <div className="flex gap-4">
               <a href="https://www.facebook.com/profile.php?id=61584387506639" className="text-[#F0FFFF]/70 hover:text-[#FFFFFF] transition-colors" target="_blank" rel="noopener noreferrer">
@@ -86,6 +86,7 @@ export function Footer() {
         <div className="border-t border-[#F0FFFF]/20 pt-8 text-center text-sm text-[#F0FFFF]/70">
           <p>&copy; 2025 AzureConnect. All rights reserved.</p>
           <p className="mt-2">Trust us with your property needs</p>
+          <p className="mt-2">For more direct communication please email us at azureconnect@gmail.com</p>
         </div>
       </div>
     </footer>

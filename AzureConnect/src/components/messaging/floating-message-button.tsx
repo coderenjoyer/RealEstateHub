@@ -9,12 +9,13 @@ const FloatingMessageButton: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [adminId, setAdminId] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [messagingEnabled, setMessagingEnabled] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Get user role from auth metadata instead of profiles table
+  // Get user role from auth metadata and check messaging status
   useEffect(() => {
-    const getUserRole = async () => {
+    const initializeButton = async () => {
       if (!session?.user?.id) return;
 
       try {
@@ -24,39 +25,37 @@ const FloatingMessageButton: React.FC = () => {
         
         const role = user?.user_metadata?.role || null;
         setUserRole(role);
-      } catch (error) {
-        console.error('Error fetching user role:', error);
-      }
-    };
-
-    getUserRole();
-  }, [session?.user?.id]);
-
-  // Get admin ID on mount
-  useEffect(() => {
-    const getAdminId = async () => {
-      try {
-        // Query to find an admin user
-        const { data: adminProfiles, error } = await supabase
+        
+        // Check if messaging is enabled
+        const { data: settings, error: settingsError } = await supabase
+          .from('admin_settings')
+          .select('messaging_enabled')
+          .single();
+        
+        if (!settingsError && settings) {
+          setMessagingEnabled(settings.messaging_enabled ?? true);
+        }
+        
+        // Get admin ID
+        const { data: adminProfiles, error: adminError } = await supabase
           .from('profiles')
           .select('user_id')
           .eq('role', 'admin')
           .limit(1);
 
-        if (error) throw error;
-
-        if (adminProfiles && adminProfiles.length > 0) {
+        if (!adminError && adminProfiles && adminProfiles.length > 0) {
           setAdminId(adminProfiles[0].user_id);
         }
+        
+        setIsInitialized(true);
       } catch (error) {
-        console.error('Error fetching admin ID:', error);
-      } finally {
-        setIsLoading(false);
+        console.error('Error initializing message button:', error);
+        setIsInitialized(true);
       }
     };
 
-    getAdminId();
-  }, []);
+    initializeButton();
+  }, [session?.user?.id]);
 
   // Count unread messages from admin
   useEffect(() => {
@@ -117,22 +116,12 @@ const FloatingMessageButton: React.FC = () => {
     };
   }, [session?.user?.id, adminId]);
 
-  // Only show button for users and agents (not for admins)
+  // Only show button for users and agents (not for admins), and only if messaging is enabled and initialized
   if (!session?.user?.id) return null;
   if (userRole === 'admin') return null;
-  if (userRole === null) return null; // Don't show while role is still loading
-
-  // Don't return null while loading - show button even if admin ID hasn't loaded yet
-  if (isLoading) {
-    return (
-      <button
-        className="fixed bottom-6 right-[38px] z-[999] bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all hover:scale-110 flex items-center justify-center"
-        disabled
-      >
-        <MessageCircle size={24} />
-      </button>
-    );
-  }
+  if (!isInitialized) return null; // Wait for initialization
+  if (!messagingEnabled) return null; // Don't show if messaging is disabled
+  if (!adminId) return null; // Wait for admin ID
 
   return (
     <>

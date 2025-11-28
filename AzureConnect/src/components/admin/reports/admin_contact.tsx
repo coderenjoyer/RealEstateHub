@@ -269,11 +269,19 @@ const AdminMessaging: React.FC = () => {
     }
   };
 
-  const filteredRecipients = recipients.filter(
-    (r) =>
-      r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredRecipients = recipients
+    .filter(
+      (r) =>
+        r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        r.email.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      // Sort by unread count (descending), then by name (ascending)
+      const aUnread = unreadCounts[a.id] || 0;
+      const bUnread = unreadCounts[b.id] || 0;
+      if (aUnread !== bUnread) return bUnread - aUnread;
+      return a.name.localeCompare(b.name);
+    });
 
   return (
     <div className="flex h-screen bg-[#BDD8E9]">
