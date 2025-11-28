@@ -9,7 +9,7 @@ const services = [
   {
     icon: Users,
     title: "Agent Verification",
-    description: "All our agents are verified and certified professionals",
+    description: "All of our agents are screen and verfied by us",
   },
   {
     icon: Wrench,
