@@ -255,8 +255,8 @@ export function MaintenanceModal({
         aria-hidden="true"
       />
 
-      <div className="relative z-10 w-full max-w-3xl animate-in fade-in-0 zoom-in-95 duration-200">
-        <div className="max-h-[90vh] overflow-hidden rounded-3xl border border-white/60 bg-white/95 shadow-[0_30px_80px_rgba(15,23,42,0.35)] backdrop-blur">
+      <div className="relative z-10 w-full max-w-3xl max-h-[95vh] flex flex-col animate-in fade-in-0 zoom-in-95 duration-200">
+        <div className="overflow-hidden rounded-3xl border border-white/60 bg-white/95 shadow-[0_30px_80px_rgba(15,23,42,0.35)] backdrop-blur flex flex-col max-h-[95vh]">
           <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 bg-gradient-to-r from-[#49769F]/20 via-white to-[#49769F]/10 px-8 py-6">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[#49769F]">Maintenance</p>
@@ -285,7 +285,7 @@ export function MaintenanceModal({
             </button>
           </div>
 
-          <form className="max-h-[calc(90vh-150px)] space-y-6 overflow-y-auto px-8 py-6" onSubmit={handleSubmit}>
+          <form className="flex-1 space-y-6 overflow-y-auto px-8 py-6" onSubmit={handleSubmit}>
           <div>
               <label className="mb-2 block text-sm font-semibold text-slate-700">
                 Property <span className="text-red-500">*</span>
