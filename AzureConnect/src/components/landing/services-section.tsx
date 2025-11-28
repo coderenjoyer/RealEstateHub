@@ -1,4 +1,4 @@
-import { Building2, Users, Wrench, Home, Star, Key, MapPin } from "lucide-react"
+import { Building2, Users, Wrench, Home, Star, MapPin } from "lucide-react"
 
 const services = [
   {
@@ -25,11 +25,6 @@ const services = [
     icon: Star,
     title: "Verified for Vacant Rooms",
     description: "Premium properties with verified vacancy status",
-  },
-  {
-    icon: Key,
-    title: "Move In Move Out Services",
-    description: "Complete relocation assistance and property handover",
   },
   {
     icon: MapPin,
