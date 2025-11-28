@@ -82,15 +82,30 @@ export function AgentProfileCards() {
   const [aboutData, setAboutData] = useState({
     bio: "",
     specializations: [""],
-    languages: "",
+    languages: [] as string[],
     certifications: [""],
   });
 
   // Temporary editing states
   const [tempAboutData, setTempAboutData] = useState(aboutData);
+  const [newLanguage, setNewLanguage] = useState("");
+  const [showLanguageSuggestions, setShowLanguageSuggestions] = useState(false);
+  const [languageFilter, setLanguageFilter] = useState("");
   const [newSpecialization, setNewSpecialization] = useState("");
   const [newCertification, setNewCertification] = useState("");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  // Common languages for suggestions
+  const commonLanguages = [
+    "English", "Filipino", "Mandarin Chinese", "Spanish", "French", "German", 
+    "Japanese", "Korean", "Italian", "Portuguese", "Russian", "Arabic", 
+    "Hindi", "Bengali", "Punjabi", "Tamil", "Telugu", "Marathi", "Urdu", 
+    "Persian", "Turkish", "Dutch", "Swedish", "Norwegian", "Danish", 
+    "Finnish", "Polish", "Czech", "Hungarian", "Thai", "Vietnamese", 
+    "Indonesian", "Malay", "Tagalog", "Cebuano", "Ilocano", "Hiligaynon", 
+    "Waray", "Pampango", "Bikol", "Kapampangan", "Yakan", "Tausug", 
+    "Maguindanao", "Maranao", "Chavacano", "Visayan"
+  ];
 
   useEffect(() => {
     fetchAboutData();
@@ -116,7 +131,12 @@ export function AgentProfileCards() {
           const aboutData = {
             bio: profileData.bio || "",
             specializations: (profileData.specializations && profileData.specializations.length > 0) ? profileData.specializations : [""],
-            languages: profileData.languages || "",
+            languages: Array.isArray(profileData.languages) ? profileData.languages : 
+                     profileData.languages ? 
+                       (typeof profileData.languages === 'string' && profileData.languages.startsWith('[') ? 
+                         JSON.parse(profileData.languages) : 
+                         profileData.languages.split(',').map((lang: string) => lang.trim())) : 
+                       ([] as string[]),
             certifications: (profileData.certifications && profileData.certifications.length > 0) ? profileData.certifications : [""],
           };
           setAboutData(aboutData);
@@ -254,6 +274,9 @@ export function AgentProfileCards() {
     setTempAboutData(aboutData);
     setNewSpecialization("");
     setNewCertification("");
+    setNewLanguage("");
+    setLanguageFilter("");
+    setShowLanguageSuggestions(false);
     setIsEditingAbout(false);
   };
 
@@ -283,7 +306,7 @@ export function AgentProfileCards() {
         .update({
           bio: tempAboutData.bio,
           specializations: tempAboutData.specializations,
-          languages: tempAboutData.languages,
+          languages: tempAboutData.languages, // This will be saved as an array
           certifications: tempAboutData.certifications,
         })
         .eq('user_id', session?.user?.id);
@@ -297,6 +320,7 @@ export function AgentProfileCards() {
       setIsEditingAbout(false);
       setNewSpecialization("");
       setNewCertification("");
+      setNewLanguage("");
     } catch (error) {
       console.error("Error:", error);
     } finally {
@@ -339,6 +363,47 @@ export function AgentProfileCards() {
     }
   };
 
+  // Language functions
+  const addLanguage = (language: string) => {
+    if (language.trim() && !tempAboutData.languages.includes(language.trim())) {
+      setTempAboutData({
+        ...tempAboutData,
+        languages: [
+          ...tempAboutData.languages,
+          language.trim(),
+        ],
+      });
+      setNewLanguage("");
+      setLanguageFilter("");
+      setShowLanguageSuggestions(false);
+    }
+  };
+
+  const removeLanguage = (index: number) => {
+    setTempAboutData({
+      ...tempAboutData,
+      languages: tempAboutData.languages.filter(
+        (_, i) => i !== index
+      ),
+    });
+  };
+
+  const handleLanguageInputChange = (value: string) => {
+    setNewLanguage(value);
+    setLanguageFilter(value);
+    setShowLanguageSuggestions(value.length > 0);
+  };
+
+  const getSuggestedLanguages = () => {
+    if (!languageFilter) return [];
+    return commonLanguages
+      .filter(lang => 
+        lang.toLowerCase().includes(languageFilter.toLowerCase()) &&
+        !tempAboutData.languages.includes(lang)
+      )
+      .slice(0, 5); // Limit to 5 suggestions
+  };
+
   const handleViewDetails = (property: ListedProperty) => {
     setSelectedProperty(property);
     setIsDetailsModalOpen(true);
@@ -361,7 +426,7 @@ export function AgentProfileCards() {
   };
 
   return (
-    <div className="bg-[#BDD8E9] px-4 sm:px-8 py-8">
+    <div className="bg-[#BDD8E9] px-4 sm:px-8 py-8" onClick={() => setShowLanguageSuggestions(false)}>
       <div className="max-w-7xl min-w-[375px] mx-auto space-y-6">
         {/* Top Row - About Me and Property Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -414,8 +479,8 @@ export function AgentProfileCards() {
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {(isEditingAbout
-                    ? tempAboutData.specializations
-                    : aboutData.specializations
+                    ? tempAboutData.specializations.filter(spec => spec.trim() !== "")
+                    : aboutData.specializations.filter(spec => spec.trim() !== "")
                   ).map((spec, index) => (
                     <span
                       key={index}
@@ -432,6 +497,12 @@ export function AgentProfileCards() {
                       )}
                     </span>
                   ))}
+                  {((isEditingAbout
+                    ? tempAboutData.specializations.filter(spec => spec.trim() !== "")
+                    : aboutData.specializations.filter(spec => spec.trim() !== "")
+                  ).length === 0) && (
+                    <p className="text-[#49769F] text-sm">No specializations specified</p>
+                  )}
                 </div>
                 {isEditingAbout && (
                   <div className="flex gap-2">
@@ -459,22 +530,86 @@ export function AgentProfileCards() {
               <div className="space-y-3">
                 <h4 className="font-semibold text-[#0A4174]">Languages:</h4>
                 {isEditingAbout ? (
-                  <input
-                    type="text"
-                    value={tempAboutData.languages}
-                    onChange={(e) =>
-                      setTempAboutData({
-                        ...tempAboutData,
-                        languages: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-1.5 text-sm border border-[#49769F]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F] bg-[#F0FFFF]"
-                    placeholder="e.g., English, Filipino, Mandarin Chinese"
-                  />
+                  <div className="space-y-2">
+                    {/* Selected Languages */}
+                    <div className="flex flex-wrap gap-2">
+                      {tempAboutData.languages.map((lang, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-[#49769F]/15 text-[#0A4174] rounded-full text-sm font-medium flex items-center gap-2"
+                        >
+                          {lang}
+                          <button
+                            onClick={() => removeLanguage(index)}
+                            className="hover:bg-[#49769F]/20 rounded-full p-0.5"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                    
+                    {/* Language Input with Suggestions */}
+                    <div className="relative" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="text"
+                        value={newLanguage}
+                        onChange={(e) => handleLanguageInputChange(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            if (getSuggestedLanguages().length > 0) {
+                              addLanguage(getSuggestedLanguages()[0]);
+                            } else if (newLanguage.trim()) {
+                              addLanguage(newLanguage);
+                            }
+                          }
+                        }}
+                        className="w-full px-3 py-1.5 text-sm border border-[#49769F]/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F] bg-[#F0FFFF]"
+                        placeholder="You can select more than one language!"
+                      />
+                      
+                      {/* Suggestions Dropdown */}
+                      {showLanguageSuggestions && (
+                        <div className="absolute z-10 mt-1 w-full bg-white border border-[#49769F]/30 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                          {getSuggestedLanguages().map((lang, index) => (
+                            <button
+                              key={index} 
+                              type="button"
+                              onClick={() => addLanguage(lang)}
+                              className="w-full text-left px-3 py-2 text-sm hover:bg-[#F0FFFF] transition-colors"
+                            >
+                              {lang}
+                            </button>
+                          ))}
+                          {getSuggestedLanguages().length === 0 && languageFilter && (
+                            <button
+                              type="button"
+                              onClick={() => addLanguage(languageFilter)}
+                              className="w-full text-left px-3 py-2 text-sm hover:bg-[#F0FFFF] transition-colors"
+                            >
+                              Add "{languageFilter}" as new language
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 ) : (
-                  <p className="text-[#49769F] text-sm">
-                    {aboutData.languages}
-                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {aboutData.languages.length > 0 ? (
+                      aboutData.languages.map((lang, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-[#49769F]/15 text-[#0A4174] rounded-full text-sm font-medium"
+                        >
+                          {lang}
+                        </span>
+                      ))
+                    ) : (
+                      <p className="text-[#49769F] text-sm">No languages specified</p>
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -485,8 +620,8 @@ export function AgentProfileCards() {
                 </h4>
                 <ul className="space-y-1 text-sm text-[#49769F]">
                   {(isEditingAbout
-                    ? tempAboutData.certifications
-                    : aboutData.certifications
+                    ? tempAboutData.certifications.filter(cert => cert.trim() !== "")
+                    : aboutData.certifications.filter(cert => cert.trim() !== "")
                   ).map((cert, index) => (
                     <li key={index} className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-[#49769F] flex-shrink-0" />
@@ -501,6 +636,12 @@ export function AgentProfileCards() {
                       )}
                     </li>
                   ))}
+                  {((isEditingAbout
+                    ? tempAboutData.certifications.filter(cert => cert.trim() !== "")
+                    : aboutData.certifications.filter(cert => cert.trim() !== "")
+                  ).length === 0) && (
+                    <li className="text-[#49769F] text-sm">No certifications specified</li>
+                  )}
                 </ul>
                 {isEditingAbout && (
                   <div className="flex gap-2">
