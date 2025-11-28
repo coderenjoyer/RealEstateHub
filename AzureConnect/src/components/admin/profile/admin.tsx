@@ -13,10 +13,6 @@ const AdminControls: React.FC = () => {
     lastBackup: new Date(Date.now() - 2 * 60 * 60 * 1000).toLocaleString(),
     totalListings: 0,
     pendingApprovals: 0,
-    userRegistration: true,
-    propertyListings: true,
-    messaging: true,
-    maintenanceMode: false,
   });
 
   const [features, setFeatures] = useState({
@@ -216,11 +212,6 @@ const AdminControls: React.FC = () => {
         activeUsers: totalUsers || 0,
         totalListings: totalListings || 0,
         pendingApprovals: pendingApprovals || 0,
-        userRegistration: features.userRegistration,
-        propertyListings: features.propertyListings,
-        messaging: features.messaging,
-        maintenanceMode: features.maintenanceMode,
-        status: features.maintenanceMode ? 'maintenance' : 'healthy',
       }));
       
       // Set registration disabled notice based on current feature status
@@ -297,66 +288,66 @@ const AdminControls: React.FC = () => {
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className={`flex items-center justify-between p-3 rounded-lg border ${
-            systemHealth.userRegistration
+            features.userRegistration
               ? 'bg-green-50 border-green-200'
               : 'bg-red-50 border-red-200'
           }`}>
             <div className="flex items-center gap-2">
               <Users className={`${
-                systemHealth.userRegistration ? 'text-green-600' : 'text-red-600'
+                features.userRegistration ? 'text-green-600' : 'text-red-600'
               }`} size={18} />
               <span className={`text-sm font-medium ${
-                systemHealth.userRegistration ? 'text-green-700' : 'text-red-700'
+                features.userRegistration ? 'text-green-700' : 'text-red-700'
               }`}>User Registration</span>
             </div>
             <span className={`px-2 py-1 rounded text-xs font-semibold ${
-              systemHealth.userRegistration
+              features.userRegistration
                 ? 'bg-green-100 text-green-700'
                 : 'bg-red-100 text-red-700'
             }`}>
-              {systemHealth.userRegistration ? 'Enabled' : 'Disabled'}
+              {features.userRegistration ? 'Enabled' : 'Disabled'}
             </span>
           </div>
           <div className={`flex items-center justify-between p-3 rounded-lg border ${
-            systemHealth.propertyListings
+            features.propertyListings
               ? 'bg-green-50 border-green-200'
               : 'bg-red-50 border-red-200'
           }`}>
             <div className="flex items-center gap-2">
               <Home className={`${
-                systemHealth.propertyListings ? 'text-green-600' : 'text-red-600'
+                features.propertyListings ? 'text-green-600' : 'text-red-600'
               }`} size={18} />
               <span className={`text-sm font-medium ${
-                systemHealth.propertyListings ? 'text-green-700' : 'text-red-700'
+                features.propertyListings ? 'text-green-700' : 'text-red-700'
               }`}>Property Listings</span>
             </div>
             <span className={`px-2 py-1 rounded text-xs font-semibold ${
-              systemHealth.propertyListings
+              features.propertyListings
                 ? 'bg-green-100 text-green-700'
                 : 'bg-red-100 text-red-700'
             }`}>
-              {systemHealth.propertyListings ? 'Enabled' : 'Disabled'}
+              {features.propertyListings ? 'Enabled' : 'Disabled'}
             </span>
           </div>
           <div className={`flex items-center justify-between p-3 rounded-lg border ${
-            systemHealth.messaging
+            features.messaging
               ? 'bg-green-50 border-green-200'
               : 'bg-red-50 border-red-200'
           }`}>
             <div className="flex items-center gap-2">
               <Bell className={`${
-                systemHealth.messaging ? 'text-green-600' : 'text-red-600'
+                features.messaging ? 'text-green-600' : 'text-red-600'
               }`} size={18} />
               <span className={`text-sm font-medium ${
-                systemHealth.messaging ? 'text-green-700' : 'text-red-700'
+                features.messaging ? 'text-green-700' : 'text-red-700'
               }`}>Messaging</span>
             </div>
             <span className={`px-2 py-1 rounded text-xs font-semibold ${
-              systemHealth.messaging
+              features.messaging
                 ? 'bg-green-100 text-green-700'
                 : 'bg-red-100 text-red-700'
             }`}>
-              {systemHealth.messaging ? 'Enabled' : 'Disabled'}
+              {features.messaging ? 'Enabled' : 'Disabled'}
             </span>
           </div>
         </div>
