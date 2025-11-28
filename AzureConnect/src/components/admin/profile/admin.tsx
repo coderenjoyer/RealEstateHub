@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Users, Activity, AlertCircle, CheckCircle, Database, Globe, Bell, Home } from 'lucide-react';
+import { RefreshCw, Users, Activity, AlertCircle, CheckCircle, Globe, Bell, Home } from 'lucide-react';
 import { AdminLayout } from '@/components/layouts/AdminLayout';
 import supabase from '@/supabaseClient';
 
@@ -13,6 +13,10 @@ const AdminControls: React.FC = () => {
     lastBackup: new Date(Date.now() - 2 * 60 * 60 * 1000).toLocaleString(),
     totalListings: 0,
     pendingApprovals: 0,
+    userRegistration: true,
+    propertyListings: true,
+    messaging: true,
+    maintenanceMode: false,
   });
 
   const [features, setFeatures] = useState({
@@ -25,12 +29,6 @@ const AdminControls: React.FC = () => {
   const [loadingFeature, setLoadingFeature] = useState<string | null>(null);
   const [registrationDisabledNotice, setRegistrationDisabledNotice] = useState(false);
 
-  /*const [security, setSecurity] = useState({
-    twoFactorAuth: true,
-    passwordPolicy: 'strict',
-    sessionTimeout: 30,
-    ipWhitelist: false,
-  }); */
 
   const [recentActivity, setRecentActivity] = useState<Array<any>>([]);
 
@@ -170,6 +168,13 @@ const AdminControls: React.FC = () => {
       // Update local state
       setFeatures(prev => ({ ...prev, [feature]: newValue }));
       
+      // Update health status when features change
+      setSystemHealth(prev => ({
+        ...prev,
+        [feature]: newValue,
+        status: feature === 'maintenanceMode' && newValue ? 'maintenance' : prev.status,
+      }));
+      
       // Show notice if registration is being disabled
       if (feature === 'userRegistration' && newValue === false) {
         setRegistrationDisabledNotice(true);
@@ -217,6 +222,11 @@ const AdminControls: React.FC = () => {
         activeUsers: totalUsers || 0,
         totalListings: totalListings || 0,
         pendingApprovals: pendingApprovals || 0,
+        userRegistration: features.userRegistration,
+        propertyListings: features.propertyListings,
+        messaging: features.messaging,
+        maintenanceMode: features.maintenanceMode,
+        status: features.maintenanceMode ? 'maintenance' : 'healthy',
       }));
       
       // Set registration disabled notice based on current feature status
@@ -248,28 +258,37 @@ const AdminControls: React.FC = () => {
 
       {/* System Health Overview */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <Activity size={20} />
-            System Health Overview
-          </h3>
-          <button
-            onClick={refreshSystemStatus}
-            className="flex items-center gap-2 px-4 py-2 text-sm bg-[#49769F]/20 text-[#49769F] rounded-lg hover:bg-[#49769F]/30 transition-colors"
-          >
-            <RefreshCw size={16} />
-            Refresh
-          </button>
-        </div>
+        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <Activity size={20} />
+          System Health Overview
+        </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className={`border rounded-lg p-4 ${
+            features.maintenanceMode
+              ? 'bg-red-50 border-red-200'
+              : 'bg-green-50 border-green-200'
+          }`}>
             <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="text-green-600" size={20} />
-              <span className="font-semibold text-green-900">System Status</span>
+              {features.maintenanceMode ? (
+                <AlertCircle className="text-red-600" size={20} />
+              ) : (
+                <CheckCircle className="text-green-600" size={20} />
+              )}
+              <span className={`font-semibold ${
+                features.maintenanceMode ? 'text-red-900' : 'text-green-900'
+              }`}>System Status</span>
             </div>
-            <p className="text-2xl font-bold text-green-600 capitalize">{systemHealth.status}</p>
-            <p className="text-sm text-green-700 mt-1">All systems operational</p>
+            <p className={`text-2xl font-bold ${
+              features.maintenanceMode ? 'text-red-600' : 'text-green-600'
+            } capitalize`}>
+              {features.maintenanceMode ? 'Maintenance' : systemHealth.status}
+            </p>
+            <p className={`text-sm mt-1 ${
+              features.maintenanceMode ? 'text-red-700' : 'text-green-700'
+            }`}>
+              {features.maintenanceMode ? 'Maintenance in progress' : 'All systems operational'}
+            </p>
           </div>
 
           <div className="bg-[#49769F]/20 border border-[#49769F]/30 rounded-lg p-4">
@@ -282,29 +301,69 @@ const AdminControls: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`flex items-center justify-between p-3 rounded-lg border ${
+            systemHealth.userRegistration
+              ? 'bg-green-50 border-green-200'
+              : 'bg-red-50 border-red-200'
+          }`}>
             <div className="flex items-center gap-2">
-              <Database className="text-gray-600" size={18} />
-              <span className="text-sm text-gray-700">Database Status</span>
+              <Users className={`${
+                systemHealth.userRegistration ? 'text-green-600' : 'text-red-600'
+              }`} size={18} />
+              <span className={`text-sm font-medium ${
+                systemHealth.userRegistration ? 'text-green-700' : 'text-red-700'
+              }`}>User Registration</span>
             </div>
-            <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-              {systemHealth.databaseStatus}
+            <span className={`px-2 py-1 rounded text-xs font-semibold ${
+              systemHealth.userRegistration
+                ? 'bg-green-100 text-green-700'
+                : 'bg-red-100 text-red-700'
+            }`}>
+              {systemHealth.userRegistration ? 'Enabled' : 'Disabled'}
             </span>
           </div>
-          <div className="flex items-center justify-between p-3 bg-[#49769F]/20 rounded-lg border border-[#49769F]/30">
+          <div className={`flex items-center justify-between p-3 rounded-lg border ${
+            systemHealth.propertyListings
+              ? 'bg-green-50 border-green-200'
+              : 'bg-red-50 border-red-200'
+          }`}>
             <div className="flex items-center gap-2">
-              <Home className="text-[#49769F]" size={18} />
-              <span className="text-sm text-[#49769F]">Total Listings</span>
+              <Home className={`${
+                systemHealth.propertyListings ? 'text-green-600' : 'text-red-600'
+              }`} size={18} />
+              <span className={`text-sm font-medium ${
+                systemHealth.propertyListings ? 'text-green-700' : 'text-red-700'
+              }`}>Property Listings</span>
             </div>
-            <span className="text-sm font-semibold text-[#49769F]">{systemHealth.totalListings}</span>
+            <span className={`px-2 py-1 rounded text-xs font-semibold ${
+              systemHealth.propertyListings
+                ? 'bg-green-100 text-green-700'
+                : 'bg-red-100 text-red-700'
+            }`}>
+              {systemHealth.propertyListings ? 'Enabled' : 'Disabled'}
+            </span>
           </div>
-          <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200">
+          <div className={`flex items-center justify-between p-3 rounded-lg border ${
+            systemHealth.messaging
+              ? 'bg-green-50 border-green-200'
+              : 'bg-red-50 border-red-200'
+          }`}>
             <div className="flex items-center gap-2">
-              <AlertCircle className="text-orange-600" size={18} />
-              <span className="text-sm text-orange-700">Pending Approvals</span>
+              <Bell className={`${
+                systemHealth.messaging ? 'text-green-600' : 'text-red-600'
+              }`} size={18} />
+              <span className={`text-sm font-medium ${
+                systemHealth.messaging ? 'text-green-700' : 'text-red-700'
+              }`}>Messaging</span>
             </div>
-            <span className="text-sm font-semibold text-orange-600">{systemHealth.pendingApprovals}</span>
+            <span className={`px-2 py-1 rounded text-xs font-semibold ${
+              systemHealth.messaging
+                ? 'bg-green-100 text-green-700'
+                : 'bg-red-100 text-red-700'
+            }`}>
+              {systemHealth.messaging ? 'Enabled' : 'Disabled'}
+            </span>
           </div>
         </div>
       </div>
