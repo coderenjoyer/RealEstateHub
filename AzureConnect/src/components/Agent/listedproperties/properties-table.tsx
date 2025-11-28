@@ -6,7 +6,6 @@ import {
   ChevronRight,
   X,
   Home,
-  MapPin,
   Bed,
   Bath,
   Trash2,

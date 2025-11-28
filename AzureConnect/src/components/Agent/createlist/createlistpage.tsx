@@ -9,7 +9,7 @@ import {
   X,
   Plus,
   Home,
-  DollarSign,
+
   MapPin,
   FileText,
   User,
@@ -920,7 +920,7 @@ export default function ListPropertyPage() {
               {/* Pricing & Details Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <DollarSign className="w-4 sm:w-5 h-4 sm:h-5 text-[#49769F]" />
+                  <span className="text-[#49769F] font-bold text-lg sm:text-xl leading-none flex items-center">₱</span>
                   <h2 className="text-lg sm:text-xl font-bold text-slate-900">
                     Pricing & Property Details
                   </h2>
