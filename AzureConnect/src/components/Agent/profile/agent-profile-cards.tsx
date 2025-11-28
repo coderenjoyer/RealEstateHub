@@ -743,11 +743,11 @@ export function AgentProfileCards() {
         {/* Property Details Modal */}
         {isDetailsModalOpen && selectedProperty && (
           <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4"
             onClick={closeDetailsModal}
           >
             <div
-              className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in-0 zoom-in-95 duration-200"
+              className="w-full h-[90vh] sm:h-auto sm:max-h-[90vh] sm:max-w-2xl bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in-0 zoom-in-95 duration-200"
               onClick={(e) => e.stopPropagation()}
             >
               {(() => {
@@ -765,8 +765,8 @@ export function AgentProfileCards() {
 
                 return (
                   <>
-                    <div className="relative">
-                      <div className="h-48 sm:h-56 bg-slate-100">
+                    <div className="relative flex-shrink-0">
+                      <div className="h-40 xs:h-48 sm:h-56 bg-slate-100">
                         <img
                           src={currentImage}
                           alt={selectedProperty.property_title}
@@ -792,8 +792,8 @@ export function AgentProfileCards() {
                         </div>
                       </div>
                       {propertyImages.length > 1 && (
-                        <div className="px-6 py-4 flex gap-3 overflow-x-auto bg-white">
-                          {propertyImages.map((image, index) => (
+                        <div className="px-3 sm:px-6 py-3 sm:py-4 flex gap-2 sm:gap-3 overflow-x-auto bg-white">
+                          {propertyImages.map((image: any, index: number) => (
                             <button
                               key={image}
                               onClick={() => setSelectedImageIndex(index)}
@@ -816,7 +816,7 @@ export function AgentProfileCards() {
                       )}
                     </div>
 
-                    <div className="px-6 py-4 border-b border-slate-100">
+                    <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-slate-100 flex-shrink-0">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div>
                           <h3 className="text-2xl font-bold text-[#0A4174]">
@@ -846,7 +846,7 @@ export function AgentProfileCards() {
                       </div>
                     </div>
 
-                    <div className="px-6 flex gap-6 border-b border-slate-100">
+                    <div className="px-3 sm:px-6 flex gap-4 sm:gap-6 border-b border-slate-100 flex-shrink-0 overflow-x-auto">
                       <button
                         onClick={() => setActiveTab("overview")}
                         className={`pb-3 font-semibold text-sm transition-all ${
@@ -869,7 +869,7 @@ export function AgentProfileCards() {
                       </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
+                    <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-3 sm:space-y-4">
                       {activeTab === "overview" && (
                         <div className="space-y-4">
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm text-[#0A4174]">

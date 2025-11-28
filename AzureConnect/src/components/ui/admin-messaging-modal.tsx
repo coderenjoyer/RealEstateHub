@@ -137,7 +137,7 @@ const AdminMessagingModal: React.FC<AdminMessagingModalProps> = ({
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center gap-2">
             <MessageCircle className="w-5 h-5 text-blue-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Report To the Admin</h3>
+            <h3 className="text-lg font-semibold text-gray-900">Report To Admin</h3>
           </div>
           <button
             onClick={onClose}

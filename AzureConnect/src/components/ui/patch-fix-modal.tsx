@@ -28,11 +28,11 @@ export function PatchFixModal({ isOpen, onClose }: PatchFixModalProps) {
       // For now, this is a placeholder that the developer can customize
       setPatchTitle("System Maintenance");
       setPatchMessage(
-        "In v1.0.5\n" +
-        "- Added Profile Pictures in Agent Messaging\n" +
-        "- Improved performance of property listings\n" +
-        "- Removed user images in Agent Messaging\n" +
-        "- Fixed bug where agent messages were not displaying correctly\n"
+        "In v1.1.0\n" +
+        "Fixed a bug in the agent messaging system\n" +
+        "Fixed property detail responsiveness in mobile view\n" +
+        "Removed user images in Agent Messaging\n" +
+        "Fixed a bug where admin report in agent needs a refresh\n"
       );
     } catch (error) {
       console.error("Error fetching patch message:", error);
@@ -75,9 +75,17 @@ export function PatchFixModal({ isOpen, onClose }: PatchFixModalProps) {
               <span className="ml-2 text-gray-600">Loading...</span>
             </div>
           ) : (
-            <p className="text-gray-700 leading-relaxed text-sm">
-              {patchMessage}
-            </p>
+            <div className="space-y-2">
+              <p className="text-gray-700 font-semibold text-sm mb-3">{patchTitle}</p>
+              <ul className="space-y-2 text-gray-700 text-sm">
+                {patchMessage.split('\n').filter((line) => line.trim().startsWith('-')).map((line, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <span className="text-[#49769F] font-bold mt-0.5">•</span>
+                    <span>{line.replace(/^-\s*/, '').trim()}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </div>
 

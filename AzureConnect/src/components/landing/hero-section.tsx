@@ -21,7 +21,7 @@ export function HeroSection() {
         <h1 className="text-5xl md:text-7xl font-bold mb-6 text-balance">A New Shade of Home</h1>
         <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto text-balance opacity-90">
           Discover exceptional properties that redefine modern living. Your dream home awaits in our curated collection
-          of premium real estate.
+          of real estate properties.
         </p>
 
 {/*}

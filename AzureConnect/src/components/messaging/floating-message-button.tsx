@@ -12,20 +12,18 @@ const FloatingMessageButton: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
 
-  // Get user role
+  // Get user role from auth metadata instead of profiles table
   useEffect(() => {
     const getUserRole = async () => {
       if (!session?.user?.id) return;
 
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .single();
-
+        // Get role from auth metadata
+        const { data: { user }, error } = await supabase.auth.getUser();
         if (error) throw error;
-        setUserRole(data?.role || null);
+        
+        const role = user?.user_metadata?.role || null;
+        setUserRole(role);
       } catch (error) {
         console.error('Error fetching user role:', error);
       }
@@ -122,6 +120,7 @@ const FloatingMessageButton: React.FC = () => {
   // Only show button for users and agents (not for admins)
   if (!session?.user?.id) return null;
   if (userRole === 'admin') return null;
+  if (userRole === null) return null; // Don't show while role is still loading
 
   // Don't return null while loading - show button even if admin ID hasn't loaded yet
   if (isLoading) {

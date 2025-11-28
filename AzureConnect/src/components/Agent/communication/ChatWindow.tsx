@@ -240,7 +240,7 @@ export function ChatWindow({
         </div>
       )}
       {/* Chat Header */}
-      <div className="bg-white/70 backdrop-blur-xl border-b border-sky-200/50 p-4 flex items-center justify-between shadow-sm">
+      <div className="bg-white/70 backdrop-blur-xl border-b border-sky-200/50 p-4 flex items-center justify-between shadow-sm sticky top-0 z-40">
         {/* Back button for mobile */}
         {isMobileView && onBackToConversations && (
           <Button
@@ -272,7 +272,7 @@ export function ChatWindow({
 
           {/* Options Dropdown Menu */}
           {showOptionsMenu && (
-            <div className="absolute right-0 top-12 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[200px] z-50 animate-in fade-in-0 zoom-in-95 duration-150">
+            <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[200px] z-50 animate-in fade-in-0 zoom-in-95 duration-150">
               <button
                 onClick={handleViewProfile}
                 className="w-full px-4 py-2.5 text-left text-sm font-medium text-[#49769F] hover:bg-[#49769F]/10 transition-colors flex items-center gap-2"
