@@ -320,6 +320,21 @@ export default function ListPropertyPage() {
       return;
     }
 
+    // Validate required fields
+    if (!formData.propertyType) {
+      setSubmitError("Property Type is required.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (formData.features.length === 0) {
+      setSubmitError("At least one Feature must be added.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    // Note: Not requiring utilities as they are optional based on user request
+
     // Validate image upload (2-4 images required)
     const validImagesCount = uploadedImages.filter(
       (img) => img !== null
@@ -997,6 +1012,7 @@ export default function ListPropertyPage() {
                         setFormData({ ...formData, squareFeet: e.target.value })
                       }
                       className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F] ${formInputClassName}`}
+                      required
                     />
                   </div>
 
@@ -1012,6 +1028,7 @@ export default function ListPropertyPage() {
                         setFormData({ ...formData, lotSize: e.target.value })
                       }
                       className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F] ${formInputClassName}`}
+                      required
                     />
                   </div>
 
@@ -1027,6 +1044,7 @@ export default function ListPropertyPage() {
                         setFormData({ ...formData, yearBuilt: e.target.value })
                       }
                       className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F] ${formInputClassName}`}
+                      required
                     />
                   </div>
 
@@ -1045,6 +1063,7 @@ export default function ListPropertyPage() {
                         })
                       }
                       className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F] ${formInputClassName}`}
+                      required
                     />
                   </div>
                 </div>
@@ -1176,6 +1195,7 @@ export default function ListPropertyPage() {
                         setFormData({ ...formData, state: e.target.value })
                       }
                       className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#49769F] ${formInputClassName}`}
+                      required
                     />
                   </div>
 
@@ -1373,7 +1393,7 @@ export default function ListPropertyPage() {
 
                 <div>
                   <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                    Add Features <span className="text-red-500">*</span>
+                    Add Features (At least one required) <span className="text-red-500">*</span>
                   </label>
                   <div className="flex gap-2 mb-3">
                     <input
@@ -1441,7 +1461,7 @@ export default function ListPropertyPage() {
 
                 <div>
                   <label className="text-sm font-semibold text-slate-900 mb-2 block">
-                    Utilities Included
+                    Utilities Included (Optional)
                   </label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {utilityOptions.map((utility) => (
