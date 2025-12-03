@@ -363,7 +363,7 @@ function UserProfilePage() {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => navigate("/user")}
+          onClick={() => navigate("/user?view=listings")}
           className="flex items-center gap-1 sm:gap-2 bg-white/90 hover:bg-white text-slate-700 border-slate-300 shadow-md text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-2"
         >
           <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
