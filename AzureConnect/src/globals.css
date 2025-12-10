@@ -96,13 +96,26 @@
 
 @layer utilities {
   .scrollbar-hide {
-    /* Hide scrollbar for Chrome, Safari and Opera */
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    /* Style scrollbar to blend with background */
+    scrollbar-width: thin;
+    scrollbar-color: #BDD8E9 #BDD8E9;
   }
   
   .scrollbar-hide::-webkit-scrollbar {
-    display: none;  /* Chrome, Safari and Opera */
+    width: 8px;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar-track {
+    background: #BDD8E9;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar-thumb {
+    background: #BDD8E9;
+    border-radius: 4px;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar-thumb:hover {
+    background: #a8c1d3;
   }
   
   .animate-fade-in {

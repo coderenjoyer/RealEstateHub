@@ -222,7 +222,7 @@ export function PropertyFilters({
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 pt-3 pb-6 space-y-4 max-h-[calc(105vh-140px)]">
+        <div className="flex-1 overflow-y-auto px-6 pt-3 pb-6 space-y-4 max-h-[calc(105vh-140px)] scrollbar-hide">
           {/* Buy/Rent/Favorites Tabs */}
           <div className="grid grid-cols-1 gap-2.5">
             {tabs.map((tab) => {
