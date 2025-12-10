@@ -541,9 +541,11 @@ export default function PropertyMaintenancePage() {
                         <h3 className="mt-2 text-lg font-semibold text-slate-900">{item.property}</h3>
                         <p className="text-xs font-medium text-slate-500">ID #{item.propertyId}</p>
                       </div>
-                      <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold ${getStatusColor(item.status)}`}>
-                        {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-                      </span>
+                      {item.notes && item.notes.trim() !== "" && (
+                        <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-semibold ${getStatusColor(item.status)}`}>
+                          {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                        </span>
+                      )}
                     </div>
                     <div className="rounded-2xl bg-gradient-to-r from-[#49769F]/10 to-[#49769F]/10 p-4 text-sm text-slate-600">
                       <div className="flex items-center gap-2 font-medium text-slate-700">

@@ -199,9 +199,7 @@ export function PropertyFilters({
           <div className="flex items-center justify-between">
             {/* Title with icon */}
             <div className="flex items-center gap-2.5">
-              <div className="p-1.5 bg-white/50 backdrop-blur-sm rounded-lg shadow-sm border border-[#49769F]/30">
-                <SlidersHorizontal className="h-4.5 w-4.5 text-[#49769F]" />
-              </div>
+              <SlidersHorizontal className="h-5 w-5 text-[#49769F]" />
               <h2 className="text-base font-bold text-gray-800">Filters</h2>
             </div>
 
@@ -224,7 +222,7 @@ export function PropertyFilters({
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 pt-3 pb-6 space-y-4 max-h-[calc(105vh-140px)]">
+        <div className="flex-1 overflow-y-auto px-6 pt-3 pb-6 space-y-4 max-h-[calc(105vh-140px)] scrollbar-hide">
           {/* Buy/Rent/Favorites Tabs */}
           <div className="grid grid-cols-1 gap-2.5">
             {tabs.map((tab) => {

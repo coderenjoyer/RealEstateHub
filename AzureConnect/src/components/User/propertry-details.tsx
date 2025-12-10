@@ -63,7 +63,7 @@ interface AgentInfo {
   avatar: string | null;
   bio?: string;
   specializations?: string[];
-  languages?: string;
+  languages?: string[];
   certifications?: string[];
 }
 
@@ -131,7 +131,13 @@ export function PropertyDetailsPanel({
           avatar: avatarData?.publicUrl || null,
           bio: agentProfileData?.bio || '',
           specializations: agentProfileData?.specializations || [],
-          languages: agentProfileData?.languages || '',
+          languages: Array.isArray(agentProfileData?.languages) 
+            ? agentProfileData?.languages 
+            : agentProfileData?.languages 
+              ? (typeof agentProfileData.languages === 'string' && agentProfileData.languages.startsWith('[')
+                ? JSON.parse(agentProfileData.languages)
+                : agentProfileData.languages.split(',').map((lang: string) => lang.trim()))
+              : ([] as string[]),
           certifications: agentProfileData?.certifications || [],
         });
       }
@@ -560,10 +566,19 @@ export function PropertyDetailsPanel({
               )}
 
               {/* Languages */}
-              {agentInfo.languages && (
+              {agentInfo.languages && agentInfo.languages.length > 0 && (
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">Languages</h3>
-                  <p className="text-gray-600">{agentInfo.languages}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {agentInfo.languages.map((lang, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-[#49769F]/10 text-[#49769F] rounded-full text-sm font-medium"
+                      >
+                        {lang}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
 
