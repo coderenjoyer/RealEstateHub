@@ -7,9 +7,9 @@ const AzureRealEstateLoader: React.FC = () => {
 
   const icons = [Home, Building2, Key];
   const loadingTexts = [
-    'Finding your dream property...',
-    'Analyzing market data...',
-    'Preparing your dashboard...'
+    'Finding your dream home...',
+    'Fetching the best deals for you...',
+    'Preparing to cater your property needs...'
   ];
 
   useEffect(() => {

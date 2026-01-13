@@ -1,4 +1,3 @@
-import React from 'react';
 import { Building2, Key } from 'lucide-react';
 
 export default function LoadingAnimation() {
