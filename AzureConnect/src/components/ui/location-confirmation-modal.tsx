@@ -53,7 +53,7 @@ export function LocationConfirmationModal({
             <p className="text-sm text-slate-600">
               You are about to update your location to{" "}
               <strong>{location}</strong>. This will be visible on your profile
-              and help others find you.
+              and help the agent to find the best deals for you.
             </p>
           </div>
 
